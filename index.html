@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NUS App</title>
+
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <meta name="apple-mobile-web-app-title" content="NUS App">
+  <meta name="application-name" content="NUS App">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#0e7c74">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --teal: #0e7c74;
+      --teal-dark: #085d57;
+      --red: #d83939;
+      --red-dark: #b62222;
+      --text: #17353a;
+      --muted: #5f7176;
+      --bg: linear-gradient(160deg, #eef9f7 0%, #fff5f5 100%);
+      --card: rgba(255, 255, 255, 0.92);
+      --shadow: 0 16px 40px rgba(0,0,0,.12);
+      --radius: 28px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 430px;
+      min-height: 820px;
+      border-radius: 38px;
+      background: rgba(255,255,255,.74);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,.7);
+      box-shadow: 0 18px 60px rgba(0,0,0,.15);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .header {
+      padding: 34px 24px 18px;
+      background:
+        radial-gradient(circle at top left, rgba(14,124,116,.18), transparent 40%),
+        radial-gradient(circle at top right, rgba(216,57,57,.18), transparent 40%);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand img {
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.16);
+      object-fit: cover;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .hero {
+      margin-top: 18px;
+      padding: 18px 18px 16px;
+      border-radius: 24px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .hero-desc {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .content {
+      padding: 8px 20px 28px;
+    }
+
+    .section-title {
+      margin: 18px 4px 14px;
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+    }
+
+    .card-link {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      margin-bottom: 16px;
+    }
+
+    .app-card {
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: white;
+      transition: transform .18s ease;
+    }
+
+    .app-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .app-top {
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      color: white;
+    }
+
+    .app-top.meal {
+      background: linear-gradient(135deg, var(--teal), #19a596);
+    }
+
+    .app-top.emergency {
+      background: linear-gradient(135deg, var(--red), #f05454);
+    }
+
+    .app-main {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .app-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.24);
+      font-size: 28px;
+      flex: 0 0 auto;
+    }
+
+    .app-text h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.15;
+    }
+
+    .app-text p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      opacity: .92;
+    }
+
+    .arrow {
+      font-size: 24px;
+      font-weight: bold;
+      opacity: .95;
+      flex: 0 0 auto;
+    }
+
+    .app-bottom {
+      padding: 16px 18px 18px;
+      background: rgba(255,255,255,.96);
+    }
+
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge.teal {
+      color: var(--teal-dark);
+      background: rgba(14,124,116,.12);
+    }
+
+    .badge.red {
+      color: var(--red-dark);
+      background: rgba(216,57,57,.12);
+    }
+
+    .open-btn {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      padding: 14px 16px;
+      border-radius: 16px;
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .open-btn.meal {
+      background: linear-gradient(135deg, var(--teal), #19a596);
+    }
+
+    .open-btn.emergency {
+      background: linear-gradient(135deg, var(--red), #f05454);
+    }
+
+    .footer {
+      padding: 0 24px 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 460px) {
+      .phone {
+        min-height: auto;
+        border-radius: 30px;
+      }
+
+      .brand h1 {
+        font-size: 24px;
+      }
+
+      .app-text h2 {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="header">
+      <div class="brand">
+        <img src="icon.png" alt="NUS App">
+        <div>
+          <h1>NUS App</h1>
+          <p>Truy cập nhanh hệ thống đăng ký ăn</p>
+        </div>
+      </div>
+
+      <div class="hero">
+        <h2 class="hero-title">Một chạm để vào đúng ứng dụng bạn cần</h2>
+        <p class="hero-desc">
+          Giao diện gọn, đẹp như app điện thoại. Chọn đăng ký cơm thường
+          hoặc đăng ký đột xuất chỉ trong vài giây.
+        </p>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="section-title">Danh mục ứng dụng</div>
+
+      <a class="card-link" href="https://pqtuan399-maker.github.io/dang-ky-com-nus/?zarsrc=30&utm_source=zalo&utm_medium=zalo&utm_campaign=zalo">
+        <div class="app-card">
+          <div class="app-top meal">
+            <div class="app-main">
+              <div class="app-icon">🍚</div>
+              <div class="app-text">
+                <h2>Đăng ký cơm</h2>
+                <p>Đăng ký bữa ăn hằng ngày</p>
+              </div>
+            </div>
+            <div class="arrow">›</div>
+          </div>
+
+          <div class="app-bottom">
+            <div class="features">
+              <span class="badge teal">Thông thường</span>
+              <span class="badge teal">Nhanh gọn</span>
+              <span class="badge teal">Dễ sử dụng</span>
+            </div>
+            <span class="open-btn meal">MỞ ĐĂNG KÝ CƠM</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card-link" href="https://pqtuan399-maker.github.io/dang-ky-dot-xuat/">
+        <div class="app-card">
+          <div class="app-top emergency">
+            <div class="app-main">
+              <div class="app-icon">🚨</div>
+              <div class="app-text">
+                <h2>Đăng ký đột xuất</h2>
+                <p>Dành cho các trường hợp phát sinh</p>
+              </div>
+            </div>
+            <div class="arrow">›</div>
+          </div>
+
+          <div class="app-bottom">
+            <div class="features">
+              <span class="badge red">Khẩn / phát sinh</span>
+              <span class="badge red">Dễ theo dõi</span>
+              <span class="badge red">Truy cập nhanh</span>
+            </div>
+            <span class="open-btn emergency">MỞ ĐĂNG KÝ ĐỘT XUẤT</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="footer">
+      NUS 2026 - 2027<br>
+      Trang tổng hợp 2 ứng dụng tiện ích trên một màn hình chính.
+    </div>
+  </div>
+</body>
+</html>
