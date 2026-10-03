@@ -2,349 +2,277 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NUS App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Đăng ký bữa ăn</title>
 
+  <!-- Giữ nguyên icon.png cũ trong repo để làm icon ngoài màn hình chính -->
   <link rel="icon" type="image/png" href="icon.png">
   <link rel="apple-touch-icon" href="icon.png">
-
-  <meta name="apple-mobile-web-app-title" content="NUS App">
-  <meta name="application-name" content="NUS App">
+  <meta name="apple-mobile-web-app-title" content="Đăng ký bữa ăn">
+  <meta name="application-name" content="Đăng ký bữa ăn">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="theme-color" content="#0e7c74">
+  <meta name="theme-color" content="#F5F6F8">
 
   <style>
-    * { box-sizing: border-box; }
-
-    :root {
-      --teal: #0e7c74;
-      --teal-dark: #085d57;
-      --red: #d83939;
-      --red-dark: #b62222;
-      --text: #17353a;
-      --muted: #5f7176;
-      --bg: linear-gradient(160deg, #eef9f7 0%, #fff5f5 100%);
-      --card: rgba(255, 255, 255, 0.92);
-      --shadow: 0 16px 40px rgba(0,0,0,.12);
-      --radius: 28px;
+    :root{
+      --bg:#f4f6f8;
+      --ink:#172126;
+      --muted:#6d777c;
+      --green1:#0a7a6f;
+      --green2:#19a18f;
+      --red1:#c62e35;
+      --red2:#ef5350;
+      --gold:#cda545;
+      --white:#ffffff;
+      --line:#e9edef;
     }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-    }
+    *{box-sizing:border-box}
 
-    .phone {
-      width: 100%;
-      max-width: 430px;
-      min-height: 820px;
-      border-radius: 38px;
-      background: rgba(255,255,255,.74);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,.7);
-      box-shadow: 0 18px 60px rgba(0,0,0,.15);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .header {
-      padding: 34px 24px 18px;
+    html,body{
+      margin:0;
+      min-height:100%;
       background:
-        radial-gradient(circle at top left, rgba(14,124,116,.18), transparent 40%),
-        radial-gradient(circle at top right, rgba(216,57,57,.18), transparent 40%);
+        radial-gradient(circle at top left, rgba(25,161,143,.10), transparent 30%),
+        radial-gradient(circle at top right, rgba(239,83,80,.08), transparent 28%),
+        var(--bg);
+      color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,Helvetica,sans-serif;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding:
+        max(22px, env(safe-area-inset-top))
+        16px
+        max(24px, env(safe-area-inset-bottom));
     }
 
-    .brand img {
-      width: 68px;
-      height: 68px;
-      border-radius: 18px;
-      box-shadow: 0 10px 24px rgba(0,0,0,.16);
-      object-fit: cover;
+    .app{
+      width:100%;
+      max-width:430px;
     }
 
-    .brand h1 {
-      margin: 0;
-      font-size: 28px;
-      line-height: 1.1;
+    .header{
+      text-align:center;
+      padding:8px 8px 18px;
     }
 
-    .brand p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 14px;
+    .logo{
+      width:104px;
+      max-width:46%;
+      height:auto;
+      display:block;
+      margin:0 auto 10px;
     }
 
-    .hero {
-      margin-top: 18px;
-      padding: 18px 18px 16px;
-      border-radius: 24px;
-      background: var(--card);
-      box-shadow: var(--shadow);
+    .house{
+      margin:0;
+      color:#7f252c;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.35;
     }
 
-    .hero-title {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 700;
+    h1{
+      margin:8px 0 0;
+      font-size:31px;
+      line-height:1.08;
+      font-weight:850;
+      letter-spacing:-.03em;
     }
 
-    .hero-desc {
-      margin: 8px 0 0;
-      color: var(--muted);
-      line-height: 1.5;
-      font-size: 14px;
+    .verse{
+      margin:13px auto 0;
+      max-width:360px;
+      color:#7a6435;
+      font-size:13px;
+      line-height:1.45;
     }
 
-    .content {
-      padding: 8px 20px 28px;
+    .verse b{
+      color:#a17b2d;
+      white-space:nowrap;
     }
 
-    .section-title {
-      margin: 18px 4px 14px;
-      font-size: 15px;
-      color: var(--muted);
-      font-weight: 700;
-      letter-spacing: .3px;
-      text-transform: uppercase;
+    .cards{
+      display:grid;
+      gap:14px;
     }
 
-    .card-link {
-      display: block;
-      text-decoration: none;
-      color: inherit;
-      margin-bottom: 16px;
+    .card{
+      position:relative;
+      display:block;
+      min-height:176px;
+      padding:22px;
+      border-radius:30px;
+      color:#fff;
+      text-decoration:none;
+      overflow:hidden;
+      box-shadow:0 18px 44px rgba(20,32,38,.13);
+      -webkit-tap-highlight-color:transparent;
+      transition:transform .15s ease, box-shadow .15s ease;
     }
 
-    .app-card {
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      background: white;
-      transition: transform .18s ease;
+    .card:active{
+      transform:scale(.985);
+      box-shadow:0 10px 28px rgba(20,32,38,.11);
     }
 
-    .app-card:hover {
-      transform: translateY(-2px);
+    .regular{
+      background:
+        radial-gradient(circle at 95% 5%, rgba(255,255,255,.22), transparent 26%),
+        linear-gradient(135deg,var(--green1),var(--green2));
     }
 
-    .app-top {
-      padding: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      color: white;
+    .urgent{
+      background:
+        radial-gradient(circle at 95% 5%, rgba(255,255,255,.20), transparent 26%),
+        linear-gradient(135deg,var(--red1),var(--red2));
     }
 
-    .app-top.meal {
-      background: linear-gradient(135deg, var(--teal), #19a596);
+    .card::after{
+      content:"";
+      position:absolute;
+      width:170px;
+      height:170px;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:50%;
+      right:-66px;
+      bottom:-92px;
     }
 
-    .app-top.emergency {
-      background: linear-gradient(135deg, var(--red), #f05454);
+    .icon{
+      width:54px;
+      height:54px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.17);
+      border:1px solid rgba(255,255,255,.22);
+      margin-bottom:18px;
+      backdrop-filter:blur(6px);
     }
 
-    .app-main {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
+    .icon svg{
+      width:30px;
+      height:30px;
+      stroke:#fff;
     }
 
-    .app-icon {
-      width: 58px;
-      height: 58px;
-      border-radius: 18px;
-      display: grid;
-      place-items: center;
-      background: rgba(255,255,255,.18);
-      border: 1px solid rgba(255,255,255,.24);
-      font-size: 28px;
-      flex: 0 0 auto;
+    .card-title{
+      margin:0;
+      font-size:24px;
+      line-height:1.1;
+      font-weight:850;
+      letter-spacing:-.02em;
     }
 
-    .app-text h2 {
-      margin: 0;
-      font-size: 20px;
-      line-height: 1.15;
+    .card-note{
+      margin:8px 0 0;
+      font-size:13px;
+      font-weight:700;
+      color:rgba(255,255,255,.88);
     }
 
-    .app-text p {
-      margin: 6px 0 0;
-      font-size: 13px;
-      opacity: .92;
+    .go{
+      position:absolute;
+      right:20px;
+      top:50%;
+      transform:translateY(-50%);
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.20);
+      font-size:27px;
+      line-height:1;
+      font-weight:700;
     }
 
-    .arrow {
-      font-size: 24px;
-      font-weight: bold;
-      opacity: .95;
-      flex: 0 0 auto;
+    .footer{
+      padding:18px 10px 2px;
+      text-align:center;
+      color:#9aa2a6;
+      font-size:11px;
     }
 
-    .app-bottom {
-      padding: 16px 18px 18px;
-      background: rgba(255,255,255,.96);
-    }
-
-    .features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .badge {
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .badge.teal {
-      color: var(--teal-dark);
-      background: rgba(14,124,116,.12);
-    }
-
-    .badge.red {
-      color: var(--red-dark);
-      background: rgba(216,57,57,.12);
-    }
-
-    .open-btn {
-      display: inline-block;
-      width: 100%;
-      text-align: center;
-      padding: 14px 16px;
-      border-radius: 16px;
-      color: white;
-      font-size: 15px;
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    .open-btn.meal {
-      background: linear-gradient(135deg, var(--teal), #19a596);
-    }
-
-    .open-btn.emergency {
-      background: linear-gradient(135deg, var(--red), #f05454);
-    }
-
-    .footer {
-      padding: 0 24px 24px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    @media (max-width: 460px) {
-      .phone {
-        min-height: auto;
-        border-radius: 30px;
-      }
-
-      .brand h1 {
-        font-size: 24px;
-      }
-
-      .app-text h2 {
-        font-size: 18px;
-      }
+    @media (max-width:360px){
+      h1{font-size:27px}
+      .card{min-height:164px}
+      .card-title{font-size:22px}
+      .logo{width:92px}
     }
   </style>
 </head>
+
 <body>
-  <div class="phone">
-    <div class="header">
-      <div class="brand">
-        <img src="icon.png" alt="NUS App">
-        <div>
-          <h1>NUS App</h1>
-          <p>Truy cập nhanh hệ thống đăng ký ăn</p>
+  <main class="app">
+
+    <header class="header">
+      <img class="logo" src="logo-nha-ung-sinh.png" alt="Nhà Ứng Sinh Thánh Gioan Hà Nội">
+
+      <p class="house">NHÀ ỨNG SINH THÁNH GIOAN HÀ NỘI</p>
+
+      <h1>Đăng ký bữa ăn</h1>
+
+      <p class="verse">
+        “Xin Cha cho chúng con hôm nay lương thực hằng ngày.”
+        <b>Mt 6,11</b>
+      </p>
+    </header>
+
+    <section class="cards">
+
+      <a
+        class="card regular"
+        href="https://docs.google.com/spreadsheets/d/1YjmqfspA-z4t9EUj3T-1Q9Of86M6SQ-_jcnupS_a6D4/edit?gid=596498506#gid=596498506"
+      >
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 11h14"/>
+            <path d="M6 11c0 4 2.5 7 6 7s6-3 6-7"/>
+            <path d="M7 18h10"/>
+            <path d="M9 5c0 1 .8 1.5 1.4 2.1C11 7.7 11 8.4 11 9"/>
+            <path d="M13 4c0 1 .8 1.5 1.4 2.1C15 6.7 15 7.4 15 8"/>
+          </svg>
         </div>
-      </div>
 
-      <div class="hero">
-        <h2 class="hero-title">Một chạm để vào đúng ứng dụng bạn cần</h2>
-        <p class="hero-desc">
-          Giao diện gọn, đẹp như app điện thoại. Chọn đăng ký cơm thường
-          hoặc đăng ký đột xuất chỉ trong vài giây.
-        </p>
-      </div>
-    </div>
+        <h2 class="card-title">Đăng ký thường</h2>
+        <p class="card-note">21h15 khóa đăng ký</p>
 
-    <div class="content">
-      <div class="section-title">Danh mục ứng dụng</div>
-
-      <a class="card-link" href="https://pqtuan399-maker.github.io/dang-ky-com-nus/?zarsrc=30&utm_source=zalo&utm_medium=zalo&utm_campaign=zalo">
-        <div class="app-card">
-          <div class="app-top meal">
-            <div class="app-main">
-              <div class="app-icon">🍚</div>
-              <div class="app-text">
-                <h2>Đăng ký cơm</h2>
-                <p>Đăng ký bữa ăn hằng ngày</p>
-              </div>
-            </div>
-            <div class="arrow">›</div>
-          </div>
-
-          <div class="app-bottom">
-            <div class="features">
-              <span class="badge teal">Thông thường</span>
-              <span class="badge teal">Nhanh gọn</span>
-              <span class="badge teal">Dễ sử dụng</span>
-            </div>
-            <span class="open-btn meal">MỞ ĐĂNG KÝ CƠM</span>
-          </div>
-        </div>
+        <div class="go">›</div>
       </a>
 
-      <a class="card-link" href="https://pqtuan399-maker.github.io/dang-ky-dot-xuat/">
-        <div class="app-card">
-          <div class="app-top emergency">
-            <div class="app-main">
-              <div class="app-icon">🚨</div>
-              <div class="app-text">
-                <h2>Đăng ký đột xuất</h2>
-                <p>Dành cho các trường hợp phát sinh</p>
-              </div>
-            </div>
-            <div class="arrow">›</div>
-          </div>
-
-          <div class="app-bottom">
-            <div class="features">
-              <span class="badge red">Khẩn / phát sinh</span>
-              <span class="badge red">Dễ theo dõi</span>
-              <span class="badge red">Truy cập nhanh</span>
-            </div>
-            <span class="open-btn emergency">MỞ ĐĂNG KÝ ĐỘT XUẤT</span>
-          </div>
+      <a
+        class="card urgent"
+        href="https://script.google.com/macros/s/AKfycbzpOs90RGEH_HZWfNnNBtz2ybjnLrcAsZD82lQO06pz_T9vGPXEbZHkhV1ia-3oCCKh/exec"
+      >
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 9v4"/>
+            <path d="M12 17h.01"/>
+            <path d="M10.3 3.7 2.9 17a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z"/>
+          </svg>
         </div>
-      </a>
-    </div>
 
-    <div class="footer">
-      NUS 2026 - 2027<br>
-      Trang tổng hợp 2 ứng dụng tiện ích trên một màn hình chính.
-    </div>
-  </div>
+        <h2 class="card-title">Đăng ký đột xuất</h2>
+        <p class="card-note">Dành cho trường hợp phát sinh</p>
+
+        <div class="go">›</div>
+      </a>
+
+    </section>
+
+    <div class="footer">Nhà Ứng Sinh Thánh Gioan Hà Nội</div>
+
+  </main>
 </body>
 </html>
