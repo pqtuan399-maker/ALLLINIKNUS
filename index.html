@@ -444,7 +444,7 @@
           alt="Nhà Ứng Sinh Thánh Gioan Hà Nội"
         >
 
-        <h1>Liên kết NUS</h1>
+        <h1>TẤT CẢ LINK & SỰ KIỆN NUS</h1>
         <p class="subtitle">NHÀ ỨNG SINH THÁNH GIOAN HÀ NỘI</p>
 
         <div class="verse">
@@ -453,6 +453,33 @@
         </div>
       </div>
 
+      <section aria-label="Sự kiện Nhà Ứng Sinh" style="margin:0 16px 24px;">
+  <iframe
+    id="nus-event-frame"
+    src="SUKIENINDEX.HTML?embed=1"
+    title="Background sự kiện Nhà Ứng Sinh"
+    style="display:block;width:100%;height:520px;border:0;border-radius:18px;"
+  ></iframe>
+</section>
+<script>
+(() => {
+  const frame = document.getElementById('nus-event-frame');
+  window.addEventListener('message', event => {
+    if (event.source !== frame.contentWindow || event.origin !== location.origin) return;
+    const data = event.data;
+    if (data && data.type === 'nus-event-height' &&
+        Number.isFinite(data.height) && data.height > 0 && data.height < 20000) {
+      frame.style.height = Math.ceil(data.height) + 'px';
+    }
+  });
+  frame.addEventListener('load', () => {
+    frame.contentWindow.postMessage(
+      { type: 'nus-event-size-request' },
+      location.origin === 'null' ? '*' : location.origin
+    );
+  });
+})();
+</script>
       <div class="flow">
         <h2 class="section-label">Đăng ký bữa ăn</h2>
         <div class="meal-grid">
