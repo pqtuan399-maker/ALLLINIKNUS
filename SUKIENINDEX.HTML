@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173d5c">
+  <meta name="description" content="Xem background sự kiện của Nhà Ứng Sinh Thánh Gioan. Cầu Nguyện — Tháng 10/2026.">
+  <title>Background sự kiện | Nhà Ứng Sinh</title>
+  <link rel="icon" href="background-assets/logo-nus.png" type="image/png">
+  <style>
+    :root { color-scheme: light; --navy:#173d5c; --muted:#637783; --pink:#cd487f; --line:#dce7ed; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif; color:var(--navy); background:#f5f8fa; line-height:1.6; }
+    :focus-visible { outline:3px solid #cd487f; outline-offset:5px; }
+    .shell { width:min(1120px, calc(100% - 48px)); margin-inline:auto; }
+    .masthead { border-bottom:1px solid var(--line); background:#fff; }
+    .brand { display:flex; align-items:center; gap:16px; min-height:104px; padding-block:16px; }
+    .brand img { width:54px; height:72px; object-fit:contain; }
+    .brand-name { font-size:15px; font-weight:750; letter-spacing:.055em; }
+    .brand-sub { font-size:12px; color:var(--muted); margin-top:3px; }
+    .intro { padding:44px 0 28px; }
+    .eyebrow { margin:0 0 10px; font-size:12px; font-weight:750; letter-spacing:.17em; color:var(--pink); text-transform:uppercase; }
+    h1 { margin:0; font-size:clamp(30px,4.5vw,46px); line-height:1.18; letter-spacing:-.035em; }
+    .intro p:last-child { margin:12px 0 0; color:var(--muted); font-size:16px; }
+    .events { display:grid; gap:32px; padding-bottom:44px; }
+    .event { overflow:hidden; background:#fff; border:1px solid var(--line); border-radius:22px; box-shadow:0 12px 36px #173d5c09; }
+    .event-image { display:block; width:100%; aspect-ratio:16 / 9; object-fit:contain; background:#d9eefa; }
+    .event-content { padding:27px 32px 30px; display:flex; justify-content:space-between; align-items:center; gap:24px; }
+    .event-label { display:flex; align-items:center; gap:8px; color:var(--pink); font-size:12px; font-weight:750; letter-spacing:.065em; }
+    svg { width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+    h2 { font-size:30px; letter-spacing:-.025em; margin:5px 0 6px; line-height:1.25; }
+    .meta { font-size:13px; color:var(--muted); margin:0; }
+    footer { border-top:1px solid var(--line); padding:21px 0 28px; font-size:12px; color:var(--muted); text-align:center; }
+    noscript { display:block; padding:24px; }
+    @media(max-width:800px) { .event-content { align-items:flex-start; flex-direction:column; } }
+    @media(max-width:480px) {
+      .shell { width:calc(100% - 28px); }
+      .brand { min-height:90px; gap:12px; }
+      .brand img { width:44px; height:60px; }
+      .brand-name { font-size:12px; }
+      .brand-sub { font-size:11px; }
+      .intro { padding-top:30px; }
+      .intro p:last-child { font-size:14px; }
+      .event { border-radius:16px; }
+      .event-content { padding:21px 20px 24px; gap:20px; }
+      h2 { font-size:26px; }
+    }
+    /* Nhúng vào index.html: chỉ hiện thẻ sự kiện, ảnh mặc định 16:9. */
+    body.embedded { background:transparent; }
+    .embedded .masthead, .embedded .intro, .embedded footer { display:none; }
+    .embedded .shell { width:100%; margin:0; }
+    .embedded .events { padding:0; gap:16px; }
+    .embedded .event { border-radius:18px; box-shadow:none; }
+    .embedded .event-content { padding:18px 22px; }
+    @media(max-width:480px) {
+      .embedded .event-content { padding:16px; gap:14px; }
+      .embedded h2 { font-size:24px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="masthead">
+    <div class="shell brand">
+      <img src="background-assets/logo-nus.png" alt="Logo Nhà Ứng Sinh Thánh Gioan" width="54" height="72">
+      <div><div class="brand-name">NHÀ ỨNG SINH THÁNH GIOAN</div><div class="brand-sub">Tổng Giáo Phận Hà Nội</div></div>
+    </div>
+  </header>
+  <main class="shell">
+    <div class="intro">
+      <p class="eyebrow">Tài nguyên sự kiện</p>
+      <h1>Background sự kiện</h1>
+      <p>Background cho các sự kiện của Nhà Ứng Sinh.</p>
+    </div>
+    <div class="events" id="events"></div>
+    <noscript>Vui lòng bật JavaScript trong trình duyệt để xem background sự kiện.</noscript>
+  </main>
+  <footer><div class="shell">Nhà Ứng Sinh Thánh Gioan · Background sự kiện</div></footer>
+  <script>
+    // =============================================================
+    // THÊM / SỬA SỰ KIỆN TẠI ĐÂY.
+    // Đặt ảnh vào thư mục background-assets, rồi thêm một mục vào EVENTS.
+    // Những mục đặt trước sẽ xuất hiện trước trên trang.
+    // image: SỬA ĐƯỜNG DẪN PNG TẠI ĐÂY để đổi background hiển thị.
+    // meta: định dạng, kích thước ảnh (sửa cho phù hợp với ảnh mới).
+    // =============================================================
+    const EVENTS = [
+      {
+        title: "CẦU NGUYỆN",
+        date: "THÁNG 10/2026",
+        image: "background-assets/cau-nguyen-10-2026.png",
+        meta: "PNG · 2048 × 1152 px · 2,54 MB",
+        alt: "Background Cầu Nguyện tháng 10 năm 2026, Đức Mẹ và ba hình thức cầu nguyện: Khẩu nguyện, Suy niệm, Chiêm niệm."
+      }
+    ];
+
+    const embedded = new URLSearchParams(location.search).get('embed') === '1';
+    if (embedded) document.body.classList.add('embedded');
+
+    const ICONS = {
+      calendar: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 11h18"/>'
+    };
+    function icon(name) {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      el.setAttribute('viewBox', '0 0 24 24');
+      el.setAttribute('aria-hidden', 'true');
+      el.innerHTML = ICONS[name];
+      return el;
+    }
+    function element(tag, className, content) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      if (content) el.textContent = content;
+      return el;
+    }
+    for (const event of EVENTS) {
+      const card = element('article', 'event');
+      const img = element('img', 'event-image');
+      img.src = event.image;
+      img.alt = event.alt;
+      img.decoding = 'async';
+      const content = element('div', 'event-content');
+      const info = element('div');
+      const date = element('div', 'event-label');
+      date.append(icon('calendar'), document.createTextNode(event.date));
+      info.append(date, element('h2', '', event.title), element('p', 'meta', event.meta));
+      content.append(info);
+      card.append(img, content);
+      document.getElementById('events').append(card);
+    }
+    // Tự báo chiều cao để thẻ trong trang chính không bị cắt hoặc có thanh cuộn.
+    if (embedded && window.parent !== window) {
+      const parentOrigin = location.origin === 'null' ? '*' : location.origin;
+      const reportHeight = () => window.parent.postMessage({
+        type: 'nus-event-height',
+        height: Math.ceil(document.body.getBoundingClientRect().height)
+      }, parentOrigin);
+      new ResizeObserver(reportHeight).observe(document.body);
+      window.addEventListener('load', reportHeight);
+      window.addEventListener('message', e => {
+        if (e.source === window.parent && e.origin === location.origin &&
+            e.data && e.data.type === 'nus-event-size-request') reportHeight();
+      });
+      reportHeight();
+    }
+  </script>
+</body>
+</html>
