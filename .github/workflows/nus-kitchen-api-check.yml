@@ -1,0 +1,49 @@
+name: Verify public NUS kitchen API
+on:
+  push:
+    paths:
+      - .github/workflows/nus-kitchen-api-check.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check anonymous JSONP response without logging names
+        env:
+          NUS_API: https://script.google.com/macros/s/AKfycbw0hY2qecbDLcRkzHbP-t3Ed4lkeQBiXycY511OznIVibqN-fqAN0-iptcXGlufBy2POQ/exec
+        run: |
+          python3 - <<'PY'
+          import urllib.request,urllib.error,urllib.parse,json,time
+          cb='NUSBEP_CB_VERIFY'
+          url=__import__('os').environ['NUS_API']+'?'+urllib.parse.urlencode({'callback':cb,'t':str(int(time.time()))})
+          for attempt in range(1,4):
+              try:
+                  req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 NUS-readonly-check'})
+                  with urllib.request.urlopen(req,timeout=25) as response:
+                      raw=response.read(180000).decode('utf-8','replace')
+                      print('HTTP:',response.status,'type:',response.headers.get('Content-Type','unknown'),'length:',len(raw))
+                      if not(raw.startswith(cb+'(') and raw.rstrip().endswith(');')):
+                          print('ERR: Not JSONP. Has login:',('accounts.google.com' in response.url or 'ServiceLogin' in raw),'HTML:',raw.lstrip().startswith('<'))
+                          raise RuntimeError('Unexpected response format')
+                      body=json.loads(raw[len(cb)+1:raw.rfind(');')])
+                      if not body.get('ok'):
+                          print('ERR: API returned ok=false:',str(body.get('error',''))[:140])
+                          raise RuntimeError('API response was not successful')
+                      assert all(k in body for k in ['today','tomorrow','title','readAt'])
+                      for day in ('today','tomorrow'):
+                          d=body[day]
+                          assert len(d['totals'])==8 and len(d['columns'])==8 and len(d['meals'])==3
+                          print(day,'column_count:',len(d['columns']),'totals_count:',len(d['totals']),'meal_count:',len(d['meals']))
+                      print('API_PUBLIC_OK — valid 2 day / 6 meal / 16 column payload, no names printed')
+                      break
+              except urllib.error.HTTPError as e:
+                  print('Attempt',attempt,'HTTP error',e.code)
+              except Exception as e:
+                  print('Attempt',attempt,'error',type(e).__name__,str(e)[:130])
+              if attempt == 3:
+                  raise SystemExit('API_PUBLIC_FAILED after 3 attempts')
+              time.sleep(4)
+          PY
