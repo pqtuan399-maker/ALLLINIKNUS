@@ -25,6 +25,11 @@ jobs:
                   with urllib.request.urlopen(req,timeout=25) as response:
                       raw=response.read(180000).decode('utf-8','replace')
                       print('HTTP:',response.status,'type:',response.headers.get('Content-Type','unknown'),'length:',len(raw))
+                      import re
+                      from urllib.parse import urlsplit
+                      page_title=re.search(r'<title[^>]*>(.*?)</title>',raw, re.I|re.S)
+                      print('FINAL_HOST:',urlsplit(response.url).hostname,'FINAL_PATH:',urlsplit(response.url).path[:100])
+                      print('HTML_TITLE:',re.sub(r'\\s+',' ',page_title.group(1)).strip()[:120] if page_title else 'none')
                       if not(raw.startswith(cb+'(') and raw.rstrip().endswith(');')):
                           print('ERR: Not JSONP. Has login:',('accounts.google.com' in response.url or 'ServiceLogin' in raw),'HTML:',raw.lstrip().startswith('<'))
                           raise RuntimeError('Unexpected response format')
