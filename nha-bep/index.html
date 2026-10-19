@@ -224,7 +224,7 @@
     contentFingerprint=fingerprint;
     $('week').textContent=data.title||'NUS • MÀN HÌNH NHÀ BẾP';
     for(const which of ['today','tomorrow']){
-      $(which+'-note').textContent='⚠ '+String(data.note||'NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR').replace(/^⚠\\s*/,'');
+      $(which+'-note').textContent='⚠ '+String(data.note||'NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR').replace(/^[\\s⚠️]+/u,'').trim();
       $(which+'-date').textContent=String(data[which].day||'');
     }
     for(const which of ['today','tomorrow']){
