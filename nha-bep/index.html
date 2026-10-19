@@ -86,20 +86,27 @@
   .day-block .roster{height:520px;min-height:520px;margin:0 7px 7px}
   .day-block-head{font-size:12px;padding:11px}
 }
-</style><style id="nus-official-logo">.header .logo.nus-brand-logo{display:flex;align-items:center;justify-content:center;overflow:hidden;background:#e4f1ef;border:1px solid #7fa5a4;border-radius:15px;padding:3px;flex-shrink:0}.header .logo.nus-brand-logo img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}</style></head><body>
+</style><style id="nus-official-logo">.header .logo.nus-brand-logo{display:flex;align-items:center;justify-content:center;overflow:hidden;background:#e4f1ef;border:1px solid #7fa5a4;border-radius:15px;padding:3px;flex-shrink:0}.header .logo.nus-brand-logo img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}</style><style id="nus-reminder-under-meals">
+.day-block .day-reminder{flex:none;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;background:#48311b;border:1px solid #986530;color:#ffedc6;border-radius:10px;margin:0 10px 10px;padding:10px 12px}
+.day-reminder-text{font-size:clamp(12px,.9vw,17px);line-height:1.3}
+.day-reminder-date{font-size:clamp(11px,.8vw,14px);font-weight:700;color:#ffe1a0}
+@media(max-width:650px){.day-block .day-reminder{margin:0 7px 7px;padding:9px 10px}.day-reminder-text{font-size:12px}.day-reminder-date{font-size:11px}}
+</style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair">
 <article class="day-block today">
   <div class="day-block-head" id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</div>
   <div class="meal-grid" id="today-meals"><div class="pending">Đang đọc kết quả hôm nay...</div></div>
+  <div class="day-reminder"><strong class="day-reminder-text" id="today-note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span class="day-reminder-date" id="today-date">Đang tải ngày phục vụ...</span></div>
   <div class="tile roster today"><div class="tile-head">☀ DANH SÁCH PHỤC VỤ HÔM NAY</div><div class="roster-grid" id="today-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></div>
 </article>
 <article class="day-block tomorrow">
   <div class="day-block-head" id="tomorrow-head">☾ NGÀY MAI · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</div>
   <div class="meal-grid" id="tomorrow-meals"><div class="pending">Đang đọc kết quả ngày mai...</div></div>
+  <div class="day-reminder"><strong class="day-reminder-text" id="tomorrow-note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span class="day-reminder-date" id="tomorrow-date">Đang tải ngày phục vụ...</span></div>
   <div class="tile roster tomorrow"><div class="tile-head">☾ DANH SÁCH PHỤC VỤ NGÀY MAI</div><div class="roster-grid" id="tomorrow-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></div>
 </article>
-</section><footer class="bottom"><strong id="note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span id="stamp">Chỉ đọc · Chưa triển khai API</span></footer></main>
+</section></main>
 <script>
 (()=>{
   'use strict';
@@ -205,7 +212,7 @@
 
     fails=0;
     status('ĐANG ĐỒNG BỘ · 5 GIÂY');
-    $('stamp').textContent='Nguồn Google Sheets V7 · đọc lúc '+(data.readAt||'—')+' · chỉ xem';
+    
 
     // readAt changes every request. Compare only actual display content,
     // so refreshing every 5 seconds NEVER jumps a user's scroll position.
@@ -216,7 +223,10 @@
     current=data;
     contentFingerprint=fingerprint;
     $('week').textContent=data.title||'NUS • MÀN HÌNH NHÀ BẾP';
-    $('note').textContent=data.note||'⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR';
+    for(const which of ['today','tomorrow']){
+      $(which+'-note').textContent='⚠ '+String(data.note||'NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR').replace(/^⚠\\s*/,'');
+      $(which+'-date').textContent=String(data[which].day||'');
+    }
     for(const which of ['today','tomorrow']){
       renderMeals(which,data[which]);
       renderRoster(which,data[which]);
