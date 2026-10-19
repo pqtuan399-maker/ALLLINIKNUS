@@ -61,14 +61,44 @@
   .roster-controls{font-size:10px}
 }
 </style>
-</head><body>
+<style id="nus-day-pair-layout">
+.app{grid-template-rows:auto minmax(0,1fr) auto}
+.day-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-height:0}
+.day-block{min-height:0;display:flex;flex-direction:column;border:1px solid #31506d;border-radius:16px;background:#10233a;overflow:hidden}
+.day-block-head{padding:12px 14px;font-size:14px;font-weight:850;letter-spacing:.015em;color:#f2f8ff}
+.day-block.today .day-block-head{background:linear-gradient(90deg,#086e5d,#164263)}
+.day-block.tomorrow .day-block-head{background:linear-gradient(90deg,#1b5d8c,#253d6e)}
+.day-block .meal-grid{flex:0 0 auto;min-height:0;padding:10px;gap:8px}
+.day-block .meal-card{min-height:115px}
+.day-block .roster{flex:1;min-height:0;margin:0 10px 10px;border-radius:12px}
+.day-block .roster .tile-head{font-size:12px}
+@media(max-width:1100px){
+  .app{height:auto;min-height:100dvh;grid-template-rows:auto auto auto}
+  .day-pair{grid-template-columns:1fr}
+  .day-block .meal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .day-block .roster{height:530px;min-height:530px}
+}
+@media(max-width:650px){
+  .day-block .meal-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:7px}
+  .day-block .meal-card{min-height:138px;padding:7px}
+  .day-block .meal-card strong{font-size:12px}
+  .day-block .meal-card p{font-size:10px}
+  .day-block .roster{height:520px;min-height:520px;margin:0 7px 7px}
+  .day-block-head{font-size:12px;padding:11px}
+}
+</style></head><body>
 <main class="app">
-<header class="header"><div class="brand"><div class="logo">N<span style="color:#b9fff0">+</span></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="meal-panels">
-<article class="tile"><div class="tile-head" id="today-head">HÔM NAY · SÁU BỮA</div><div class="meal-grid" id="today-meals"><div class="pending">Đang chờ API chỉ đọc</div></div></article>
-<article class="tile"><div class="tile-head" id="tomorrow-head">NGÀY MAI · SÁU BỮA</div><div class="meal-grid" id="tomorrow-meals"><div class="pending">Không cần xuất bản Sheets</div></div></article>
-</section><section class="two">
-<article class="tile roster today"><div class="tile-head">☀ DANH SÁCH HÔM NAY</div><div class="roster-grid" id="today-roster"><div class="pending">Chưa kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></article>
-<article class="tile roster tomorrow"><div class="tile-head">☾ DANH SÁCH NGÀY MAI</div><div class="roster-grid" id="tomorrow-roster"><div class="pending">Chưa kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></article>
+<header class="header"><div class="brand"><div class="logo">N<span style="color:#b9fff0">+</span></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair">
+<article class="day-block today">
+  <div class="day-block-head" id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</div>
+  <div class="meal-grid" id="today-meals"><div class="pending">Đang đọc kết quả hôm nay...</div></div>
+  <div class="tile roster today"><div class="tile-head">☀ DANH SÁCH PHỤC VỤ HÔM NAY</div><div class="roster-grid" id="today-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></div>
+</article>
+<article class="day-block tomorrow">
+  <div class="day-block-head" id="tomorrow-head">☾ NGÀY MAI · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</div>
+  <div class="meal-grid" id="tomorrow-meals"><div class="pending">Đang đọc kết quả ngày mai...</div></div>
+  <div class="tile roster tomorrow"><div class="tile-head">☾ DANH SÁCH PHỤC VỤ NGÀY MAI</div><div class="roster-grid" id="tomorrow-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></div>
+</article>
 </section><footer class="bottom"><strong id="note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span id="stamp">Chỉ đọc · Chưa triển khai API</span></footer></main>
 <script>
 (()=>{
