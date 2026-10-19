@@ -1,0 +1,42 @@
+name: NUS kitchen API public connectivity check
+on:
+  push:
+    paths:
+      - .github/workflows/nus-api-public-check.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Test API anonymously without logging names
+        env:
+          API: https://script.google.com/macros/s/AKfycbw0hY2qecbDLcRkzHbP-t3Ed4lkeQBiXycY511OznIVibqN-fqAN0-iptcXGlufBy2POQ/exec
+        run: |
+          python3 - <<'PY'
+          import os,json,time,urllib.request,urllib.parse
+          cb='NUSBEP_CB_VERIFY'
+          url=os.environ['API']+'?'+urllib.parse.urlencode({'callback':cb,'nonce':str(int(time.time()))})
+          for i in range(3):
+            try:
+              with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'}),timeout=20) as r:
+                body=r.read(250000).decode('utf-8','replace')
+                host=urllib.parse.urlsplit(r.url).hostname
+                print('Attempt',i+1,'http',r.status,'host',host,'type',r.headers.get('Content-Type','?'),'length',len(body))
+              if not body.startswith(cb+'(') or not body.rstrip().endswith(');'):
+                print('Result NOT_JSONP; login_redirect',host=='accounts.google.com')
+                continue
+              data=json.loads(body[len(cb)+1:body.rfind(');')])
+              if data.get('ok') is not True:
+                print('Result API_ERROR',str(data.get('error',''))[:100])
+                continue
+              good=all(len(data[d]['meals'])==3 and len(data[d]['columns'])==8 and len(data[d]['totals'])==8 for d in ('today','tomorrow'))
+              print('Result PUBLIC_JSONP_OK' if good else 'Result API_BAD_SCHEMA', 'readAt',str(data.get('readAt','?'))[:25], 'six_meals',good)
+              if good: raise SystemExit(0)
+            except Exception as e:
+              print('Attempt failed',i+1,type(e).__name__,str(e)[:90])
+            if i<2:time.sleep(3)
+          raise SystemExit(1)
+          PY
