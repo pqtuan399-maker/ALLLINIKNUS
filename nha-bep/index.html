@@ -20,7 +20,7 @@
 </section><footer class="bottom"><strong id="note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span id="stamp">Chỉ đọc · Chưa triển khai API</span></footer></main>
 <script>
 (()=>{'use strict';
-const API_URL='',POLL=5000,PAGESIZE=18,ROTATE=18000;
+const API_URL='https://script.google.com/macros/s/AKfycbw0hY2qecbDLcRkzHbP-t3Ed4lkeQBiXycY511OznIVibqN-fqAN0-iptcXGlufBy2POQ/exec',POLL=5000,PAGESIZE=18,ROTATE=18000;
 const $=id=>document.getElementById(id);let payload=null,page=[0,0],lastPage=Date.now(),busy=false,failed=0,seq=0;
 function x(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function clock(){const n=new Date(),fmt=(k)=>new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',...k}).format(n);$('time').textContent=fmt({hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});$('day').textContent=fmt({day:'2-digit',month:'2-digit',year:'numeric'});if(payload&&Date.now()-lastPage>ROTATE){[payload.today,payload.tomorrow].forEach((d,i)=>{const length=Math.max(1,...d.columns.map(a=>a.length));page[i]=(page[i]+1)%Math.max(1,Math.ceil(length/PAGESIZE))});lastPage=Date.now();renderRows()}}
