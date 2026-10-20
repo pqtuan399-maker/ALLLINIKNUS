@@ -489,6 +489,63 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 @media(prefers-reduced-motion:reduce){
   .day-block.today .meal-grid .meal-card{transition:none}
 }
+</style><style id="nus-roster-meal-groups-v11">
+/* Visual boundaries for the roster's 2 / 3 / 3 meal columns.
+   Scrolling, eight-column widths and shared row heights remain unchanged. */
+.day-block .roster-head-row .roster-label:nth-child(3),
+.day-block .roster-head-row .roster-label:nth-child(6),
+.day-block .roster-totals .roster-total:nth-child(3),
+.day-block .roster-totals .roster-total:nth-child(6),
+.day-block .roster-row .roster-name:nth-child(3),
+.day-block .roster-row .roster-name:nth-child(6){
+  border-left:2px solid #61849a;
+}
+.day-block .roster-head-row .roster-label:nth-child(2),
+.day-block .roster-head-row .roster-label:nth-child(5),
+.day-block .roster-totals .roster-total:nth-child(2),
+.day-block .roster-totals .roster-total:nth-child(5),
+.day-block .roster-row .roster-name:nth-child(2),
+.day-block .roster-row .roster-name:nth-child(5){
+  border-right:1px solid #527488;
+}
+/* Only TODAY'S active meal group is raised; tomorrow is informational. */
+#today-roster .roster-label,
+#today-roster .roster-name,
+#today-roster .roster-total{
+  transition:background-color .25s ease,border-color .25s ease,color .25s ease,box-shadow .25s ease;
+}
+#today-roster .roster-head-row .roster-label.roster-meal-active{
+  background:linear-gradient(180deg,#256574,#184253);
+  color:#eaffff;
+  border-bottom:3px solid #62dfce;
+  box-shadow:inset 0 2px 0 #ffffff20,0 2px 7px #0003;
+}
+#today-roster .roster-row:nth-child(odd) .roster-name.roster-meal-active{
+  background:#224459;
+  color:#fff;
+  box-shadow:inset 0 1px 0 #ffffff08;
+}
+#today-roster .roster-row:nth-child(even) .roster-name.roster-meal-active{
+  background:#2b4c60;
+  color:#fff;
+  box-shadow:inset 0 1px 0 #ffffff0a;
+}
+#today-roster .roster-totals .roster-total.roster-meal-active{
+  background:linear-gradient(180deg,#206675,#114958)!important;
+  color:#c5fff6;
+  box-shadow:inset 0 2px 0 #61dfce,0 -2px 9px #0003!important;
+}
+#today-roster .roster-head-row .roster-label.roster-meal-active:nth-child(3),
+#today-roster .roster-head-row .roster-label.roster-meal-active:nth-child(6),
+#today-roster .roster-totals .roster-total.roster-meal-active:nth-child(3),
+#today-roster .roster-totals .roster-total.roster-meal-active:nth-child(6),
+#today-roster .roster-row .roster-name.roster-meal-active:nth-child(3),
+#today-roster .roster-row .roster-name.roster-meal-active:nth-child(6){
+  border-left-color:#6de9d8;
+}
+@media(prefers-reduced-motion:reduce){
+  #today-roster .roster-label,#today-roster .roster-name,#today-roster .roster-total{transition:none}
+}
 </style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
@@ -553,21 +610,22 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     // Preserve both scroll positions if the list changed during reading.
     recordScroll(which);
 
-    const headers=day.headings.map(h=>
-      '<div class="roster-label">'+encode(h)+'</div>'
+    const mealGroup=index=>index<2?'morning':index<5?'lunch':'dinner';
+    const headers=day.headings.map((h,index)=>
+      '<div class="roster-label" data-meal-group="'+mealGroup(index)+'">'+encode(h)+'</div>'
     ).join('');
     // Build row-first, not eight independent columns.
     // A long name makes its entire row taller, keeping every column aligned.
     const numberOfRows=Math.max(1,...day.columns.map(arr=>arr.length));
     const rows=Array.from({length:numberOfRows},(_,rowIndex)=>
-      '<div class="roster-row" role="row">'+day.columns.map(arr=>{
+      '<div class="roster-row" role="row">'+day.columns.map((arr,index)=>{
         const hasName=rowIndex<arr.length&&String(arr[rowIndex]??'').trim()!=='';
         const value=hasName?encode(arr[rowIndex]):(!arr.length&&rowIndex===0?'—':'&nbsp;');
-        return '<div class="roster-name'+(hasName?'':' roster-empty')+'" role="cell">'+value+'</div>';
+        return '<div class="roster-name'+(hasName?'':' roster-empty')+'" data-meal-group="'+mealGroup(index)+'" role="cell">'+value+'</div>';
       }).join('')+'</div>'
     ).join('');
-    const totals=day.totals.map(v=>
-      '<div class="roster-total">'+encode(v||'0')+'</div>'
+    const totals=day.totals.map((v,index)=>
+      '<div class="roster-total" data-meal-group="'+mealGroup(index)+'">'+encode(v||'0')+'</div>'
     ).join('');
 
     root.innerHTML=
@@ -629,15 +687,29 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     updateActiveMeal();
   }
   function updateActiveMeal(){
-    const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());
+    // Always use Vietnam-local clock, regardless of device time zone.
+    const parts=new Intl.DateTimeFormat('en-GB',{
+      timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+    }).formatToParts(new Date());
     const hour=Number(parts.find(p=>p.type==='hour')?.value||0);
     const minute=Number(parts.find(p=>p.type==='minute')?.value||0);
     const clock=hour*60+minute;
-    // Morning 00:00–08:59; lunch 09:00–12:00; dinner 12:01–23:59.
+    // Sáng 00:00–08:59, Trưa 09:00–12:00, Tối 12:01–23:59.
     const active=clock<540?0:clock<=720?1:2;
+    const group=['morning','lunch','dinner'][active];
+    // Keep the three today-summary cards' established raised-card styling.
     document.querySelectorAll('#today-meals .meal-card').forEach(card=>{
       card.classList.toggle('meal-active',Number(card.dataset.mealIndex)===active);
     });
+    // The roster has eight columns: 2 morning, 3 lunch, 3 dinner.
+    // Mark entire cells, NOT rows: row-first rendering remains perfectly aligned.
+    const roster=$('today-roster');
+    if(roster){
+      roster.dataset.activeMealGroup=group;
+      roster.querySelectorAll('[data-meal-group]').forEach(cell=>{
+        cell.classList.toggle('roster-meal-active',cell.dataset.mealGroup===group);
+      });
+    }
   }
 
 
@@ -823,6 +895,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       renderMeals(which,data[which]);
       renderRoster(which,data[which]);
     }
+    updateActiveMeal();
     scheduleDayAlignment();
   }
 
