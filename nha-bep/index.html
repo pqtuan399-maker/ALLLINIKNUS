@@ -401,6 +401,94 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   .day-block .roster-row .roster-name{font-size:11px;line-height:1.27;min-height:31px;padding:5px 5px}
   .day-block .roster-row{min-height:31px}
 }
+</style>
+<style id="nus-active-meal-depth-v10">
+/* Active Vietnamese local-time meal only: 00:00–08:59 / 09:00–12:00 / 12:01–23:59.
+   No sweeping highlights, shimmer overlays or movement other than the existing twin stars. */
+.day-block.today .meal-grid .meal-card{
+  position:relative;
+  background:#102033;
+  border:1px solid #31485d;
+  border-top:2px solid #435a70;
+  box-shadow:inset 0 1px 0 #ffffff0b;
+  transform:none;
+  transition:background .22s ease,border-color .22s ease,box-shadow .22s ease,transform .22s ease;
+}
+.day-block.today .meal-grid .meal-card:not(.meal-active) .meal-card-head{
+  border-bottom:1px solid transparent;
+}
+.day-block.today .meal-grid .meal-card:not(.meal-active) .meal-metrics{
+  gap:0;
+  border:1px solid transparent;
+  background:transparent;
+}
+.day-block.today .meal-grid .meal-card:not(.meal-active) .meal-stat{
+  border:1px solid transparent;
+  background:transparent;
+  box-shadow:none;
+}
+.day-block.today .meal-grid .meal-card:not(.meal-active) .meal-seat-bar{
+  border:1px solid transparent;
+  background:transparent;
+  box-shadow:none;
+}
+.day-block.today .meal-grid .meal-card:not(.meal-active) .meal-extras{
+  border-top:1px solid transparent;
+}
+/* Raised primary card: crisp border and depth, not a light streak. */
+.day-block.today .meal-grid .meal-card.meal-active{
+  z-index:1;
+  background:linear-gradient(160deg,#1b3a4f 0%,#163346 55%,#112939 100%);
+  transform:translateY(-2px);
+  border:1px solid #66d4bf;
+  border-top:3px solid #8af3de;
+  box-shadow:inset 0 1px 0 #ffffff35,
+             inset 0 -2px 0 #06172388,
+             0 6px 0 -2px #0a1d29,
+             0 13px 26px #0008,
+             0 0 0 1px #38bea338;
+}
+.day-block.today .meal-grid .meal-card.meal-active .meal-card-head{
+  border-bottom:1px solid #5d9c9b;
+}
+.day-block.today .meal-grid .meal-card.meal-active .meal-heading{
+  color:#f5fffd;
+}
+.day-block.today .meal-grid .meal-card.meal-active .meal-metrics{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0;
+  background:#0c2635;
+  border:1px solid #447887;
+  border-radius:8px;
+  box-shadow:inset 0 1px 2px #0004;
+}
+.day-block.today .meal-grid .meal-card.meal-active .meal-stat{
+  min-width:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.day-block.today .meal-grid .meal-card.meal-active .meal-stat:not(:last-child){
+  border-right:1px solid #528797;
+}
+.day-block.today .meal-grid .meal-card.meal-active .meal-seat-bar{
+  background:#143e43;
+  border:1px solid #448f8d;
+  box-shadow:inset 0 1px 0 #ffffff17;
+}
+.day-block.today .meal-grid .meal-card.meal-active .meal-extras{
+  border-top:1px solid #44717c;
+  padding-top:5px;
+}
+@media(max-width:650px){
+  .day-block.today .meal-grid .meal-card.meal-active{transform:none}
+  .day-block.today .meal-grid .meal-card.meal-active .meal-stat{padding:5px 1px}
+}
+@media(prefers-reduced-motion:reduce){
+  .day-block.today .meal-grid .meal-card{transition:none}
+}
 </style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
