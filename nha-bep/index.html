@@ -97,7 +97,7 @@
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair">
 <article class="day-block today">
-  <div class="day-block-head day-alert-head"><span id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><div class="alert-actions"><button id="notif-toggle" class="alert-btn" type="button" aria-label="Mở thông báo thay đổi" aria-expanded="false">🔔 <span id="notif-count" class="alert-count" hidden>0</span></button><button id="sound-toggle" class="alert-btn" type="button" aria-label="Bật hoặc tắt loa thông báo" aria-pressed="false">🔇 <span id="sound-label">Tắt</span></button></div></div><div id="notif-panel" class="notif-panel" hidden><div class="notif-panel-head"><strong>THAY ĐỔI DANH SÁCH HÔM NAY</strong><button id="notif-read-all" class="alert-btn" type="button">Đã xem tất cả</button></div><div id="notif-items" class="notif-items"></div><small>Thông báo dùng chung từ GitHub; trạng thái đã đọc lưu riêng trên thiết bị.</small></div>
+  <div class="day-block-head day-alert-head"><span id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><div class="alert-actions"><button id="notif-toggle" class="alert-btn" type="button" aria-label="Mở thông báo thay đổi" aria-expanded="false">🔔 <span id="notif-count" class="alert-count" hidden>0</span></button><button id="sound-toggle" class="alert-btn" type="button" aria-label="Bật hoặc tắt loa thông báo" aria-pressed="false">🔇 <span id="sound-label">Tắt</span></button></div></div><div id="notif-panel" class="notif-panel" hidden><div class="notif-panel-head"><strong>THAY ĐỔI DANH SÁCH HÔM NAY</strong><button id="notif-read-all" class="alert-btn" type="button">Đã xem tất cả</button></div><div id="notif-items" class="notif-items"></div><small>Chỉ thông báo đăng ký CODE #8 đã duyệt và cập nhật; đã đọc lưu trên thiết bị.</small></div>
   <div class="meal-grid" id="today-meals"><div class="pending">Đang đọc kết quả hôm nay...</div></div>
   <div class="day-reminder"><strong class="day-reminder-text" id="today-note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span class="day-reminder-date" id="today-date">Đang tải ngày phục vụ...</span></div>
   <div class="tile roster today"><div class="tile-head">☀ DANH SÁCH PHỤC VỤ HÔM NAY</div><div class="roster-grid" id="today-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></div>
@@ -200,44 +200,15 @@
   }
 
 
-  // Notification state is per browser and per Vietnam calendar day.
-  // Read-only API provides snapshots, not Code #8 approval events.
-  const ALERT_KEY='nus_kitchen_alert_v1';
+  // Approved CODE #8 requests only. No roster-difference alerts.
+  const CODE8_URL='https://script.google.com/macros/s/AKfycbzbs_Fb-Q_Zr7YuCi2vIEFeWebLL4hbWvWj7SR5YaJgcbMr4V8Co4I74X1TSqZR3Xx7Tg/exec';
+  const ALERT_KEY='nus_kitchen_code8_v1';
   const localDay=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-  const storageGet=()=>{try{return JSON.parse(localStorage.getItem(ALERT_KEY)||'null')}catch(_){return null}};
-  const storageSave=()=>{try{localStorage.setItem(ALERT_KEY,JSON.stringify(alertState))}catch(_){}};
-  const initial=storageGet();
-  let alertState=initial&&initial.day===localDay()?initial:{day:localDay(),snapshot:null,items:[],sound:false};
+  const loadAlerts=()=>{try{return JSON.parse(localStorage.getItem(ALERT_KEY)||'null')}catch(e){return null}};
+  const initial=loadAlerts();
+  let alertState=initial&&initial.day===localDay()?initial:{day:localDay(),items:[],seen:[],initialized:false,sound:!!initial?.sound};
   let alertPanelOpen=false,voiceTimer=0,voicePending=false;
-  const normalized=s=>String(s||'').trim().replace(/\s+/g,' ');
-  function flatten(day){
-    const result={};
-    day.columns.forEach((column,index)=>{
-      for(const raw of column){
-        const name=normalized(raw);
-        if(!name)continue;
-        if(!result[name])result[name]=[];
-        result[name].push(index);
-      }
-    });
-    for(const k of Object.keys(result))result[k].sort((a,b)=>a-b);
-    return result;
-  }
-  function findChanges(previous,next){
-    const names=new Set([...Object.keys(previous),...Object.keys(next)]);
-    const out=[];
-    for(const name of names){
-      const old=(previous[name]||[]).slice(),now=(next[name]||[]).slice();
-      for(let i=old.length-1;i>=0;i--){
-        const p=now.indexOf(old[i]);if(p!==-1){now.splice(p,1);old.splice(i,1)}
-      }
-      const count=Math.min(old.length,now.length);
-      for(let i=0;i<count;i++)out.push({name,from:old[i],to:now[i]});
-      for(let i=count;i<old.length;i++)out.push({name,from:old[i],to:null});
-      for(let i=count;i<now.length;i++)out.push({name,from:null,to:now[i]});
-    }
-    return out;
-  }
+  const storageSave=()=>{try{localStorage.setItem(ALERT_KEY,JSON.stringify(alertState))}catch(e){}};
   function alertUI(){
     const count=alertState.items.filter(x=>!x.read).length;
     $('notif-count').hidden=!count;
@@ -247,7 +218,7 @@
     $('notif-toggle').setAttribute('aria-expanded',String(alertPanelOpen));
     $('notif-panel').hidden=!alertPanelOpen;
     const box=$('notif-items');box.replaceChildren();
-    if(!alertState.items.length){box.innerHTML='<div class="notif-empty">Chưa ghi nhận thay đổi nào hôm nay.</div>';return}
+    if(!alertState.items.length){box.innerHTML='<div class="notif-empty">Chưa có đăng ký đột xuất mới được duyệt.</div>';return}
     alertState.items.slice().reverse().forEach(x=>{
       const b=document.createElement('button');b.type='button';
       b.className='notif-item'+(x.read?' read':'');
@@ -256,26 +227,46 @@
       box.appendChild(b);
     });
   }
-  const columnNames=['Trước sáng','Cắt sáng','Trước trưa','Sau trưa','Cắt trưa','Trước tối','Sau tối','Cắt tối'];
-  function observeToday(day){
-    if(alertState.day!==localDay()){
-      alertState={day:localDay(),snapshot:null,items:[],sound:alertState.sound};
+  function applyCode8(data){
+    if(!data||data.ok!==true||data.schema!==1||!Array.isArray(data.events))throw Error('Invalid CODE8 response');
+    if(data.day!==localDay())return;
+    if(alertState.day!==data.day)alertState={day:data.day,items:[],seen:[],initialized:false,sound:alertState.sound};
+    const seen=new Set(alertState.seen||[]);
+    const baseline=!alertState.initialized;
+    let added=0;
+    for(const e of data.events){
+      if(!e||!e.eventId||!e.name||seen.has(String(e.eventId)))continue;
+      seen.add(String(e.eventId));
+      if(baseline)continue;
+      const time=new Date(e.updatedAt);
+      const display=Number.isNaN(time.getTime())?'':new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(time);
+      alertState.items.push({id:String(e.eventId),time:display,text:String(e.name)+': '+String(e.from||'ĂN CÙNG')+' → '+String(e.to||'ĂN CÙNG'),read:false});
+      added++;
     }
-    const fresh=flatten(day);
-    if(alertState.snapshot){
-      const changes=findChanges(alertState.snapshot,fresh);
-      if(changes.length){
-        const at=new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(new Date());
-        for(const x of changes){
-          const from=x.from===null?'ĂN CÙNG':columnNames[x.from];
-          const to=x.to===null?'ĂN CÙNG':columnNames[x.to];
-          alertState.items.push({id:Date.now()+'_'+Math.random().toString(36).slice(2),time:at,text:x.name+': '+from+' → '+to,read:false});
-        }
-        alertState.items=alertState.items.slice(-200);
-        queueVoice();
-      }
+    alertState.initialized=true;
+    alertState.seen=Array.from(seen).slice(-1000);
+    alertState.items=alertState.items.slice(-500);
+    storageSave();alertUI();
+    if(added)queueVoice();
+  }
+  let code8Busy=false,code8Seq=0;
+  function refreshCode8(){
+    if(code8Busy||document.hidden)return;
+    code8Busy=true;
+    const callback='NUS8K_CB_'+(++code8Seq)+'_'+Math.floor(Math.random()*100000);
+    const element=document.createElement('script');
+    let ended=false;
+    const timeout=setTimeout(()=>finish(new Error('CODE8 timeout')),12000);
+    function finish(err,data){
+      if(ended)return;
+      ended=true;clearTimeout(timeout);delete window[callback];element.remove();code8Busy=false;
+      if(err){console.warn('CODE8 API:',err.message);return}
+      try{applyCode8(data)}catch(e){console.warn('CODE8 feed:',e.message)}
     }
-    alertState.snapshot=fresh;storageSave();alertUI();
+    window[callback]=data=>finish(null,data);
+    element.onerror=()=>finish(new Error('CODE8 network error'));
+    element.src=CODE8_URL+'?callback='+callback+'&r='+Date.now();
+    document.body.appendChild(element);
   }
   function queueVoice(){
     if(!alertState.sound||voicePending)return;
@@ -318,7 +309,6 @@
       }
     }
 
-    liveObserve(data.today);
     fails=0;
     status('ĐANG ĐỒNG BỘ · 5 GIÂY');
     
@@ -376,84 +366,7 @@
   }
 
 
-  // Centralized GitHub Actions event log, shared across devices.
-  // Read status is local to each viewer; event detection is centralized.
-  const CENTRAL_ALERTS='data/alerts.json';
-  let lastCentralIds=new Set(alertState.items.map(x=>x.id));
-  let liveBaselineDay='';
-  let liveBaseline=null;
-  let liveEvents=[];
-  let centralInitialized=false;
-
-  function liveObserve(day){
-    const today=localDay();
-    const fresh=flatten(day);
-    if(liveBaselineDay!==today){
-      liveBaselineDay=today;
-      liveBaseline=alertState.snapshot&&alertState.day===today?alertState.snapshot:null;
-      liveEvents=[];
-    }
-    if(liveBaseline){
-      const updates=findChanges(liveBaseline,fresh);
-      if(updates.length){
-        const at=new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(new Date());
-        for(const x of updates){
-          const entry={
-            id:'live-'+today+'-'+Date.now()+'-'+Math.random().toString(36).slice(2),
-            time:at,
-            text:x.name+': '+(x.from===null?'ĂN CÙNG':columnNames[x.from])+' → '+(x.to===null?'ĂN CÙNG':columnNames[x.to]),
-            read:false
-          };
-          liveEvents.push(entry);
-          alertState.items.push(entry);
-        }
-        alertState.items=alertState.items.slice(-500);
-        queueVoice();
-      }
-    }
-    liveBaseline=fresh;
-    alertState.snapshot=fresh;
-    storageSave();
-    alertUI();
-  }
-
-  async function syncCentralAlerts(){
-    try{
-      const response=await fetch(CENTRAL_ALERTS+'?r='+Date.now(),{cache:'no-store'});
-      if(!response.ok)throw new Error('Shared alert file unavailable');
-      const feed=await response.json();
-      if(!feed||feed.schema!==1||!Array.isArray(feed.events))return;
-      const oldDay=alertState.day;
-      if(oldDay!==feed.day){
-        alertState={day:feed.day,snapshot:null,items:[],sound:alertState.sound};
-        lastCentralIds=new Set();
-        centralInitialized=false;
-      }
-      const readIds=new Set(alertState.items.filter(x=>x.read).map(x=>x.id));
-      const received=feed.events.map(event=>({
-        id:String(event.id),time:new Date(event.at).toLocaleTimeString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour12:false}),
-        text:String(event.name)+': '+String(event.from)+' → '+String(event.to),
-        read:readIds.has(String(event.id))
-      }));
-      const unseen=received.some(x=>!lastCentralIds.has(x.id));
-      // Keep immediate local events until the centralized log catches up.
-      // Compare event signatures to avoid duplicate entries after persistence.
-      const centralSignatures=new Set(received.map(x=>x.text));
-      liveEvents=liveEvents.filter(x=>!centralSignatures.has(x.text));
-      alertState.items=[...received,...liveEvents].slice(-500);
-      lastCentralIds=new Set(received.map(x=>x.id));
-      storageSave();alertUI();
-      if(centralInitialized&&unseen)queueVoice();
-      centralInitialized=true;
-    }catch(err){
-      // The live roster still works if GitHub Pages has not published its first snapshot.
-      console.warn('Kitchen shared notifications unavailable:',err.message);
-    }
-  }
-  syncCentralAlerts();
-  setInterval(syncCentralAlerts,15000);
-
-  $('reload').addEventListener('click',()=>{refresh();syncCentralAlerts()});
+  $('reload').addEventListener('click',()=>{refresh();refreshCode8()});
   $('fullscreen').addEventListener('click',()=>
     document.fullscreenElement?
       document.exitFullscreen?.():
@@ -464,13 +377,15 @@
   updateClock();
   setInterval(updateClock,1000);
   refresh();
+  refreshCode8();
+  setInterval(refreshCode8,5000);
   setInterval(()=>{
     if(document.hidden)return;
     if(fails<3||seq%6===0)refresh();
     else seq++;
   },POLL);
   document.addEventListener('visibilitychange',()=>{
-    if(!document.hidden){refresh();syncCentralAlerts()}
+    if(!document.hidden){refresh();refreshCode8()}
   });
 })();
 </script></body></html>
