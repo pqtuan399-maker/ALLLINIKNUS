@@ -152,6 +152,64 @@
 @media(max-width:650px){.day-block .meal-grid{gap:6px;padding:8px}.day-block .meal-card{padding:9px 7px 11px;min-height:0;border-radius:10px}.meal-card .meal-heading{font-size:13px}.meal-card .meal-lines{gap:4px;margin-top:8px}.meal-card .meal-line{font-size:11px;line-height:1.38}.meal-card .meal-line .meal-stat{padding:2px 3px;margin:1px 1px 2px 0}.day-block .roster-head-row .roster-label{font-size:12px}}
 @media(max-width:390px){.meal-card .meal-line{font-size:10px}.day-block .meal-card{padding:8px 5px}}
 @media(prefers-reduced-motion:reduce){.day-block.today .meal-card.meal-active .meal-heading .meal-star{animation:none;opacity:1}}
+</style><style id="nus-ops-dashboard-v6">
+/* Data-first kitchen operations display: neutral navy + cyan accents. */
+:root{--edge:#243b50;--dim:#9eb2c5;--mint:#35d5c1}
+html,body{background:#080f1b;color:#e9f2fa}
+body{background:radial-gradient(ellipse 70vw 35vh at 50% -25%,#142b43 0%,transparent 90%),#080f1b}
+.app{gap:9px;padding:10px 13px}
+.header{padding:2px 0 8px;border-bottom:1px solid #1e3548}
+.day-pair{gap:10px}
+.day-block{background:#0d1b2a;border:1px solid #274358;border-radius:12px;box-shadow:0 8px 24px #0004}
+.day-block.today,.day-block.tomorrow{border-color:#29455a}
+.day-block.today .day-block-head,.day-block.tomorrow .day-block-head{background:#122a3d;border-bottom:1px solid #27546a}
+.day-block-head{min-height:43px;padding:9px 12px;box-shadow:none!important;text-shadow:none!important;font-size:12px}
+.day-block .meal-grid{padding:8px;gap:7px;flex:0 0 auto}
+.day-block .meal-card,.day-block .meal-card.meal-active{background:#12263a;border:1px solid #29465e;border-top:2px solid #3c8295;border-radius:8px;min-height:0;padding:8px 10px;box-shadow:none}
+.day-block .meal-card:nth-child(1),.day-block .meal-card:nth-child(2),.day-block .meal-card:nth-child(3){border-top-color:#397d91}
+.day-block.today .meal-card.meal-active{border-color:#2e918e;border-top-color:#49cbb9;box-shadow:inset 0 0 0 1px #35d5c120}
+.meal-card .meal-heading{padding:2px 0 7px;justify-content:flex-start;gap:6px;background:none;border:0;border-bottom:1px solid #29465b;border-radius:0;box-shadow:none;text-align:left;font-size:clamp(12px,.84vw,15px);letter-spacing:.04em;text-shadow:none}
+.meal-heading .meal-star{color:#60ddca}
+.meal-card .meal-lines{display:flex;flex-wrap:wrap;align-content:flex-start;gap:3px 10px;margin-top:7px}
+.meal-card .meal-line{font-size:clamp(10px,.69vw,12px);line-height:1.4;color:#c5d6e4;white-space:normal}
+.meal-card .meal-line+.meal-line{border:0;padding:0}
+.meal-card .meal-line:not(:last-child)::after{content:"";display:inline-block;margin-left:10px;height:9px;border-right:1px solid #315168}
+.day-block .day-reminder{margin:0 8px 7px;padding:6px 10px;background:#192838;border:1px solid #40576a;color:#e5d6b2;border-radius:7px}
+.day-reminder-text{font-size:clamp(11px,.8vw,13px);font-weight:700}
+.day-reminder-date{font-size:clamp(10px,.72vw,12px);color:#b9cbd8}
+.day-block .roster{margin:0 8px 8px;border:1px solid #335b71;border-radius:9px;box-shadow:0 0 0 1px #081825;min-height:0;flex:1}
+.day-block .roster .tile-head{min-height:39px;background:#143e4c;border:0;border-bottom:2px solid #287f86;box-shadow:none;text-shadow:none;font-size:13px;letter-spacing:.035em}
+.day-block .roster-head-row .roster-label{background:#dbe9f4;color:#14344c;box-shadow:none;border-bottom:2px solid #91b6cb;text-shadow:none;font-size:clamp(10px,.69vw,12px)}
+.roster-scroll{scrollbar-color:#557a96 #e8eff5}
+.roster-name{font-size:clamp(11px,.77vw,14px);min-height:28px;padding:6px 7px}
+.roster-totals .roster-total{background:#123b55!important;box-shadow:none!important}
+.roster-controls{background:#102a3d}
+.alert-btn,.button,.tomorrow-collapse,.show-tomorrow{border-radius:8px;box-shadow:none}
+@media(min-width:1101px){
+ .app{height:100dvh;min-height:560px;grid-template-rows:auto minmax(0,1fr) auto}
+ .day-pair{min-height:0}
+ .day-block .meal-card{max-height:160px}
+ .day-block .roster{min-height:260px}
+ .day-block .roster-scroll{min-height:0}
+ .day-pair.tomorrow-hidden .day-block .meal-card{max-height:140px}
+}
+@media(max-width:1100px){
+ .app{height:auto;min-height:100dvh}
+ .day-block .meal-card{min-height:0}
+ .day-block .roster{height:620px;min-height:620px}
+}
+@media(max-width:650px){
+ .app{padding:7px;gap:7px}
+ .day-block .meal-grid{gap:5px;padding:6px}
+ .day-block .meal-card{padding:7px 6px;min-height:0}
+ .meal-card .meal-heading{font-size:12px;justify-content:center}
+ .meal-card .meal-lines{display:grid;gap:3px;margin-top:6px}
+ .meal-card .meal-line{font-size:10px;line-height:1.35}
+ .meal-card .meal-line:not(:last-child)::after{display:none}
+ .day-block .roster{height:620px;min-height:620px;margin:0 6px 6px}
+ .day-block .roster .tile-head{font-size:12px}
+ .day-block .day-reminder{margin:0 6px 6px}
+}
 </style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
