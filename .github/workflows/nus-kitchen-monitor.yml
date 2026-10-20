@@ -1,7 +1,6 @@
 name: NUS Kitchen Monitor
 on:
-  schedule:
-    - cron: "*/5 * * * *"
+  # Paused: notifications now come exclusively from approved CODE #8 events.
   workflow_dispatch:
 permissions:
   contents: write
