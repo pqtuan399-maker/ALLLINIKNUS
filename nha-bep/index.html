@@ -210,11 +210,113 @@ body{background:radial-gradient(ellipse 70vw 35vh at 50% -25%,#142b43 0%,transpa
  .day-block .roster .tile-head{font-size:12px}
  .day-block .day-reminder{margin:0 6px 6px}
 }
+</style><style id="nus-dashboard-refined-v7">
+/* V7 — bespoke premium control-room palette and data hierarchy. */
+:root{--edge:#30445a;--dim:#a5b8c9;--mint:#52e7c5}
+html{background:#070e18}
+body{color:#eff7ff;background:radial-gradient(ellipse 75vw 42vh at 48% -24%,#1e374b55,transparent),linear-gradient(180deg,#0a1321,#070e18 75%)}
+.app{gap:11px;padding:11px 14px}
+.header{padding:3px 5px 10px;border-bottom:1px solid #273f54}
+.brand h1{color:#f5faff;font-weight:850;letter-spacing:.025em}
+.brand p{color:#8eaabc}
+.badge{background:#0b302c;border-color:#226c62;color:#85e8d1}
+.button,.alert-btn{background:linear-gradient(180deg,#1b3348,#14283b);color:#e7f5ff;border:1px solid #37566a;box-shadow:inset 0 1px #ffffff14}
+.button:hover,.alert-btn:hover{background:#25465e}
+.day-pair{gap:12px}
+.day-block{position:relative;background:#0c1726;border:1px solid #30465c;border-radius:14px;box-shadow:0 20px 45px #0005,0 1px 0 #ffffff08}
+.day-block.today,.day-block.tomorrow{border-color:#314b60}
+.day-block::before{content:"";position:absolute;z-index:1;top:0;left:16px;right:16px;height:2px;background:linear-gradient(90deg,transparent,#4fdac8 26%,#5a9fc4 74%,transparent);opacity:.7;pointer-events:none}
+.day-block.tomorrow::before{background:linear-gradient(90deg,transparent,#5a9fc4 26%,#8484df 74%,transparent)}
+.day-block.today .day-block-head,.day-block.tomorrow .day-block-head{background:linear-gradient(110deg,#162a3c,#112135 75%);border-bottom:1px solid #314b60}
+.day-block-head{min-height:47px;padding:9px 13px;color:#e8f4ff;font-size:12px;letter-spacing:.035em;box-shadow:none!important;text-shadow:none!important}
+.day-block.today .day-block-head{border-left:3px solid #4bdac4}
+.day-block.tomorrow .day-block-head{border-left:3px solid #709ce0}
+.day-block .meal-grid{padding:9px 9px 8px;gap:8px;align-items:stretch}
+.day-block .meal-card,.day-block .meal-card.meal-active{background:linear-gradient(155deg,#162b40,#102034 80%);border:1px solid #304e65;border-top:2px solid #4f738a;border-radius:10px;min-height:0;max-height:none;padding:9px 11px 10px;box-shadow:inset 0 1px #ffffff16,0 6px 15px #0004;display:flex;flex-direction:column;gap:8px}
+.day-block.today .meal-card.meal-active{border-color:#3f8d8a;border-top-color:#4bdbca;box-shadow:inset 0 1px #ffffff1e,0 0 0 1px #2d8f8829,0 6px 18px #0005}
+.day-block .meal-card:nth-child(1),.day-block .meal-card:nth-child(2),.day-block .meal-card:nth-child(3){border-top-color:#50788d}
+.day-block.today .meal-card.meal-active{border-top-color:#58deca}
+.meal-card .meal-card-head{display:flex;justify-content:space-between;align-items:center;gap:5px;min-width:0;padding-bottom:6px;border-bottom:1px solid #34506a}
+.meal-card .meal-heading{width:auto;padding:0;margin:0;display:inline-flex;justify-content:flex-start;align-items:center;gap:4px;background:none;border:0;border-radius:0;box-shadow:none;color:#f5faff;font-size:clamp(12px,.82vw,16px);font-weight:850;letter-spacing:.04em;white-space:nowrap}
+.meal-heading .meal-star{font-size:12px;color:#72ecd9;filter:none}
+.meal-card .meal-time{font-size:clamp(10px,.72vw,13px);font-weight:750;letter-spacing:.02em;color:#96c8e9;white-space:nowrap}
+.meal-card .meal-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.meal-card .meal-stat{min-width:0;padding:6px 7px 5px;border-radius:7px;background:#0c1c2e;border:1px solid #273f52;box-shadow:inset 0 1px #ffffff0a;display:flex;align-items:baseline;justify-content:space-between;gap:4px}
+.meal-stat span{font-weight:750;font-size:clamp(8px,.58vw,11px);letter-spacing:.045em;color:#9ab4c8;white-space:nowrap}
+.meal-stat strong{font-size:clamp(15px,1.07vw,22px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:#f7fbff}
+.meal-stat-cut strong{color:#f6be8b}
+.meal-card .meal-seat-bar{display:flex;align-items:center;gap:7px;min-width:0;padding:7px 9px;border:1px solid #264c58;background:linear-gradient(90deg,#113537,#132b39);border-radius:7px}
+.meal-seat-bar>span{font-size:clamp(9px,.62vw,12px);font-weight:750;letter-spacing:.035em;color:#a8d5d5;white-space:nowrap}
+.meal-seat-bar strong{font-size:clamp(14px,.95vw,19px);color:#a5f8e7;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.meal-seat-bar em{margin-left:auto;background:#1a4650;border:1px solid #34727a;padding:3px 6px;border-radius:5px;color:#d3f7ef;font-size:clamp(9px,.62vw,12px);font-style:normal;font-weight:700;white-space:nowrap}
+.meal-card .meal-extras{display:flex;align-items:center;flex-wrap:wrap;gap:4px 7px;min-width:0}
+.meal-extras span{font-size:clamp(10px,.7vw,12px);line-height:1.25;color:#b9cad9;overflow-wrap:anywhere}
+.meal-extras span:not(:last-child)::after{content:" ·";color:#598297}
+.day-block .day-reminder{background:#1a2530;border:1px solid #5e5139;border-left:3px solid #dfa965;padding:7px 10px;margin:0 9px 8px;border-radius:7px;color:#efd9b7;box-shadow:inset 0 1px #ffffff0d}
+.day-reminder-text{font-size:clamp(11px,.76vw,14px)}
+.day-reminder-date{color:#cfbfa9;font-size:clamp(10px,.68vw,12px)}
+.day-block .roster{margin:0 9px 9px;background:#0b1625;border:1px solid #3b6079;border-radius:10px;box-shadow:0 10px 24px #0004;flex:1;min-height:0}
+.day-block .roster .tile-head{min-height:42px;padding:9px 12px;background:linear-gradient(95deg,#143c47,#153044);border:0;border-bottom:2px solid #368e98;border-left:3px solid #54dccc;box-shadow:none;text-shadow:none;font-size:13px;letter-spacing:.03em}
+.roster-grid{background:#0c1928;color:#e3f0fb}
+.roster-inner{background:#0c1928}
+.roster-head-row{background:#1b3449}
+.day-block .roster-head-row .roster-label{background:linear-gradient(180deg,#1e394e,#142a3c);border-right:1px solid #36546a;border-bottom:2px solid #396781;color:#cde4f5;text-shadow:none;box-shadow:inset 0 1px #ffffff13;font-weight:800}
+.roster-list-column{border-right:1px solid #284158}
+.roster-name{background:#0d1f32;border-bottom:1px solid #233c51;color:#e4f0fa;font-weight:500}
+.roster-name:nth-child(even){background:#152c42}
+.roster-scroll{scrollbar-color:#486e83 #0d1f32}
+.roster-scroll::-webkit-scrollbar-thumb{background:#486e83;border-color:#0d1f32}
+.roster-totals,.roster-totals .roster-total,.roster-totals .roster-total:last-child,.roster-totals .roster-total:first-child{background:#0e3649!important;color:#9ff3e5;border-color:#315b6e;box-shadow:inset 0 1px #ffffff16!important}
+.roster-controls{background:#122739;color:#a9c0d0}
+.notif-panel{background:#10253a;border-bottom:1px solid #35536a}
+.notif-item{background:#162d44;border-color:#355970}
+.show-tomorrow,.tomorrow-collapse{background:#182f46;border-color:#46647d;color:#dceeff}
+@media(min-width:1101px){
+ .app{height:100dvh;min-height:560px;grid-template-rows:auto minmax(0,1fr) auto}
+ .day-block .meal-card{max-height:178px}
+ .day-block .roster{min-height:270px}
+ .day-pair.tomorrow-hidden .day-block .meal-card{max-height:154px}
+ .day-block .roster .roster-name{font-size:clamp(12px,.75vw,15px)}
+}
+@media(max-width:1100px){
+ .app{height:auto;min-height:100dvh}
+ .day-block .meal-card{max-height:none}
+ .day-block .roster{height:620px;min-height:620px}
+}
+@media(max-width:650px){
+ .app{padding:7px;gap:8px}
+ .day-block .meal-grid{padding:7px;gap:6px}
+ .day-block .meal-card{padding:7px 5px 8px;gap:6px}
+ .meal-card .meal-card-head{gap:3px;padding-bottom:5px}
+ .meal-card .meal-heading{font-size:11px;gap:2px}
+ .meal-heading .meal-star{font-size:9px}
+ .meal-card .meal-time{font-size:10px}
+ .meal-card .meal-metrics{gap:2px}
+ .meal-card .meal-stat{padding:4px 2px;display:flex;flex-direction:column;align-items:center;gap:2px}
+ .meal-stat span{font-size:8px;letter-spacing:0}
+ .meal-stat strong{font-size:15px}
+ .meal-card .meal-seat-bar{padding:5px 3px;gap:3px;justify-content:center;flex-wrap:wrap}
+ .meal-seat-bar>span{font-size:8px}
+ .meal-seat-bar strong{font-size:13px}
+ .meal-seat-bar em{margin:0;font-size:9px;padding:2px 4px}
+ .meal-card .meal-extras{gap:3px}
+ .meal-extras span{font-size:10px;line-height:1.22}
+ .day-block .day-reminder{margin:0 7px 7px}
+ .day-block .roster{height:620px;min-height:620px;margin:0 7px 7px}
+ .day-block .roster .tile-head{font-size:12px}
+}
+@media(max-width:370px){
+ .meal-card .meal-card-head{flex-wrap:wrap}
+ .meal-card .meal-time{margin-left:auto}
+ .meal-card .meal-heading{font-size:10px}
+ .meal-stat span{font-size:7px}
+}
+@media(prefers-reduced-motion:reduce){.meal-card .meal-star{animation:none!important}}
 </style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
 <article class="day-block today">
-  <div class="day-block-head day-alert-head"><span id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><div class="alert-actions"><button id="notif-toggle" class="alert-btn" type="button" aria-label="Mở thông báo thay đổi" aria-expanded="false">🔔 <span id="notif-count" class="alert-count" hidden>0</span></button><button id="sound-toggle" class="alert-btn" type="button" aria-label="Bật hoặc tắt loa thông báo" aria-pressed="false">🔇 <span id="sound-label">Tắt</span></button></div></div><div id="notif-panel" class="notif-panel" hidden><div class="notif-panel-head"><strong>THAY ĐỔI DANH SÁCH HÔM NAY</strong><button id="notif-read-all" class="alert-btn" type="button">Đã xem tất cả</button></div><div id="notif-items" class="notif-items"></div><small>Chỉ thông báo đăng ký CODE #8 đã duyệt và cập nhật; đã đọc lưu trên thiết bị.</small></div>
+  <div class="day-block-head day-alert-head"><span id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><div class="alert-actions"><button id="notif-toggle" class="alert-btn" type="button" aria-label="Mở thông báo thay đổi" aria-expanded="false">🔔 <span id="notif-count" class="alert-count" hidden>0</span></button><button id="sound-toggle" class="alert-btn" type="button" aria-label="Bật hoặc tắt loa thông báo" aria-pressed="false">🔇 <span id="sound-label">Tắt</span></button></div></div><div id="notif-panel" class="notif-panel" hidden><div class="notif-panel-head"><strong>THAY ĐỔI DANH SÁCH HÔM NAY</strong><button id="notif-read-all" class="alert-btn" type="button">Đã xem tất cả</button></div><div id="notif-items" class="notif-items"></div></div>
   <div class="meal-grid" id="today-meals"><div class="pending">Đang đọc kết quả hôm nay...</div></div>
   <div class="day-reminder"><strong class="day-reminder-text" id="today-note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span class="day-reminder-date" id="today-date">Đang tải ngày phục vụ...</span></div>
   <div class="tile roster today"><div class="tile-head">☀ DANH SÁCH PHỤC VỤ HÔM NAY</div><div class="roster-grid" id="today-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></div>
@@ -307,14 +409,39 @@ body{background:radial-gradient(ellipse 70vw 35vh at 50% -25%,#142b43 0%,transpa
   function renderMeals(which,day){
     $(which+'-head').textContent=
       (which==='today'?'HÔM NAY':'NGÀY MAI')+' · '+String(day.day||'');
-    const lines=value=>String(value||'').split(/\s*[·•]\s*/).map(x=>x.trim()).filter(Boolean);
+    const split=value=>String(value||'').split(/\s*[·•]\s*/).map(x=>x.trim()).filter(Boolean);
     $(which+'-meals').innerHTML=day.meals.map((meal,index)=>{
-      const parts=[...lines(meal.title),...lines(meal.detail)];
+      const parts=[...split(meal.title),...split(meal.detail)];
+      const used=new Set();
+      const take=pattern=>{
+        const match=parts.find(p=>!used.has(p)&&pattern.test(p));
+        if(match)used.add(match);
+        return match||'';
+      };
+      const intro=take(/^BỮA\s/i);
+      const hour=intro.match(/\b(?:[01]?\d|2[0-3])[h:][0-5]\d\b/i)?.[0]||'';
+      const strip=part=>part.includes(':')?part.slice(part.indexOf(':')+1).trim():part.trim();
+      const before=strip(take(/^ĂN TRƯỚC\s*:/i))||'—';
+      const after=strip(take(/^ĂN SAU\s*:/i))||'—';
+      const cut=strip(take(/^CẮT CƠM\s*:/i))||'—';
+      const seated=strip(take(/^ĂN TẠI BÀN\s*:/i))||'—';
+      const tables=take(/^\d+\s+BÀN\b/i);
+      const extras=parts.filter(p=>!used.has(p));
+      const stat=(label,value,kind)=>
+        '<div class="meal-stat meal-stat-'+kind+'"><span>'+label+'</span><strong>'+encode(value)+'</strong></div>';
       return '<div class="meal-card" data-meal-index="'+index+'">'+
-        '<span class="meal-heading"><span class="meal-star" aria-hidden="true">✦</span><span>'+encode(meal.label)+'</span><span class="meal-star" aria-hidden="true">✦</span></span>'+
-        '<div class="meal-lines">'+parts.map(part=>
-          '<div class="meal-line">'+encode(part)+'</div>'
-        ).join('')+'</div></div>';
+        '<div class="meal-card-head">'+
+          '<span class="meal-heading"><span class="meal-star" aria-hidden="true">✦</span><span>'+encode(meal.label)+'</span><span class="meal-star" aria-hidden="true">✦</span></span>'+
+          (hour?'<span class="meal-time">'+encode(hour)+'</span>':'')+
+        '</div>'+
+        '<div class="meal-metrics">'+
+          stat('TRƯỚC',before,'before')+stat('SAU',after,'after')+stat('CẮT',cut,'cut')+
+        '</div>'+
+        '<div class="meal-seat-bar"><span>ĂN TẠI BÀN</span><strong>'+encode(seated)+'</strong>'+
+          (tables?'<em>'+encode(tables)+'</em>':'')+
+        '</div>'+
+        (extras.length?'<div class="meal-extras">'+extras.map(p=>'<span>'+encode(p)+'</span>').join('')+'</div>':'')+
+      '</div>';
     }).join('');
     updateActiveMeal();
   }
