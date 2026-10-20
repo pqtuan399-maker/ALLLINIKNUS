@@ -93,22 +93,49 @@
 @media(max-width:650px){.day-block .day-reminder{margin:0 7px 7px;padding:9px 10px}.day-reminder-text{font-size:12px}.day-reminder-date{font-size:11px}}
 </style><style id="nus-notifications-v1">
 .day-alert-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.alert-actions{display:flex;align-items:center;gap:7px}.alert-btn{position:relative;border:1px solid #729ab7;border-radius:10px;background:#173d55;color:#fff;padding:8px 11px;font-weight:800;cursor:pointer;font-size:13px}.alert-btn[aria-pressed="true"]{background:#17654f;border-color:#5de2b3}.alert-count{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 5px;border-radius:99px;background:#ed4e42;color:white;font-size:12px}.alert-count[hidden],.notif-panel[hidden]{display:none!important}.notif-panel{background:#102f43;border-bottom:1px solid #52748a;padding:12px;flex:none}.notif-panel-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.notif-items{max-height:180px;overflow:auto;margin:8px 0}.notif-item{width:100%;text-align:left;display:block;border:1px solid #4d7086;background:#173e56;color:white;border-radius:9px;padding:9px;margin:6px 0;line-height:1.45}.notif-item.read{opacity:.52}.notif-panel small{color:#b8cbd7}.notif-empty{color:#c5d9e4;padding:12px}.day-block-head span{min-width:0}@media(max-width:650px){.alert-btn{font-size:12px;padding:6px 8px}.day-alert-head{font-size:12px}}
+</style><style id="nus-kitchen-polish-v4">
+:root{--edge:#35516a;--mint:#6ce2bc}
+.app{gap:14px;padding:16px 18px}
+.header{padding:5px 2px 7px;border-bottom:1px solid #244159}
+.day-pair{transition:grid-template-columns .28s ease}
+.day-block{border-color:#385a76;box-shadow:0 12px 34px #0003}
+.day-block-head{min-height:56px}
+.day-block.today{border-color:#337f79}
+.day-block.tomorrow{border-color:#4a6790}
+.day-block .meal-card{background:linear-gradient(160deg,#1b3854,#122b43);border-radius:12px}
+.day-block .roster{box-shadow:0 6px 16px #0002}
+.alert-btn,.button{transition:background .18s,border-color .18s,transform .18s}
+.alert-btn:hover,.button:hover{border-color:#9ac5d9;transform:translateY(-1px)}
+.alert-btn:active,.button:active{transform:translateY(0)}
+.tomorrow-title-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tomorrow-collapse{border:1px solid #86a9d1;background:#204b72;color:#f4f9ff;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:800;white-space:nowrap}
+.tomorrow-collapse:hover{background:#2b608b}
+.day-pair.tomorrow-hidden{grid-template-columns:minmax(0,1fr)}
+.day-pair.tomorrow-hidden>.tomorrow{display:none}
+.show-tomorrow{display:none;align-items:center;justify-content:center;gap:8px;border:1px solid #587da1;border-radius:10px;background:#163653;color:#e5f5ff;padding:10px 13px;font-size:12px;font-weight:800}
+.show-tomorrow:hover{background:#205071}
+.day-pair.tomorrow-hidden~.show-tomorrow{display:flex}
+.day-pair.tomorrow-hidden .today .roster-inner{min-width:920px}
+.sound-preview{border:1px solid #4c7d89;background:#1d4857;color:#e9fffa;border-radius:10px;padding:8px 11px;font-size:12px;font-weight:750}
+.sound-preview:hover{background:#286573}
+@media(max-width:1100px){.app{padding:10px}.day-pair.tomorrow-hidden{grid-template-columns:1fr}}
+@media(max-width:650px){.app{padding:8px}.tomorrow-title-row{gap:5px}.tomorrow-collapse{padding:7px 8px;font-size:11px}.day-block-head{min-height:48px}}
 </style></head><body>
 <main class="app">
-<header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair">
+<header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
 <article class="day-block today">
-  <div class="day-block-head day-alert-head"><span id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><div class="alert-actions"><button id="notif-toggle" class="alert-btn" type="button" aria-label="Mở thông báo thay đổi" aria-expanded="false">🔔 <span id="notif-count" class="alert-count" hidden>0</span></button><button id="sound-toggle" class="alert-btn" type="button" aria-label="Bật hoặc tắt loa thông báo" aria-pressed="false">🔇 <span id="sound-label">Tắt</span></button></div></div><div id="notif-panel" class="notif-panel" hidden><div class="notif-panel-head"><strong>THAY ĐỔI DANH SÁCH HÔM NAY</strong><button id="notif-read-all" class="alert-btn" type="button">Đã xem tất cả</button></div><div id="notif-items" class="notif-items"></div><small>Chỉ thông báo đăng ký CODE #8 đã duyệt và cập nhật; đã đọc lưu trên thiết bị.</small></div>
+  <div class="day-block-head day-alert-head"><span id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><div class="alert-actions"><button id="notif-toggle" class="alert-btn" type="button" aria-label="Mở thông báo thay đổi" aria-expanded="false">🔔 <span id="notif-count" class="alert-count" hidden>0</span></button><button id="sound-preview" class="sound-preview" type="button" title="Nghe thử âm báo ba nốt">♪ Nghe thử</button><button id="sound-toggle" class="alert-btn" type="button" aria-label="Bật hoặc tắt loa thông báo" aria-pressed="false">🔇 <span id="sound-label">Tắt</span></button></div></div><div id="notif-panel" class="notif-panel" hidden><div class="notif-panel-head"><strong>THAY ĐỔI DANH SÁCH HÔM NAY</strong><button id="notif-read-all" class="alert-btn" type="button">Đã xem tất cả</button></div><div id="notif-items" class="notif-items"></div><small>Chỉ thông báo đăng ký CODE #8 đã duyệt và cập nhật; đã đọc lưu trên thiết bị.</small></div>
   <div class="meal-grid" id="today-meals"><div class="pending">Đang đọc kết quả hôm nay...</div></div>
   <div class="day-reminder"><strong class="day-reminder-text" id="today-note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span class="day-reminder-date" id="today-date">Đang tải ngày phục vụ...</span></div>
   <div class="tile roster today"><div class="tile-head">☀ DANH SÁCH PHỤC VỤ HÔM NAY</div><div class="roster-grid" id="today-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></div>
 </article>
 <article class="day-block tomorrow">
-  <div class="day-block-head" id="tomorrow-head">☾ NGÀY MAI · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</div>
+  <div class="day-block-head tomorrow-title-row"><span id="tomorrow-head">☾ NGÀY MAI · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><button class="tomorrow-collapse" id="hide-tomorrow" type="button" aria-label="Ẩn vùng phục vụ ngày mai">◀ Ẩn ngày mai</button></div>
   <div class="meal-grid" id="tomorrow-meals"><div class="pending">Đang đọc kết quả ngày mai...</div></div>
   <div class="day-reminder"><strong class="day-reminder-text" id="tomorrow-note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span class="day-reminder-date" id="tomorrow-date">Đang tải ngày phục vụ...</span></div>
   <div class="tile roster tomorrow"><div class="tile-head">☾ DANH SÁCH PHỤC VỤ NGÀY MAI</div><div class="roster-grid" id="tomorrow-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></div>
 </article>
-</section></main>
+</section><button class="show-tomorrow" id="show-tomorrow" type="button">☾ Hiện lại phục vụ ngày mai <span aria-hidden="true">▸</span></button></main>
 <script>
 (()=>{
   'use strict';
@@ -268,32 +295,55 @@
     element.src=CODE8_URL+'?callback='+callback+'&r='+Date.now();
     document.body.appendChild(element);
   }
+  // Short three-note notification chime; no spoken words.
+  // Matches the downloadable MP3 demo. Web Audio avoids external asset loading.
+  let audioContext=null;
+  function playChime(){
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(!AudioCtx)return;
+    try{
+      audioContext=audioContext||new AudioCtx();
+      if(audioContext.state==='suspended')audioContext.resume();
+      const base=audioContext.currentTime+0.025;
+      [[0.07,659.25],[0.32,830.61],[0.61,987.77]].forEach(([offset,freq])=>{
+        const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+        osc.type='sine';osc.frequency.value=freq;
+        gain.gain.setValueAtTime(0.0001,base+offset);
+        gain.gain.exponentialRampToValueAtTime(0.22,base+offset+0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001,base+offset+0.58);
+        osc.connect(gain).connect(audioContext.destination);
+        osc.start(base+offset);osc.stop(base+offset+0.60);
+      });
+    }catch(e){console.warn('Notification audio unavailable',e)}
+  }
   function queueVoice(){
     if(!alertState.sound||voicePending)return;
     voicePending=true;
     voiceTimer=setTimeout(()=>{
       voicePending=false;
-      if(!alertState.sound||!('speechSynthesis' in window))return;
-      const voices=speechSynthesis.getVoices();
-      const vi=voices.filter(v=>/^vi[-_]/i.test(v.lang));
-      const male=vi.find(v=>/male|nam/i.test(v.name))||vi[0];
-      speechSynthesis.cancel();
-      for(let i=0;i<2;i++){
-        const utterance=new SpeechSynthesisUtterance('Có đăng ký mới');
-        utterance.lang='vi-VN';utterance.rate=.95;
-        if(male)utterance.voice=male;
-        speechSynthesis.speak(utterance);
-      }
+      if(!alertState.sound)return;
+      playChime();
     },5000);
   }
   $('notif-toggle').addEventListener('click',()=>{alertPanelOpen=!alertPanelOpen;alertUI()});
   $('notif-read-all').addEventListener('click',()=>{alertState.items.forEach(x=>x.read=true);storageSave();alertUI()});
   $('sound-toggle').addEventListener('click',()=>{
     alertState.sound=!alertState.sound;
-    if(!alertState.sound){clearTimeout(voiceTimer);voicePending=false;window.speechSynthesis?.cancel()}
-    else if('speechSynthesis' in window){speechSynthesis.getVoices()}
+    if(!alertState.sound){clearTimeout(voiceTimer);voicePending=false}
+    else {playChime()}
     storageSave();alertUI();
   });
+  $('sound-preview').addEventListener('click',playChime);
+  const COLLAPSE_KEY='nus_kitchen_hide_tomorrow_v1';
+  function setTomorrowHidden(hidden){
+    $('day-pair').classList.toggle('tomorrow-hidden',hidden);
+    $('hide-tomorrow').setAttribute('aria-expanded',String(!hidden));
+    $('show-tomorrow').setAttribute('aria-expanded',String(!hidden));
+    try{localStorage.setItem(COLLAPSE_KEY,hidden?'1':'0')}catch(e){}
+  }
+  $('hide-tomorrow').addEventListener('click',()=>setTomorrowHidden(true));
+  $('show-tomorrow').addEventListener('click',()=>setTomorrowHidden(false));
+  try{setTomorrowHidden(localStorage.getItem(COLLAPSE_KEY)==='1')}catch(e){setTomorrowHidden(false)}
   alertUI();
 
   function apply(data){
