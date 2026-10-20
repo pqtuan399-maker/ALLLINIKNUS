@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#081527"><meta name="description" content="NUS — Màn hình nhà bếp lấy dữ liệu qua API chỉ đọc."><title>NUS • Màn hình nhà bếp</title>
-<style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet"><style>
 :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#081527;color:#ebf3fc;--edge:#25415c;--dim:#a9bbce;--mint:#45dcb0}
 *{box-sizing:border-box}html,body{margin:0;min-width:320px}body{background:radial-gradient(ellipse 75vw 38vh at 50% -15%,#173c57 0,transparent 100%),#081527}button,a{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible{outline:2px solid #a4f0d8;outline-offset:3px}
 .app{margin:0 auto;max-width:2500px;height:100dvh;min-height:620px;display:grid;grid-template-rows:auto minmax(185px,27vh) minmax(0,1fr) auto;gap:12px;padding:14px 16px}
@@ -364,6 +364,43 @@ body{color:#eff7ff;background:radial-gradient(ellipse 75vw 42vh at 48% -24%,#1e3
     line-height:1.32;
   }
 }
+</style><style id="nus-equal-day-columns-v9">
+/* Desktop: synchronize matching sections to align both rosters exactly.
+   Mobile: natural stacked sections remain independent. */
+:root{font-family:"Oswald","Arial Narrow",Arial,sans-serif}
+html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial,sans-serif}
+.day-block .roster-row .roster-name{
+  font-family:"Oswald","Arial Narrow",Arial,sans-serif;
+  font-size:clamp(10px,.65vw,12px);
+  line-height:1.24;
+  letter-spacing:.1px;
+  font-weight:400;
+  min-height:29px;
+  padding:4px 6px;
+}
+.day-block .roster-row{min-height:29px}
+.day-block .roster-head-row .roster-label{font-size:clamp(11px,.72vw,13px);letter-spacing:.15px}
+.day-block .roster-totals .roster-total{font-size:clamp(13px,.85vw,16px)}
+.day-block .roster .tile-head{font-size:clamp(12px,.8vw,15px);font-weight:600}
+.day-block .meal-card .meal-extras span{font-weight:400}
+@media(min-width:1101px){
+  .day-pair:not(.tomorrow-hidden)>.day-block>.day-block-head,
+  .day-pair:not(.tomorrow-hidden)>.day-block>.meal-grid,
+  .day-pair:not(.tomorrow-hidden)>.day-block>.day-reminder{
+    box-sizing:border-box;flex-shrink:0;
+  }
+  /* Notification dropdown does not push today's roster out of alignment. */
+  .day-block.today>.notif-panel:not([hidden]){
+    position:absolute;right:10px;top:48px;z-index:50;
+    width:min(470px,calc(100% - 20px));max-height:340px;overflow:auto;
+    border:1px solid #41637b;border-radius:10px;
+    box-shadow:0 12px 30px #0009;
+  }
+}
+@media(max-width:650px){
+  .day-block .roster-row .roster-name{font-size:11px;line-height:1.27;min-height:31px;padding:5px 5px}
+  .day-block .roster-row{min-height:31px}
+}
 </style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
@@ -628,11 +665,41 @@ body{color:#eff7ff;background:radial-gradient(ellipse 75vw 42vh at 48% -24%,#1e3
     $('hide-tomorrow').setAttribute('aria-expanded',String(!hidden));
     $('show-tomorrow').setAttribute('aria-expanded',String(!hidden));
     try{localStorage.setItem(COLLAPSE_KEY,hidden?'1':'0')}catch(e){}
+    scheduleDayAlignment();
   }
   $('hide-tomorrow').addEventListener('click',()=>setTomorrowHidden(true));
   $('show-tomorrow').addEventListener('click',()=>setTomorrowHidden(false));
   try{setTomorrowHidden(localStorage.getItem(COLLAPSE_KEY)==='1')}catch(e){setTomorrowHidden(false)}
   alertUI();
+
+  // Harmonize section heights across today's and tomorrow's columns.
+  // Measure intrinsic heights after both sets of cards are rendered; this
+  // prevents different lengths of seating notes from shifting either roster.
+  let dayAlignmentFrame=0;
+  function syncDaySectionHeights(){
+    const pair=$('day-pair');
+    const blocks=[pair.querySelector('.day-block.today'),pair.querySelector('.day-block.tomorrow')];
+    const sections=['.day-block-head','.meal-grid','.day-reminder'];
+    for(const selector of sections){
+      const nodes=blocks.map(block=>block.querySelector(':scope > '+selector));
+      nodes.forEach(node=>{node.style.height=''});
+    }
+    if(window.innerWidth<=1100||pair.classList.contains('tomorrow-hidden'))return;
+    for(const selector of sections){
+      const nodes=blocks.map(block=>block.querySelector(':scope > '+selector));
+      const maxHeight=Math.ceil(Math.max(...nodes.map(node=>node.getBoundingClientRect().height)));
+      nodes.forEach(node=>{node.style.height=maxHeight+'px'});
+    }
+  }
+  function scheduleDayAlignment(){
+    if(dayAlignmentFrame)cancelAnimationFrame(dayAlignmentFrame);
+    dayAlignmentFrame=requestAnimationFrame(()=>{
+      dayAlignmentFrame=0;
+      syncDaySectionHeights();
+    });
+  }
+  window.addEventListener('resize',scheduleDayAlignment,{passive:true});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(scheduleDayAlignment);
 
   function apply(data){
     if(!data||data.ok!==true||!data.today||!data.tomorrow)
@@ -668,6 +735,7 @@ body{color:#eff7ff;background:radial-gradient(ellipse 75vw 42vh at 48% -24%,#1e3
       renderMeals(which,data[which]);
       renderRoster(which,data[which]);
     }
+    scheduleDayAlignment();
   }
 
   function refresh(){
