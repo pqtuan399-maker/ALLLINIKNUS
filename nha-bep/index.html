@@ -546,6 +546,39 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 @media(prefers-reduced-motion:reduce){
   #today-roster .roster-label,#today-roster .roster-name,#today-roster .roster-total{transition:none}
 }
+</style><style id="nus-roster-keyboard-nav-v12">
+/* Keyboard-selected row: emphasize ONLY today's live meal group.
+   An outlined cursor identifies the exact column. No changes to row geometry. */
+#today-roster .roster-row.roster-key-current .roster-name.roster-meal-active{
+  background:#236a77;
+  color:#ffffff;
+  box-shadow:inset 0 1px #8de8da66,inset 0 -1px #8de8da85;
+}
+#today-roster .roster-row.roster-key-current .roster-name.roster-meal-active.roster-empty{
+  background:#1b5360;
+}
+#tomorrow-roster .roster-row.roster-key-current .roster-name{
+  background:#204052;
+}
+.day-block .roster-row .roster-name.roster-key-cell,
+#today-roster .roster-row.roster-key-current .roster-name.roster-key-cell,
+#tomorrow-roster .roster-row.roster-key-current .roster-name.roster-key-cell{
+  position:relative;
+  z-index:1;
+  outline:2px solid #b7fff1;
+  outline-offset:-2px;
+  background:#28778a;
+  color:#fff;
+  box-shadow:inset 0 0 0 1px #061e2b;
+}
+.roster-scroll:focus-visible{
+  outline:2px solid #63dec9;
+  outline-offset:-2px;
+}
+.roster-controls{flex-wrap:wrap;column-gap:8px;row-gap:3px}
+@media(prefers-reduced-motion:reduce){
+  .day-block .roster-row .roster-name{transition:none}
+}
 </style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
@@ -553,13 +586,13 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   <div class="day-block-head day-alert-head"><span id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><div class="alert-actions"><button id="notif-toggle" class="alert-btn" type="button" aria-label="Mở thông báo thay đổi" aria-expanded="false">🔔 <span id="notif-count" class="alert-count" hidden>0</span></button><button id="sound-toggle" class="alert-btn" type="button" aria-label="Bật hoặc tắt loa thông báo" aria-pressed="false">🔇 <span id="sound-label">Tắt</span></button></div></div><div id="notif-panel" class="notif-panel" hidden><div class="notif-panel-head"><strong>THAY ĐỔI DANH SÁCH HÔM NAY</strong><button id="notif-read-all" class="alert-btn" type="button">Đã xem tất cả</button></div><div id="notif-items" class="notif-items"></div></div>
   <div class="meal-grid" id="today-meals"><div class="pending">Đang đọc kết quả hôm nay...</div></div>
   <div class="day-reminder"><strong class="day-reminder-text" id="today-note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span class="day-reminder-date" id="today-date">Đang tải ngày phục vụ...</span></div>
-  <div class="tile roster today"><div class="tile-head">☀ DANH SÁCH PHỤC VỤ HÔM NAY</div><div class="roster-grid" id="today-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></div>
+  <div class="tile roster today"><div class="tile-head">☀ DANH SÁCH PHỤC VỤ HÔM NAY</div><div class="roster-grid" id="today-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Cuộn chuột / chạm ô để chọn <span>↑↓ Từng hàng · ←→ Từng cột</span></div></div>
 </article>
 <article class="day-block tomorrow">
   <div class="day-block-head tomorrow-title-row"><span id="tomorrow-head">☾ NGÀY MAI · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><button class="tomorrow-collapse" id="hide-tomorrow" type="button" aria-label="Ẩn vùng phục vụ ngày mai">◀ Ẩn ngày mai</button></div>
   <div class="meal-grid" id="tomorrow-meals"><div class="pending">Đang đọc kết quả ngày mai...</div></div>
   <div class="day-reminder"><strong class="day-reminder-text" id="tomorrow-note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span class="day-reminder-date" id="tomorrow-date">Đang tải ngày phục vụ...</span></div>
-  <div class="tile roster tomorrow"><div class="tile-head">☾ DANH SÁCH PHỤC VỤ NGÀY MAI</div><div class="roster-grid" id="tomorrow-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Lăn chuột / vuốt dọc để xem toàn bộ <span>↕ Cuộn dọc · ↔ Vuốt ngang</span></div></div>
+  <div class="tile roster tomorrow"><div class="tile-head">☾ DANH SÁCH PHỤC VỤ NGÀY MAI</div><div class="roster-grid" id="tomorrow-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Cuộn chuột / chạm ô để chọn <span>↑↓ Từng hàng · ←→ Từng cột</span></div></div>
 </article>
 </section><button class="show-tomorrow" id="show-tomorrow" type="button">☾ Hiện lại phục vụ ngày mai <span aria-hidden="true">▸</span></button></main>
 <script>
@@ -645,6 +678,17 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     root.scrollLeft=savedScroll[which].horizontal;
     scroller.addEventListener('scroll',()=>recordScroll(which),{passive:true});
     root.addEventListener('scroll',()=>recordScroll(which),{passive:true});
+    // Clicking an actual name selects the cell; arrow keys then walk the grid.
+    scroller.addEventListener('click',event=>{
+      const cell=event.target.closest('.roster-row .roster-name');
+      if(!cell||!scroller.contains(cell))return;
+      const row=cell.parentElement;
+      const rowIndex=Array.prototype.indexOf.call(row.parentElement.children,row);
+      const colIndex=Array.prototype.indexOf.call(row.children,cell);
+      selectRosterKeyboardCell(which,rowIndex,colIndex,true);
+      if(event.detail!==0)scroller.focus({preventScroll:true});
+    });
+    paintRosterKeyboardSelection(which);
   }
 
   function renderMeals(which,day){
@@ -705,13 +749,101 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     // Mark entire cells, NOT rows: row-first rendering remains perfectly aligned.
     const roster=$('today-roster');
     if(roster){
+      const previousGroup=roster.dataset.activeMealGroup;
       roster.dataset.activeMealGroup=group;
       roster.querySelectorAll('[data-meal-group]').forEach(cell=>{
         cell.classList.toggle('roster-meal-active',cell.dataset.mealGroup===group);
       });
+      // Switching meals automatically aligns the keyboard cursor to the new meal.
+      if(previousGroup&&previousGroup!==group&&rosterKeyboard.enabled&&rosterKeyboard.which==='today'){
+        rosterKeyboard.col=activeRosterStartColumn();
+      }
+      paintRosterKeyboardSelection('today');
     }
   }
 
+
+
+  // Keyboard cursor is viewer-local and never changes the Google Sheet.
+  // Today defaults to the first column of the active meal (2/3/3).
+  const rosterKeyboard={which:'today',row:0,col:0,enabled:false};
+  function activeRosterStartColumn(){
+    const group=$('today-roster')?.dataset.activeMealGroup;
+    return group==='lunch'?2:group==='dinner'?5:0;
+  }
+  function paintRosterKeyboardSelection(which){
+    const root=$(which+'-roster');
+    if(!root)return;
+    root.querySelectorAll('.roster-key-current').forEach(row=>{
+      row.classList.remove('roster-key-current');
+      row.removeAttribute('aria-selected');
+    });
+    root.querySelectorAll('.roster-key-cell').forEach(cell=>cell.classList.remove('roster-key-cell'));
+    if(!rosterKeyboard.enabled||rosterKeyboard.which!==which)return;
+    const rows=root.querySelectorAll('.roster-row');
+    if(!rows.length)return;
+    rosterKeyboard.row=Math.max(0,Math.min(rows.length-1,rosterKeyboard.row));
+    rosterKeyboard.col=Math.max(0,Math.min(7,rosterKeyboard.col));
+    const row=rows[rosterKeyboard.row];
+    const cell=row.children[rosterKeyboard.col];
+    row.classList.add('roster-key-current');
+    row.setAttribute('aria-selected','true');
+    if(cell)cell.classList.add('roster-key-cell');
+  }
+  function scrollRosterCellIntoView(which,rowIndex,colIndex){
+    const root=$(which+'-roster');
+    const scroller=root?.querySelector('.roster-scroll');
+    const row=scroller?.querySelectorAll('.roster-row')[rowIndex];
+    const cell=row?.children[colIndex];
+    if(!scroller||!cell)return;
+    const scrollRect=scroller.getBoundingClientRect();
+    const rowRect=row.getBoundingClientRect();
+    if(rowRect.top<scrollRect.top+2)scroller.scrollTop+=rowRect.top-scrollRect.top-3;
+    else if(rowRect.bottom>scrollRect.bottom-2)scroller.scrollTop+=rowRect.bottom-scrollRect.bottom+3;
+    const viewport=root.getBoundingClientRect();
+    const cellRect=cell.getBoundingClientRect();
+    if(cellRect.left<viewport.left+2)root.scrollLeft+=cellRect.left-viewport.left-3;
+    else if(cellRect.right>viewport.right-14)root.scrollLeft+=cellRect.right-viewport.right+17;
+    recordScroll(which);
+  }
+  function selectRosterKeyboardCell(which,rowIndex,colIndex,scroll){
+    const root=$(which+'-roster');
+    if(!root||!root.querySelector('.roster-row'))return;
+    if(which==='tomorrow'&&$('day-pair').classList.contains('tomorrow-hidden'))return;
+    const rows=root.querySelectorAll('.roster-row');
+    const previous=rosterKeyboard.which;
+    rosterKeyboard.which=which;
+    rosterKeyboard.row=Math.max(0,Math.min(rows.length-1,rowIndex));
+    rosterKeyboard.col=Math.max(0,Math.min(7,colIndex));
+    rosterKeyboard.enabled=true;
+    if(previous!==which)paintRosterKeyboardSelection(previous);
+    paintRosterKeyboardSelection(which);
+    if(scroll)scrollRosterCellIntoView(which,rosterKeyboard.row,rosterKeyboard.col);
+  }
+  document.addEventListener('keydown',event=>{
+    const move={
+      ArrowUp:[-1,0],ArrowDown:[1,0],
+      ArrowLeft:[0,-1],ArrowRight:[0,1]
+    }[event.key];
+    if(!move||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+    const element=event.target;
+    if(element instanceof Element&&
+       element.closest('input,textarea,select,button,a,[contenteditable="true"],[role="button"]'))return;
+    const focusedScroller=element instanceof Element?element.closest('.roster-scroll'):null;
+    const focusedWhich=focusedScroller?.closest('.roster-grid')?.id==='tomorrow-roster'?'tomorrow':null;
+    const which=focusedScroller?(focusedWhich||'today'):
+      (rosterKeyboard.which==='tomorrow'&&$('day-pair').classList.contains('tomorrow-hidden')?'today':rosterKeyboard.which);
+    const root=$(which+'-roster');
+    if(!root?.querySelector('.roster-row'))return;
+    event.preventDefault();
+    if(!rosterKeyboard.enabled||rosterKeyboard.which!==which){
+      // First arrow places the cursor on the first row rather than skipping it.
+      selectRosterKeyboardCell(which,0,which==='today'?activeRosterStartColumn():0,true);
+    }else{
+      selectRosterKeyboardCell(which,rosterKeyboard.row+move[0],rosterKeyboard.col+move[1],true);
+    }
+    root.querySelector('.roster-scroll')?.focus({preventScroll:true});
+  });
 
   // Approved CODE #8 requests only. No roster-difference alerts.
   const CODE8_URL='https://script.google.com/macros/s/AKfycbzbs_Fb-Q_Zr7YuCi2vIEFeWebLL4hbWvWj7SR5YaJgcbMr4V8Co4I74X1TSqZR3Xx7Tg/exec';
