@@ -120,6 +120,31 @@
 .sound-preview:hover{background:#286573}
 @media(max-width:1100px){.app{padding:10px}.day-pair.tomorrow-hidden{grid-template-columns:1fr}}
 @media(max-width:650px){.app{padding:8px}.tomorrow-title-row{gap:5px}.tomorrow-collapse{padding:7px 8px;font-size:11px}.day-block-head{min-height:48px}}
+</style><style id="nus-meal-responsive-v5">
+/* Meal cards: structured data instead of long unbroken paragraphs. */
+.day-block .meal-grid{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+.day-block .meal-card{position:relative;isolation:isolate;overflow:hidden;min-width:0;min-height:0;height:auto;padding:12px 13px 14px;border:1px solid #45647e;border-top:3px solid #7bc7e8;box-shadow:inset 0 1px 0 #ffffff13,0 4px 12px #0002}
+.day-block .meal-card:nth-child(1){border-top-color:#f6d17b}
+.day-block .meal-card:nth-child(2){border-top-color:#78c8ff}
+.day-block .meal-card:nth-child(3){border-top-color:#c5a1ed}
+.meal-card .meal-heading{display:inline-flex;align-items:center;gap:6px;min-width:0;font-size:clamp(13px,1vw,17px);font-weight:900;letter-spacing:.045em;color:#fff;text-shadow:0 2px 3px #0006}
+.meal-card .meal-lines{display:grid;gap:5px;margin-top:11px}
+.meal-card .meal-line{font-size:clamp(11px,.79vw,14px);line-height:1.42;color:#d7e9f7;overflow-wrap:break-word;word-break:normal}
+.meal-card .meal-line+.meal-line{border-top:1px solid #ffffff1c;padding-top:6px}
+.meal-card .meal-line strong{font-weight:800;color:#fff}
+.meal-card .meal-line .meal-stat{display:inline-block;margin:2px 4px 2px 0;padding:3px 6px;border-radius:6px;background:#ffffff0c;border:1px solid #ffffff18}
+.day-block .tile-head,.day-block .day-block-head{box-shadow:inset 0 1px 0 #ffffff35,0 3px 9px #0003;text-shadow:0 1px 2px #0005}
+.day-block .roster-head-row .roster-label{background:linear-gradient(180deg,#f3f8ff 0%,#c8dced 100%);border-bottom:2px solid #9cb9d2;box-shadow:inset 0 2px 0 #fff,0 2px 4px #17314920;color:#173953;text-shadow:0 1px #fff}
+.day-block .roster-totals .roster-total{background:linear-gradient(180deg,#193f62,#09233e);box-shadow:inset 0 1px #ffffff25}
+.day-block.today .meal-card.meal-active{border-color:#e6ce85;border-top-color:#fff0a7;box-shadow:0 0 0 1px #f9e4a45e,0 0 20px #e7d27b38,inset 0 1px #ffffff3a}
+.day-block.today .meal-card.meal-active::after{content:"";pointer-events:none;position:absolute;inset:-40%;background:linear-gradient(110deg,transparent 35%,#fff0bb00 43%,#fff6d788 49%,#fff9d9ad 50%,#fff6d788 51%,#fff0bb00 57%,transparent 65%);transform:translateX(-120%) rotate(-8deg);animation:nus-meal-sparkle 5.5s ease-in-out infinite}
+.day-block.today .meal-card.meal-active .meal-heading::after{content:"✦";color:#ffe6a3;font-size:14px;filter:drop-shadow(0 0 5px #fff4b4);animation:nus-star-pulse 2.5s ease-in-out infinite}
+@keyframes nus-meal-sparkle{0%,60%{transform:translateX(-120%) rotate(-8deg)}83%,100%{transform:translateX(120%) rotate(-8deg)}}
+@keyframes nus-star-pulse{0%,100%{opacity:.45;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+@media(max-width:1100px){.day-block .meal-card{padding:11px}.meal-card .meal-line{font-size:12px}}
+@media(max-width:650px){.day-block .meal-grid{gap:6px;padding:8px}.day-block .meal-card{padding:9px 7px 11px;min-height:0;border-radius:10px}.meal-card .meal-heading{font-size:13px}.meal-card .meal-lines{gap:4px;margin-top:8px}.meal-card .meal-line{font-size:11px;line-height:1.38}.meal-card .meal-line .meal-stat{padding:2px 3px;margin:1px 1px 2px 0}.day-block .roster-head-row .roster-label{font-size:12px}}
+@media(max-width:390px){.meal-card .meal-line{font-size:10px}.day-block .meal-card{padding:8px 5px}}
+@media(prefers-reduced-motion:reduce){.day-block.today .meal-card.meal-active::after,.day-block.today .meal-card.meal-active .meal-heading::after{animation:none}}
 </style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
@@ -217,13 +242,27 @@
   function renderMeals(which,day){
     $(which+'-head').textContent=
       (which==='today'?'HÔM NAY':'NGÀY MAI')+' · '+String(day.day||'');
-    $(which+'-meals').innerHTML=day.meals.map(meal=>
-      '<div class="meal-card">'+
-      '<strong>'+encode(meal.label)+'</strong>'+
-      '<p>'+encode(meal.title)+'</p>'+
-      '<p>'+encode(meal.detail)+'</p>'+
-      '</div>'
-    ).join('');
+    const lines=value=>String(value||'').split(/\\s*[·•]\\s*/).map(x=>x.trim()).filter(Boolean);
+    $(which+'-meals').innerHTML=day.meals.map((meal,index)=>{
+      const parts=[...lines(meal.title),...lines(meal.detail)];
+      return '<div class="meal-card" data-meal-index="'+index+'">'+
+        '<span class="meal-heading">'+encode(meal.label)+'</span>'+
+        '<div class="meal-lines">'+parts.map(part=>
+          '<div class="meal-line">'+encode(part)+'</div>'
+        ).join('')+'</div></div>';
+    }).join('');
+    updateActiveMeal();
+  }
+  function updateActiveMeal(){
+    const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());
+    const hour=Number(parts.find(p=>p.type==='hour')?.value||0);
+    const minute=Number(parts.find(p=>p.type==='minute')?.value||0);
+    const clock=hour*60+minute;
+    // Morning 00:00–08:59; lunch 09:00–12:00; dinner 12:01–23:59.
+    const active=clock<540?0:clock<=720?1:2;
+    document.querySelectorAll('#today-meals .meal-card').forEach(card=>{
+      card.classList.toggle('meal-active',Number(card.dataset.mealIndex)===active);
+    });
   }
 
 
@@ -426,6 +465,7 @@
 
   updateClock();
   setInterval(updateClock,1000);
+  setInterval(updateActiveMeal,15000);
   refresh();
   refreshCode8();
   setInterval(refreshCode8,5000);
