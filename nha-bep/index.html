@@ -579,6 +579,55 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 @media(prefers-reduced-motion:reduce){
   .day-block .roster-row .roster-name{transition:none}
 }
+</style><style id="nus-meal-roster-alignment-v13">
+/* Desktop/tablet: a card spans exactly its roster group's columns.
+   Sáng = 2/8; Trưa = 3/8; Tối = 3/8.
+   Zero grid-gap means boundaries map to the roster's 2|3|3 track boundaries.
+   Small inner margins retain separation without altering those positions. */
+@media(min-width:801px){
+  #today-meals,#tomorrow-meals{
+    display:grid;
+    grid-template-columns:repeat(8,minmax(0,1fr));
+    gap:0;
+    padding-left:10px;
+    padding-right:calc(10px + var(--meal-track-scrollbar-space,0px));
+  }
+  #today-meals>.meal-card:nth-child(1),
+  #tomorrow-meals>.meal-card:nth-child(1){
+    grid-column:1 / span 2;
+    margin-right:4px;
+  }
+  #today-meals>.meal-card:nth-child(2),
+  #tomorrow-meals>.meal-card:nth-child(2){
+    grid-column:3 / span 3;
+    margin-left:4px;
+    margin-right:4px;
+  }
+  #today-meals>.meal-card:nth-child(3),
+  #tomorrow-meals>.meal-card:nth-child(3){
+    grid-column:6 / span 3;
+    margin-left:4px;
+  }
+  /* Narrow first group: keep statistics on one row without text collisions. */
+  #today-meals>.meal-card:nth-child(1) .meal-metrics,
+  #tomorrow-meals>.meal-card:nth-child(1) .meal-metrics{gap:3px}
+  #today-meals>.meal-card:nth-child(1) .meal-stat,
+  #tomorrow-meals>.meal-card:nth-child(1) .meal-stat{
+    padding-left:4px;padding-right:4px;
+  }
+  #today-meals>.meal-card:nth-child(1) .meal-seat-bar,
+  #tomorrow-meals>.meal-card:nth-child(1) .meal-seat-bar{gap:4px;padding-left:5px;padding-right:5px}
+}
+/* On phones the roster scrolls horizontally at 920px minimum width.
+   Keep three card summaries readable instead of crushing Sáng into 25%. */
+@media(max-width:800px){
+  #today-meals,#tomorrow-meals{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+    padding-right:7px;
+    padding-left:7px;
+  }
+}
 </style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
@@ -672,8 +721,10 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 
     const scroller=root.querySelector('.roster-scroll');
     // Align header/total tracks with body tracks even on Windows scrollbars.
-    root.style.setProperty('--roster-scrollbar-space',
-      Math.max(0,scroller.offsetWidth-scroller.clientWidth)+'px');
+    const scrollbarSpace=Math.max(0,scroller.offsetWidth-scroller.clientWidth);
+    root.style.setProperty('--roster-scrollbar-space',scrollbarSpace+'px');
+    // Meal-card group boundaries share the roster's visible eight-column width.
+    root.closest('.day-block')?.style.setProperty('--meal-track-scrollbar-space',scrollbarSpace+'px');
     scroller.scrollTop=savedScroll[which].vertical;
     root.scrollLeft=savedScroll[which].horizontal;
     scroller.addEventListener('scroll',()=>recordScroll(which),{passive:true});
