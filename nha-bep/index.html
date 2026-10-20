@@ -659,6 +659,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     else {playChime()}
     storageSave();alertUI();
   });
+  let dayAlignmentFrame=0;
   const COLLAPSE_KEY='nus_kitchen_hide_tomorrow_v1';
   function setTomorrowHidden(hidden){
     $('day-pair').classList.toggle('tomorrow-hidden',hidden);
@@ -675,7 +676,6 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   // Harmonize section heights across today's and tomorrow's columns.
   // Measure intrinsic heights after both sets of cards are rendered; this
   // prevents different lengths of seating notes from shifting either roster.
-  let dayAlignmentFrame=0;
   function syncDaySectionHeights(){
     const pair=$('day-pair');
     const blocks=[pair.querySelector('.day-block.today'),pair.querySelector('.day-block.tomorrow')];
