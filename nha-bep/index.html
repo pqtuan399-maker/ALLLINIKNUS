@@ -267,8 +267,8 @@
       if(changes.length){
         const at=new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(new Date());
         for(const x of changes){
-          const from=x.from===null?'Chưa có':columnNames[x.from];
-          const to=x.to===null?'Không còn trong danh sách':columnNames[x.to];
+          const from=x.from===null?'ĂN CÙNG':columnNames[x.from];
+          const to=x.to===null?'ĂN CÙNG':columnNames[x.to];
           alertState.items.push({id:Date.now()+'_'+Math.random().toString(36).slice(2),time:at,text:x.name+': '+from+' → '+to,read:false});
         }
         alertState.items=alertState.items.slice(-200);
@@ -318,6 +318,7 @@
       }
     }
 
+    liveObserve(data.today);
     fails=0;
     status('ĐANG ĐỒNG BỘ · 5 GIÂY');
     
@@ -379,7 +380,43 @@
   // Read status is local to each viewer; event detection is centralized.
   const CENTRAL_ALERTS='data/alerts.json';
   let lastCentralIds=new Set(alertState.items.map(x=>x.id));
+  let liveBaselineDay='';
+  let liveBaseline=null;
+  let liveEvents=[];
   let centralInitialized=false;
+
+  function liveObserve(day){
+    const today=localDay();
+    const fresh=flatten(day);
+    if(liveBaselineDay!==today){
+      liveBaselineDay=today;
+      liveBaseline=alertState.snapshot&&alertState.day===today?alertState.snapshot:null;
+      liveEvents=[];
+    }
+    if(liveBaseline){
+      const updates=findChanges(liveBaseline,fresh);
+      if(updates.length){
+        const at=new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(new Date());
+        for(const x of updates){
+          const entry={
+            id:'live-'+today+'-'+Date.now()+'-'+Math.random().toString(36).slice(2),
+            time:at,
+            text:x.name+': '+(x.from===null?'ĂN CÙNG':columnNames[x.from])+' → '+(x.to===null?'ĂN CÙNG':columnNames[x.to]),
+            read:false
+          };
+          liveEvents.push(entry);
+          alertState.items.push(entry);
+        }
+        alertState.items=alertState.items.slice(-500);
+        queueVoice();
+      }
+    }
+    liveBaseline=fresh;
+    alertState.snapshot=fresh;
+    storageSave();
+    alertUI();
+  }
+
   async function syncCentralAlerts(){
     try{
       const response=await fetch(CENTRAL_ALERTS+'?r='+Date.now(),{cache:'no-store'});
@@ -399,7 +436,11 @@
         read:readIds.has(String(event.id))
       }));
       const unseen=received.some(x=>!lastCentralIds.has(x.id));
-      alertState.items=received;
+      // Keep immediate local events until the centralized log catches up.
+      // Compare event signatures to avoid duplicate entries after persistence.
+      const centralSignatures=new Set(received.map(x=>x.text));
+      liveEvents=liveEvents.filter(x=>!centralSignatures.has(x.text));
+      alertState.items=[...received,...liveEvents].slice(-500);
       lastCentralIds=new Set(received.map(x=>x.id));
       storageSave();alertUI();
       if(centralInitialized&&unseen)queueVoice();
