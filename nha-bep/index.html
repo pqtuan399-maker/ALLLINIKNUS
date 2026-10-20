@@ -312,6 +312,58 @@ body{color:#eff7ff;background:radial-gradient(ellipse 75vw 42vh at 48% -24%,#1e3
  .meal-stat span{font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){.meal-card .meal-star{animation:none!important}}
+</style><style id="nus-roster-row-alignment-v8">
+/* Each visual row is a single eight-column grid, with one shared height.
+   Long names wrap naturally without shifting the neighboring columns. */
+.day-block .roster-columns{
+  display:flex;
+  flex-direction:column;
+  min-height:100%;
+  align-items:stretch;
+  background:#0c1928;
+}
+.day-block .roster-row{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  flex:none;
+  min-height:32px;
+  align-items:stretch;
+}
+.day-block .roster-row .roster-name{
+  display:flex;
+  align-items:center;
+  min-width:0;
+  height:auto;
+  min-height:32px;
+  padding:5px 7px;
+  margin:0;
+  line-height:1.3;
+  white-space:normal;
+  word-break:normal;
+  overflow-wrap:anywhere;
+  overflow:visible;
+  text-overflow:clip;
+  border-right:1px solid #29455a;
+  border-bottom:1px solid #2b4357;
+  font-size:clamp(11px,.73vw,14px);
+  font-weight:500;
+}
+.day-block .roster-row:nth-child(odd) .roster-name{background:#102235}
+.day-block .roster-row:nth-child(even) .roster-name{background:#172d40}
+.day-block .roster-row .roster-name:last-child{border-right:0}
+.day-block .roster-row .roster-name.roster-empty{color:#6e91a9}
+.day-block .roster-head-row,
+.day-block .roster-totals{padding-right:var(--roster-scrollbar-space,0px)}
+.day-block .roster-scroll{scrollbar-gutter:stable;overflow-y:auto}
+@media(max-width:650px){
+  .day-block .roster-row{min-height:34px}
+  .day-block .roster-row .roster-name{
+    min-height:34px;
+    padding:6px 6px;
+    font-size:12px;
+    line-height:1.32;
+  }
+}
 </style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
@@ -379,12 +431,15 @@ body{color:#eff7ff;background:radial-gradient(ellipse 75vw 42vh at 48% -24%,#1e3
     const headers=day.headings.map(h=>
       '<div class="roster-label">'+encode(h)+'</div>'
     ).join('');
-    const columns=day.columns.map(arr=>
-      '<div class="roster-list-column">'+(
-        arr.length?arr.map(name=>
-          '<div class="roster-name">'+encode(name)+'</div>'
-        ).join(''):'<div class="roster-name">—</div>'
-      )+'</div>'
+    // Build row-first, not eight independent columns.
+    // A long name makes its entire row taller, keeping every column aligned.
+    const numberOfRows=Math.max(1,...day.columns.map(arr=>arr.length));
+    const rows=Array.from({length:numberOfRows},(_,rowIndex)=>
+      '<div class="roster-row" role="row">'+day.columns.map(arr=>{
+        const hasName=rowIndex<arr.length&&String(arr[rowIndex]??'').trim()!=='';
+        const value=hasName?encode(arr[rowIndex]):(!arr.length&&rowIndex===0?'—':'&nbsp;');
+        return '<div class="roster-name'+(hasName?'':' roster-empty')+'" role="cell">'+value+'</div>';
+      }).join('')+'</div>'
     ).join('');
     const totals=day.totals.map(v=>
       '<div class="roster-total">'+encode(v||'0')+'</div>'
@@ -394,12 +449,15 @@ body{color:#eff7ff;background:radial-gradient(ellipse 75vw 42vh at 48% -24%,#1e3
       '<div class="roster-inner">'+
         '<div class="roster-head-row">'+headers+'</div>'+
         '<div class="roster-scroll" tabindex="0" aria-label="Cuộn toàn bộ danh sách '+(which==='today'?'hôm nay':'ngày mai')+'">'+
-          '<div class="roster-columns">'+columns+'</div>'+
+          '<div class="roster-columns" role="table">'+rows+'</div>'+
         '</div>'+
         '<div class="roster-totals">'+totals+'</div>'+
       '</div>';
 
     const scroller=root.querySelector('.roster-scroll');
+    // Align header/total tracks with body tracks even on Windows scrollbars.
+    root.style.setProperty('--roster-scrollbar-space',
+      Math.max(0,scroller.offsetWidth-scroller.clientWidth)+'px');
     scroller.scrollTop=savedScroll[which].vertical;
     root.scrollLeft=savedScroll[which].horizontal;
     scroller.addEventListener('scroll',()=>recordScroll(which),{passive:true});
