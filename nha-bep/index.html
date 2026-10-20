@@ -242,7 +242,7 @@
   function renderMeals(which,day){
     $(which+'-head').textContent=
       (which==='today'?'HÔM NAY':'NGÀY MAI')+' · '+String(day.day||'');
-    const lines=value=>String(value||'').split(/\\s*[·•]\\s*/).map(x=>x.trim()).filter(Boolean);
+    const lines=value=>String(value||'').split(/\s*[·•]\s*/).map(x=>x.trim()).filter(Boolean);
     $(which+'-meals').innerHTML=day.meals.map((meal,index)=>{
       const parts=[...lines(meal.title),...lines(meal.detail)];
       return '<div class="meal-card" data-meal-index="'+index+'">'+
