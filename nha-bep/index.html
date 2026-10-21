@@ -687,6 +687,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   }[c]));
 
   let busy=false, fails=0, seq=0, current=null, contentFingerprint='';
+  let retryTimer=0,lastApiVerifiedAt=0;
   const SNAPSHOT_KEY='nus_kitchen_last_valid_snapshot_v1';
   let snapshotSavedAt='';
   let mainPending=null, code8Pending=null;
@@ -1233,7 +1234,16 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       fails=0;
       isDataUnavailable=false;
       rememberSnapshot(data);
-      if(!manualUpdateInProgress)status('ĐANG ĐỒNG BỘ · 5 GIÂY');
+      lastApiVerifiedAt=Date.now();
+      clearTimeout(retryTimer);
+      retryTimer=0;
+      if(!manualUpdateInProgress){
+        const at=new Intl.DateTimeFormat('vi-VN',{
+          timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'
+        }).format(new Date());
+        status('API OK · '+at+' · 5 GIÂY');
+      }
+      $('state').title='API V7 phản hồi thành công: '+new Date(lastApiVerifiedAt).toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'})+'. Dữ liệu nguồn Google Sheets có thể cập nhật chậm hơn.';
     }else{
       status('ĐÃ TẢI DỮ LIỆU LƯU · ĐANG XÁC MINH');
     }
@@ -1274,21 +1284,34 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       const callback='NUSBEP_CB_'+(++seq)+'_'+Math.floor(Math.random()*100000);
       const element=document.createElement('script');
       let ended=false;
-      const timeout=setTimeout(()=>finish(new Error('Timeout')),12000);
+      const timeout=setTimeout(()=>finish(new Error('Timeout')),22000);
+      function fail(reason){
+        fails++;
+        isDataUnavailable=!current||fails>=2;
+        updateOfflineUI();
+        if(isDataUnavailable)status('API GIÁN ĐOẠN · ĐANG TỰ KẾT NỐI',true);
+        else status('ĐANG THỬ LẠI API · DỮ LIỆU GẦN NHẤT');
+        $('state').title='API V7: '+reason+'. Liên tiếp '+fails+' lần lỗi. Sẽ tiếp tục tự thử lại.';
+        if(fails===1){
+          clearTimeout(retryTimer);
+          retryTimer=setTimeout(()=>{
+            retryTimer=0;
+            if(!document.hidden&&navigator.onLine!==false)refresh();
+          },1800);
+        }
+      }
       function finish(error,data){
         if(ended)return;
         ended=true;clearTimeout(timeout);delete window[callback];element.remove();
         busy=false;
         if(error){
-          fails++;isDataUnavailable=true;updateOfflineUI();
-          status(error.message==='Timeout'?'API KHÔNG PHẢN HỒI SAU 12 GIÂY':'KHÔNG TẢI ĐƯỢC API',true);
+          fail(error.message==='Timeout'?'Phản hồi lâu hơn 22 giây':'Không tải được phản hồi');
           resolve(false);
           return;
         }
         try{apply(data);resolve(true)}
         catch(err){
-          fails++;isDataUnavailable=true;updateOfflineUI();
-          status('API LỖI: '+String(err.message||err).slice(0,72),true);
+          fail(String(err.message||err).slice(0,110));
           resolve(false);
         }
       }
@@ -1373,12 +1396,14 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   },1000);
   setInterval(updateActiveMeal,15000);
   refresh();
-  refreshCode8();
-  setInterval(refreshCode8,5000);
+  // Do not fire both Apps Script URLs simultaneously on weak connections.
+  setTimeout(()=>{
+    refreshCode8();
+    setInterval(refreshCode8,POLL);
+  },1700);
+  // Retry every five seconds even after repeated errors; never throttle to 30s.
   setInterval(()=>{
-    if(document.hidden)return;
-    if(fails<3||seq%6===0)refresh();
-    else seq++;
+    if(!document.hidden)refresh();
   },POLL);
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden){
