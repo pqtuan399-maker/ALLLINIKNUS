@@ -914,6 +914,17 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   let alertState=initial&&initial.day===localDay()?initial:{day:localDay(),items:[],seen:[],initialized:false,sound:!!initial?.sound};
   let alertPanelOpen=false,voiceTimer=0,voicePending=false;
   const storageSave=()=>{try{localStorage.setItem(ALERT_KEY,JSON.stringify(alertState))}catch(e){}};
+  // New Vietnam calendar day: discard ALL previous notifications, read or unread.
+  // Keep the user's sound preference; never carry old IDs into the new day.
+  function rolloverCode8Day(){
+    const today=localDay();
+    if(alertState.day===today)return false;
+    clearTimeout(voiceTimer);
+    voicePending=false;
+    alertState={day:today,items:[],seen:[],initialized:false,sound:!!alertState.sound};
+    storageSave();
+    return true;
+  }
   function setCode8Status(message,problem=false){
     const node=$('notif-feed-status');
     if(node){node.textContent=message;node.classList.toggle('problem',problem)}
@@ -922,6 +933,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     button.title=message;
   }
   function alertUI(){
+    rolloverCode8Day();
     const count=alertState.items.filter(x=>!x.read).length;
     $('notif-count').hidden=!count;
     $('notif-count').textContent=count>99?'99+':String(count);
@@ -930,7 +942,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     $('notif-toggle').setAttribute('aria-expanded',String(alertPanelOpen));
     $('notif-panel').hidden=!alertPanelOpen;
     const box=$('notif-items');box.replaceChildren();
-    if(!alertState.items.length){box.innerHTML='<div class="notif-empty">Chưa nhận được đăng ký CODE #8 nào từ API trong kỳ hiện tại.</div>';return}
+    if(!alertState.items.length){box.innerHTML='<div class="notif-empty">Chưa có đăng ký đột xuất nào được cập nhật trong hôm nay.</div>';return}
     alertState.items.slice().reverse().forEach(x=>{
       const b=document.createElement('button');b.type='button';
       b.className='notif-item'+(x.read?' read':'');
@@ -948,24 +960,51 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     if(Number.isNaN(date.getTime()))return raw.match(/\d{2}:\d{2}/)?.[0]||'';
     return new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(date);
   }
+  function code8UpdateDay(value){
+    // Log column M may be a Vietnamese date, a local ISO string,
+    // or an ISO timestamp with a timezone offset.
+    if(value===null||value===undefined||value==='')return '';
+    const raw=String(value).trim();
+    const vn=raw.match(/^(\d{2})\/(\d{2})\/(\d{4})(?=\s|$)/);
+    if(vn)return vn[3]+'-'+vn[2]+'-'+vn[1];
+    const localIso=raw.match(/^(\d{4}-\d{2}-\d{2})(?:[T\s]\d{2}:\d{2}(?::\d{2})?)?(?!\S)/);
+    if(localIso)return localIso[1];
+    const isoLocalTime=raw.match(/^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?$/);
+    if(isoLocalTime)return isoLocalTime[1];
+    const date=new Date(value);
+    if(Number.isNaN(date.getTime()))return '';
+    const parts=new Intl.DateTimeFormat('en-US',{
+      timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'
+    }).formatToParts(date);
+    const part=name=>parts.find(x=>x.type===name)?.value||'';
+    return part('year')+'-'+part('month')+'-'+part('day');
+  }
   function applyCode8(data){
     if(!data||data.ok!==true||data.schema!==1||!Array.isArray(data.events))
       throw Error(String(data?.error||'Phản hồi API CODE #8 không hợp lệ'));
+    // Clear yesterday BEFORE checking the feed. A stale API response may
+    // arrive immediately after midnight and must never restore old alerts.
+    rolloverCode8Day();
     const today=localDay();
     if(String(data.day)!==today){
+      alertUI();
       setCode8Status('Ngày API ('+String(data.day)+') khác ngày Việt Nam ('+today+').',true);
       return;
     }
-    if(alertState.day!==today){
-      alertState={day:today,items:[],seen:[],initialized:false,sound:alertState.sound};
-    }
-    const previouslySeen=new Set(alertState.seen||[]);
+    // The CODE #8 API covers 23:59 yesterday through tonight.
+    // Show ONLY events whose successful update (column M) belongs to today.
+    const todaysEvents=data.events.filter(e=>e&&code8UpdateDay(e.updatedAt)===today);
+    const idsToday=new Set(todaysEvents.map(e=>
+      String(e.eventId||[e.requestId,e.updatedAt,e.serviceDate].filter(Boolean).join('|'))
+    ).filter(Boolean));
+    alertState.items=(alertState.items||[]).filter(item=>idsToday.has(String(item.id)));
+    const previouslySeen=new Set((alertState.seen||[]).filter(id=>idsToday.has(String(id))));
     const existing=new Set((alertState.items||[]).map(item=>String(item.id)));
     const firstConnection=!alertState.initialized;
     let added=0;
     let newlyApproved=0;
-    for(const e of data.events){
-      if(!e||!e.name)continue;
+    for(const e of todaysEvents){
+      if(!e.name)continue;
       const id=String(e.eventId||[e.requestId,e.updatedAt,e.serviceDate].filter(Boolean).join('|'));
       if(!id)continue;
       const wasSeen=previouslySeen.has(id);
@@ -989,8 +1028,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     alertState.items=alertState.items.slice(-500);
     storageSave();
     alertUI();
-    const total=Number.isFinite(Number(data.count))?Number(data.count):data.events.length;
-    setCode8Status('CODE #8 đã kết nối · API trả về '+total+' yêu cầu hợp lệ'+(added?' · hiển thị thêm '+added:''),false);
+    setCode8Status('CODE #8 đã kết nối · '+todaysEvents.length+' yêu cầu cập nhật trong hôm nay'+(added?' · hiển thị thêm '+added:''),false);
     if(newlyApproved)queueVoice();
   }
   let code8Busy=false,code8Seq=0;
@@ -1181,7 +1219,14 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   $('source').style.display='none';
 
   updateClock();
-  setInterval(updateClock,1000);
+  setInterval(()=>{
+    updateClock();
+    if(rolloverCode8Day()){
+      alertUI();
+      setCode8Status('Đã bắt đầu ngày mới · Đang tải thông báo hôm nay...');
+      refreshCode8();
+    }
+  },1000);
   setInterval(updateActiveMeal,15000);
   refresh();
   refreshCode8();
@@ -1192,7 +1237,10 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     else seq++;
   },POLL);
   document.addEventListener('visibilitychange',()=>{
-    if(!document.hidden){refresh();refreshCode8()}
+    if(!document.hidden){
+      if(rolloverCode8Day())alertUI();
+      refresh();refreshCode8();
+    }
   });
 })();
 </script></body></html>
