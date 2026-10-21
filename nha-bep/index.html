@@ -632,9 +632,29 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 .notif-feed-status{font-size:11px;font-family:inherit;color:#8de7d1;border-top:1px solid #31536a;padding:8px 4px 1px;line-height:1.4}
 .notif-feed-status.problem{color:#ffb9a2}
 .alert-btn.notif-api-error{border-color:#d98769;box-shadow:inset 0 0 0 1px #cf6e5040}
+</style><style id="nus-offline-cache-v1">
+.offline-banner[hidden]{display:none!important}
+.offline-banner{
+  position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));
+  z-index:120;width:min(390px,calc(100vw - 28px));padding:15px 17px;
+  background:linear-gradient(160deg,#13283d,#0b1b2e);color:#eaf4ff;
+  border:1px solid #50718c;border-left:4px solid #f3b657;border-radius:13px;
+  box-shadow:0 22px 55px #000a, inset 0 1px #ffffff13;
+  font:400 13px/1.5 "Oswald",Arial,sans-serif;
+}
+.offline-title{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:600;margin-bottom:7px}
+.offline-title span{color:#f3b657;font-size:18px}
+.offline-warning{color:#ffbe69;font-size:14px;font-weight:700;letter-spacing:.025em}
+.offline-banner p{margin:7px 0 11px;color:#dce9f4}
+.offline-meta{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #35536b;padding-top:7px;margin-top:7px;font-size:12px}
+.offline-meta span{color:#9fb9ce}
+.offline-meta strong{font-weight:600;color:#b2f3de;text-align:right}
+#offline-saved-at{color:#e6f4ff}
+#reload:disabled{opacity:.7;cursor:progress}
+@media(max-width:650px){.offline-banner{bottom:max(10px,env(safe-area-inset-bottom));right:10px;padding:11px 13px;width:min(370px,calc(100vw - 20px))}}
 </style></head><body>
 <main class="app">
-<header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload">↻ Làm mới</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
+<header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload" title="Tải lại dữ liệu nhà bếp và kiểm tra CODE #8">↻ Cập nhật</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
 <article class="day-block today">
   <div class="day-block-head day-alert-head"><span id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><div class="alert-actions"><button id="notif-toggle" class="alert-btn" type="button" aria-label="Mở thông báo thay đổi" aria-expanded="false">🔔 <span id="notif-count" class="alert-count" hidden>0</span></button><button id="sound-toggle" class="alert-btn" type="button" aria-label="Bật hoặc tắt loa thông báo" aria-pressed="false">🔇 <span id="sound-label">Tắt</span></button></div></div><div id="notif-panel" class="notif-panel" hidden><div class="notif-panel-head"><strong>THAY ĐỔI DANH SÁCH HÔM NAY</strong><button id="notif-read-all" class="alert-btn" type="button">Đã xem tất cả</button></div><div id="notif-items" class="notif-items"></div><div id="notif-feed-status" class="notif-feed-status" role="status" aria-live="polite">Đang kết nối nhật ký CODE #8...</div></div>
   <div class="meal-grid" id="today-meals"><div class="pending">Đang đọc kết quả hôm nay...</div></div>
@@ -647,7 +667,14 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   <div class="day-reminder"><strong class="day-reminder-text" id="tomorrow-note">⚠ NHỚ LẤY CƠM ÔNG CỐ VÀ 2 SOEUR</strong><span class="day-reminder-date" id="tomorrow-date">Đang tải ngày phục vụ...</span></div>
   <div class="tile roster tomorrow"><div class="tile-head">☾ DANH SÁCH PHỤC VỤ NGÀY MAI</div><div class="roster-grid" id="tomorrow-roster"><div class="pending">Đang kết nối API</div></div><div class="roster-controls">Cuộn chuột / chạm ô để chọn <span>↑↓ Từng hàng · ←→ Từng cột</span></div></div>
 </article>
-</section><button class="show-tomorrow" id="show-tomorrow" type="button">☾ Hiện lại phục vụ ngày mai <span aria-hidden="true">▸</span></button></main>
+</section><button class="show-tomorrow" id="show-tomorrow" type="button">☾ Hiện lại phục vụ ngày mai <span aria-hidden="true">▸</span></button>
+<aside id="offline-banner" class="offline-banner" role="status" aria-live="polite" hidden>
+  <div class="offline-title"><strong>NUS • MÀN HÌNH NHÀ BẾP</strong><span aria-hidden="true">⌁</span></div>
+  <div class="offline-warning" id="offline-warning">⚠ MẤT KẾT NỐI INTERNET</div>
+  <p id="offline-message">Đang hiển thị danh sách đã lưu gần nhất.</p>
+  <div class="offline-meta"><span>Dữ liệu gần nhất</span><strong id="offline-saved-at">Chưa có dữ liệu đã lưu</strong></div>
+  <div class="offline-meta"><span>Đồng bộ trở lại</span><strong>Tự động khi có mạng</strong></div>
+</aside></main>
 <script>
 (()=>{
   'use strict';
@@ -660,6 +687,44 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   }[c]));
 
   let busy=false, fails=0, seq=0, current=null, contentFingerprint='';
+  const SNAPSHOT_KEY='nus_kitchen_last_valid_snapshot_v1';
+  let snapshotSavedAt='';
+  let mainPending=null, code8Pending=null;
+  let isDataUnavailable=false;
+  let manualUpdateInProgress=false, manualFeedbackTimer=0;
+  const safeCacheLoad=()=>{
+    try{
+      const data=JSON.parse(localStorage.getItem(SNAPSHOT_KEY)||'null');
+      return data&&data.schema===1&&data.payload&&data.savedAt?data:null;
+    }catch(e){return null}
+  };
+  function rememberSnapshot(data){
+    snapshotSavedAt=new Date().toISOString();
+    const payload={ok:true,title:data.title,note:data.note,today:data.today,tomorrow:data.tomorrow};
+    try{localStorage.setItem(SNAPSHOT_KEY,JSON.stringify({schema:1,savedAt:snapshotSavedAt,payload}))}
+    catch(e){console.warn('Cannot save kitchen snapshot locally:',e)}
+    updateOfflineUI();
+  }
+  function savedTime(){
+    if(!snapshotSavedAt)return 'Chưa có dữ liệu đã lưu';
+    const date=new Date(snapshotSavedAt);
+    if(Number.isNaN(date.getTime()))return 'Chưa có dữ liệu đã lưu';
+    return new Intl.DateTimeFormat('vi-VN',{
+      timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',second:'2-digit',
+      day:'2-digit',month:'2-digit',year:'numeric',hourCycle:'h23'
+    }).format(date);
+  }
+  function updateOfflineUI(){
+    const offline=navigator.onLine===false;
+    const problem=offline||isDataUnavailable;
+    $('offline-banner').hidden=!problem;
+    $('offline-warning').textContent=offline?'⚠ MẤT KẾT NỐI INTERNET':'⚠ KHÔNG THỂ ĐỒNG BỘ DỮ LIỆU';
+    $('offline-message').textContent=current
+      ?'Đang hiển thị danh sách đã lưu gần nhất. Dữ liệu có thể đã thay đổi.'
+      :'Chưa có danh sách đã lưu trên thiết bị này.';
+    $('offline-saved-at').textContent=savedTime();
+  }
+
   const savedScroll={
     today:{vertical:0,horizontal:0},
     tomorrow:{vertical:0,horizontal:0}
@@ -1033,30 +1098,43 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   }
   let code8Busy=false,code8Seq=0;
   function refreshCode8(){
-    if(code8Busy||document.hidden)return;
-    code8Busy=true;
-    const callback='NUS8K_CB_'+(++code8Seq)+'_'+Math.floor(Math.random()*100000);
-    const element=document.createElement('script');
-    let ended=false;
-    const timeout=setTimeout(()=>finish(new Error('Quá 12 giây không phản hồi')),12000);
-    function finish(err,data){
-      if(ended)return;
-      ended=true;clearTimeout(timeout);delete window[callback];element.remove();code8Busy=false;
-      if(err){
-        setCode8Status('Không kết nối được API CODE #8: '+err.message,true);
-        console.warn('CODE8 API:',err.message);
-        return;
-      }
-      try{applyCode8(data)}
-      catch(e){
-        setCode8Status('Lỗi dữ liệu CODE #8: '+String(e.message||e),true);
-        console.warn('CODE8 feed:',e);
-      }
+    if(code8Pending)return code8Pending;
+    if(document.hidden&& !manualUpdateInProgress)return Promise.resolve(false);
+    if(navigator.onLine===false){
+      setCode8Status('Mất kết nối Internet · chờ tự đồng bộ lại.',true);
+      return Promise.resolve(false);
     }
-    window[callback]=data=>finish(null,data);
-    element.onerror=()=>finish(new Error('Lỗi mạng hoặc quyền Web App'));
-    element.src=CODE8_URL+'?callback='+callback+'&r='+Date.now();
-    document.body.appendChild(element);
+    code8Pending=new Promise(resolve=>{
+      code8Busy=true;
+      const callback='NUS8K_CB_'+(++code8Seq)+'_'+Math.floor(Math.random()*100000);
+      const element=document.createElement('script');
+      let ended=false;
+      const timeout=setTimeout(()=>finish(new Error('Quá 12 giây không phản hồi')),12000);
+      function finish(err,data){
+        if(ended)return;
+        ended=true;clearTimeout(timeout);delete window[callback];element.remove();
+        code8Busy=false;
+        if(err){
+          setCode8Status('Không kết nối được API CODE #8: '+err.message,true);
+          console.warn('CODE8 API:',err.message);
+          resolve(false);
+          return;
+        }
+        try{
+          applyCode8(data);
+          resolve(String(data.day)===localDay());
+        }catch(e){
+          setCode8Status('Lỗi dữ liệu CODE #8: '+String(e.message||e),true);
+          console.warn('CODE8 feed:',e);
+          resolve(false);
+        }
+      }
+      window[callback]=data=>finish(null,data);
+      element.onerror=()=>finish(new Error('Lỗi mạng hoặc quyền Web App'));
+      element.src=CODE8_URL+'?callback='+callback+'&r='+Date.now();
+      document.body.appendChild(element);
+    }).finally(()=>{code8Pending=null});
+    return code8Pending;
   }
   // Short three-note notification chime; no spoken words.
   // Matches the downloadable MP3 demo. Web Audio avoids external asset loading.
@@ -1138,7 +1216,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   window.addEventListener('resize',scheduleDayAlignment,{passive:true});
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(scheduleDayAlignment);
 
-  function apply(data){
+  function apply(data,options={}){
     if(!data||data.ok!==true||!data.today||!data.tomorrow)
       throw new Error(data?.error||'API trả dữ liệu không hợp lệ');
     for(const which of ['today','tomorrow']){
@@ -1151,8 +1229,15 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       }
     }
 
-    fails=0;
-    status('ĐANG ĐỒNG BỘ · 5 GIÂY');
+    if(!options.cached){
+      fails=0;
+      isDataUnavailable=false;
+      rememberSnapshot(data);
+      if(!manualUpdateInProgress)status('ĐANG ĐỒNG BỘ · 5 GIÂY');
+    }else{
+      status('ĐÃ TẢI DỮ LIỆU LƯU · ĐANG XÁC MINH');
+    }
+    updateOfflineUI();
     
 
     // readAt changes every request. Compare only actual display content,
@@ -1177,40 +1262,81 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   }
 
   function refresh(){
-    if(busy)return;
-    if(!API_URL.includes('/exec')){status('CHƯA CÓ API',true);return}
-    busy=true;
-    if(!current)status('ĐANG KẾT NỐI API...');
-    const callback='NUSBEP_CB_'+(++seq)+'_'+Math.floor(Math.random()*100000);
-    const element=document.createElement('script');
-    let ended=false;
-    const timeout=setTimeout(()=>finish(new Error('Timeout')),12000);
-
-    function finish(error, data){
-      if(ended)return;
-      ended=true;
-      clearTimeout(timeout);
-      delete window[callback];
-      element.remove();
-      busy=false;
-      if(error){
-        fails++;
-        status(error.message==='Timeout'?
-          'API KHÔNG PHẢN HỒI SAU 12 GIÂY':'KHÔNG TẢI ĐƯỢC API',true);
-        return;
-      }
-      try{apply(data)}
-      catch(err){fails++;status('API LỖI: '+String(err.message||err).slice(0,72),true)}
+    if(mainPending)return mainPending;
+    if(!API_URL.includes('/exec')){status('CHƯA CÓ API',true);return Promise.resolve(false)}
+    if(navigator.onLine===false){
+      isDataUnavailable=true;updateOfflineUI();status('MẤT MẠNG · DỮ LIỆU ĐÃ LƯU',true);
+      return Promise.resolve(false);
     }
-
-    window[callback]=data=>finish(null,data);
-    element.onerror=()=>finish(new Error('Network error'));
-    element.src=API_URL+'?callback='+callback+'&r='+Date.now();
-    document.body.appendChild(element);
+    mainPending=new Promise(resolve=>{
+      busy=true;
+      if(!current)status('ĐANG KẾT NỐI API...');
+      const callback='NUSBEP_CB_'+(++seq)+'_'+Math.floor(Math.random()*100000);
+      const element=document.createElement('script');
+      let ended=false;
+      const timeout=setTimeout(()=>finish(new Error('Timeout')),12000);
+      function finish(error,data){
+        if(ended)return;
+        ended=true;clearTimeout(timeout);delete window[callback];element.remove();
+        busy=false;
+        if(error){
+          fails++;isDataUnavailable=true;updateOfflineUI();
+          status(error.message==='Timeout'?'API KHÔNG PHẢN HỒI SAU 12 GIÂY':'KHÔNG TẢI ĐƯỢC API',true);
+          resolve(false);
+          return;
+        }
+        try{apply(data);resolve(true)}
+        catch(err){
+          fails++;isDataUnavailable=true;updateOfflineUI();
+          status('API LỖI: '+String(err.message||err).slice(0,72),true);
+          resolve(false);
+        }
+      }
+      window[callback]=data=>finish(null,data);
+      element.onerror=()=>finish(new Error('Network error'));
+      element.src=API_URL+'?callback='+callback+'&r='+Date.now();
+      document.body.appendChild(element);
+    }).finally(()=>{mainPending=null});
+    return mainPending;
   }
 
+  async function manualUpdate(){
+    if(manualUpdateInProgress)return;
+    manualUpdateInProgress=true;
+    clearTimeout(manualFeedbackTimer);
+    const button=$('reload');
+    button.disabled=true;button.textContent='↻ Đang cập nhật...';
+    const [main,code8]=await Promise.all([refresh(),refreshCode8()]);
+    manualUpdateInProgress=false;
+    button.disabled=false;
+    if(main&&code8){
+      button.textContent='✓ Đã cập nhật';
+      status('ĐÃ KIỂM TRA 2 API · '+new Intl.DateTimeFormat('vi-VN',{
+        timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+      }).format(new Date()));
+    }else if(main){
+      button.textContent='⚠ CODE #8 lỗi';
+      status('DANH SÁCH ĐÃ CẬP NHẬT · CODE #8 CHƯA KẾT NỐI',true);
+    }else{
+      button.textContent='⚠ Chưa cập nhật';
+      status(navigator.onLine===false?'MẤT MẠNG · DỮ LIỆU ĐÃ LƯU':'CHƯA CẬP NHẬT ĐƯỢC DANH SÁCH',true);
+    }
+    manualFeedbackTimer=setTimeout(()=>{button.textContent='↻ Cập nhật'},3000);
+  }
 
-  $('reload').addEventListener('click',()=>{refresh();refreshCode8()});
+  function restoreLastSnapshot(){
+    const stored=safeCacheLoad();
+    if(!stored)return;
+    try{
+      snapshotSavedAt=stored.savedAt;
+      apply(stored.payload,{cached:true});
+    }catch(err){
+      console.warn('Stored kitchen snapshot invalid:',err);
+    }
+    updateOfflineUI();
+  }
+
+  $('reload').addEventListener('click',manualUpdate);
   $('fullscreen').addEventListener('click',()=>
     document.fullscreenElement?
       document.exitFullscreen?.():
@@ -1219,6 +1345,24 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   $('source').style.display='none';
 
   updateClock();
+  restoreLastSnapshot();
+  updateOfflineUI();
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(err=>{
+      console.warn('Offline page cache unavailable:',err);
+    });
+  }
+  window.addEventListener('offline',()=>{
+    isDataUnavailable=true;
+    updateOfflineUI();
+    status('MẤT MẠNG · DỮ LIỆU ĐÃ LƯU',true);
+    setCode8Status('Mất kết nối Internet · chờ tự đồng bộ lại.',true);
+  });
+  window.addEventListener('online',()=>{
+    // Network restoration is only a hint: wait for actual successful responses.
+    status('ĐÃ CÓ MẠNG · ĐANG KIỂM TRA API');
+    refresh();refreshCode8();
+  });
   setInterval(()=>{
     updateClock();
     if(rolloverCode8Day()){
