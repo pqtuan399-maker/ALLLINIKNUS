@@ -654,7 +654,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 @media(max-width:650px){.offline-banner{bottom:max(10px,env(safe-area-inset-bottom));right:10px;padding:11px 13px;width:min(370px,calc(100vw - 20px))}}
 </style></head><body>
 <main class="app">
-<header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Tải lại nội dung xuất bản 30 giây/lần. Google có thể xuất bản chậm vài phút.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload" title="Tải lại dữ liệu nhà bếp và kiểm tra CODE #8">↻ Cập nhật</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
+<header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Website kiểm tra API V7 mỗi 3 giây khi trang đang mở; nguồn Google Sheets có thể cập nhật chậm hơn.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload" title="Tải lại dữ liệu nhà bếp và kiểm tra CODE #8">↻ Cập nhật</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
 <article class="day-block today">
   <div class="day-block-head day-alert-head"><span id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><div class="alert-actions"><button id="notif-toggle" class="alert-btn" type="button" aria-label="Mở thông báo thay đổi" aria-expanded="false">🔔 <span id="notif-count" class="alert-count" hidden>0</span></button><button id="sound-toggle" class="alert-btn" type="button" aria-label="Bật hoặc tắt loa thông báo" aria-pressed="false">🔇 <span id="sound-label">Tắt</span></button></div></div><div id="notif-panel" class="notif-panel" hidden><div class="notif-panel-head"><strong>THAY ĐỔI DANH SÁCH HÔM NAY</strong><button id="notif-read-all" class="alert-btn" type="button">Đã xem tất cả</button></div><div id="notif-items" class="notif-items"></div><div id="notif-feed-status" class="notif-feed-status" role="status" aria-live="polite">Đang kết nối nhật ký CODE #8...</div></div>
   <div class="meal-grid" id="today-meals"><div class="pending">Đang đọc kết quả hôm nay...</div></div>
@@ -680,14 +680,15 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   'use strict';
 
   const API_URL='https://script.google.com/macros/s/AKfycbw0hY2qecbDLcRkzHbP-t3Ed4lkeQBiXycY511OznIVibqN-fqAN0-iptcXGlufBy2POQ/exec';
-  const POLL=5000;
+  const MAIN_POLL=3000;
+  const CODE8_POLL=5000;
   const $=id=>document.getElementById(id);
   const encode=s=>String(s??'').replace(/[&<>"']/g,c=>({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[c]));
 
   let busy=false, fails=0, seq=0, current=null, contentFingerprint='';
-  let retryTimer=0,lastApiVerifiedAt=0;
+  let retryTimer=0,lastApiVerifiedAt=0,lastSnapshotPersistAt=0,lastEventRefreshAt=0;
   const SNAPSHOT_KEY='nus_kitchen_last_valid_snapshot_v1';
   let snapshotSavedAt='';
   let mainPending=null, code8Pending=null;
@@ -1045,6 +1046,18 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     const part=name=>parts.find(x=>x.type===name)?.value||'';
     return part('year')+'-'+part('month')+'-'+part('day');
   }
+
+  // Approved and applied CODE #8 events indicate the kitchen Sheet may
+  // have just changed. Query V7 immediately in addition to the regular poll.
+  // Throttle event signals so multiple approvals do not overload Apps Script.
+  function scheduleUrgentRosterRefresh(){
+    if(document.hidden||navigator.onLine===false)return;
+    const now=Date.now();
+    if(now-lastEventRefreshAt<MAIN_POLL)return;
+    lastEventRefreshAt=now;
+    refresh();
+  }
+
   function applyCode8(data){
     if(!data||data.ok!==true||data.schema!==1||!Array.isArray(data.events))
       throw Error(String(data?.error||'Phản hồi API CODE #8 không hợp lệ'));
@@ -1095,7 +1108,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     storageSave();
     alertUI();
     setCode8Status('CODE #8 đã kết nối · '+todaysEvents.length+' yêu cầu cập nhật trong hôm nay'+(added?' · hiển thị thêm '+added:''),false);
-    if(newlyApproved)queueVoice();
+    if(newlyApproved){queueVoice();scheduleUrgentRosterRefresh();}
   }
   let code8Busy=false,code8Seq=0;
   function refreshCode8(){
@@ -1233,7 +1246,12 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     if(!options.cached){
       fails=0;
       isDataUnavailable=false;
-      rememberSnapshot(data);
+      const snapshotFingerprint=JSON.stringify({title:data.title,note:data.note,today:data.today,tomorrow:data.tomorrow});
+      // Save only when content changes or once each minute to reduce I/O.
+      if(snapshotFingerprint!==contentFingerprint||Date.now()-lastSnapshotPersistAt>=60000){
+        rememberSnapshot(data);
+        lastSnapshotPersistAt=Date.now();
+      }
       lastApiVerifiedAt=Date.now();
       clearTimeout(retryTimer);
       retryTimer=0;
@@ -1241,7 +1259,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         const at=new Intl.DateTimeFormat('vi-VN',{
           timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'
         }).format(new Date());
-        status('API OK · '+at+' · 5 GIÂY');
+        status('API OK · '+at+' · 3 GIÂY');
       }
       $('state').title='API V7 phản hồi thành công: '+new Date(lastApiVerifiedAt).toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'})+'. Dữ liệu nguồn Google Sheets có thể cập nhật chậm hơn.';
     }else{
@@ -1399,12 +1417,12 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   // Do not fire both Apps Script URLs simultaneously on weak connections.
   setTimeout(()=>{
     refreshCode8();
-    setInterval(refreshCode8,POLL);
+    setInterval(refreshCode8,CODE8_POLL);
   },1700);
-  // Retry every five seconds even after repeated errors; never throttle to 30s.
+  // Always retry after errors; refresh remains non-blocking.
   setInterval(()=>{
     if(!document.hidden)refresh();
-  },POLL);
+  },MAIN_POLL);
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden){
       if(rolloverCode8Day())alertUI();
