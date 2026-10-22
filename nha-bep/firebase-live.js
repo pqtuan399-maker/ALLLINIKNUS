@@ -65,11 +65,11 @@
       listen('.info/connected','connection',connected=>{
         bridge.connection(!!connected);
       });
-      listen(config.snapshotPath||'nusKitchen/snapshot','snapshot',payload=>{
-        bridge.snapshot(payload);
+      listen(config.snapshotPath||'nusKitchen/snapshotJson','snapshot',payload=>{
+        bridge.snapshot(typeof payload==='string'?JSON.parse(payload):payload);
       });
-      listen(config.code8Path||'nusKitchen/code8','code8',payload=>{
-        bridge.code8(payload);
+      listen(config.code8Path||'nusKitchen/code8Json','code8',payload=>{
+        bridge.code8(typeof payload==='string'?JSON.parse(payload):payload);
       });
     }
     if(!authApi){start();return}
