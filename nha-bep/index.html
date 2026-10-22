@@ -747,7 +747,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   #today-meals .meal-card{transition:none}
   #today-roster .roster-label,#today-roster .roster-name,#today-roster .roster-total{transition:none}
 }
-</style><style id="nus-live-meal-synchronized-v15">
+</style><style id="nus-live-meal-synchronized-v16">
 /* One active service group for the entire TODAY dashboard.
    No layout transforms on roster rows; eight-column alignment is preserved.
    Sáng 00:00–08:59 / Trưa 09:00–12:00 / Tối 12:01–23:59, Vietnam time. */
@@ -781,6 +781,40 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 }
 #today-roster .roster-meal-active.roster-empty{color:#afd7d6}
 .day-block.today .meal-card.meal-active .meal-heading{color:#f0fffc}
+/* Continue the 2 | 3 | 3 divisions through unused list height.
+   Static backgrounds add no rows and cannot shift names, totals or scroll position. */
+.day-block .roster-columns{
+  --roster-group-dividers:linear-gradient(90deg,
+    transparent 25%,#608ea4 25%,#608ea4 calc(25% + 3px),
+    transparent calc(25% + 3px),transparent 62.5%,
+    #608ea4 62.5%,#608ea4 calc(62.5% + 3px),transparent calc(62.5% + 3px));
+  background-image:var(--roster-group-dividers);
+}
+#today-roster[data-active-meal-group="morning"]{
+  --active-group-start:0%;--active-group-end:25%;
+}
+#today-roster[data-active-meal-group="lunch"]{
+  --active-group-start:25%;--active-group-end:62.5%;
+}
+#today-roster[data-active-meal-group="dinner"]{
+  --active-group-start:62.5%;--active-group-end:100%;
+}
+#today-roster[data-active-meal-group] .roster-columns{
+  background-image:
+    linear-gradient(90deg,
+      transparent var(--active-group-start),#70e6d2 var(--active-group-start),
+      #70e6d2 calc(var(--active-group-start) + 3px),
+      transparent calc(var(--active-group-start) + 3px),
+      transparent calc(var(--active-group-end) - 3px),
+      #70e6d2 calc(var(--active-group-end) - 3px),#70e6d2 var(--active-group-end),
+      transparent var(--active-group-end)),
+    var(--roster-group-dividers),
+    linear-gradient(90deg,
+      transparent var(--active-group-start),#254b5b var(--active-group-start),
+      #254b5b var(--active-group-end),transparent var(--active-group-end));
+}
+/* Leave room for a system scrollbar even on a 320px phone viewport. */
+@media(max-width:650px){html,body{min-width:0}}
 @media(prefers-reduced-motion:reduce){
  #today-roster .roster-meal-active{transition:none}
 }
