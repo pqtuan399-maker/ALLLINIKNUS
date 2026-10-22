@@ -1520,6 +1520,9 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   },MAIN_POLL);
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden){
+      // On returning to the display, immediately select the current
+      // Vietnam-time meal and its 2/3/3 roster columns (no stale highlight).
+      updateActiveMeal();
       if(rolloverCode8Day())alertUI();
       refresh();refreshCode8();
     }
