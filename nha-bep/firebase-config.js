@@ -1,15 +1,12 @@
-/* NUS Kitchen Firebase RTDB — safe public web configuration only.
- * Do NOT put service-account JSON, private keys, tokens or database passwords here.
- * This adapter is deliberately DISABLED until the owner's Firebase project is ready.
- */
+/* Public Firebase web settings only. */
 window.NUS_FIREBASE_CONFIG=Object.freeze({
-  enabled:false,
-  apiKey:'',
-  authDomain:'',
-  databaseURL:'',
-  projectId:'',
-  appId:'',
-  requireGoogleSignIn:true,
-  snapshotPath:'nusKitchen/snapshotJson',
-  code8Path:'nusKitchen/code8Json'
+  "enabled": true,
+  "apiKey": "AIzaSyCqhoel4iFsXmQhoybK5Exw1odKywj_w9c",
+  "authDomain": "nus-firebase-publisher.firebaseapp.com",
+  "databaseURL": "https://nus-firebase-publisher-default-rtdb.asia-southeast1.firebasedatabase.app",
+  "projectId": "nus-firebase-publisher",
+  "appId": "1:351219298511:web:4df1f24a0ab1c05b0287ba",
+  "requireGoogleSignIn": true,
+  "snapshotPath": "nusKitchen/snapshotJson",
+  "code8Path": "nusKitchen/code8Json"
 });
