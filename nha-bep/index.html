@@ -1438,7 +1438,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         const at=new Intl.DateTimeFormat('vi-VN',{
           timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'
         }).format(new Date());
-        status('API OK · '+at+' · 3 GIÂY');
+        status((firebaseStream.connected&&firebaseStream.snapshot?'⚡ FIREBASE · ':'API OK · ')+at);
       }
       $('state').title='API V7 phản hồi thành công: '+new Date(lastApiVerifiedAt).toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'})+'. Dữ liệu nguồn Google Sheets có thể cập nhật chậm hơn.';
     }else{
@@ -1469,13 +1469,26 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   }
 
   // Optional Firebase live stream. Defaults to OFF until configured by owner.
-  // Apps Script remains the known-good read-only fallback throughout migration.
-  const firebaseStream={connected:false,snapshot:false,code8:false};
+  // Firebase is the live source. API reads are fallback or an explicit manual check.
+  const firebaseStream={connected:false,snapshot:false,code8:false,snapshotRevision:0,snapshotReadAt:0};
+  function sourceReadTime(value){
+    if(typeof value==='number')return Number.isFinite(value)&&value>0?value:0;
+    let text=String(value||'');
+    if(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?$/.test(text))text+='+07:00';
+    return Date.parse(text)||0;
+  }
   window.NUSKitchenRealtime=Object.freeze({
     snapshot(payload){
       if(!payload||payload.ok!==true||!payload.today||!payload.tomorrow)
         throw new Error('Firebase kitchen snapshot is invalid');
-      apply(payload);
+      const readAt=sourceReadTime(payload.readAtMs||payload.readAt);
+      // CODE #8 v7 has no source clock; keep accepting its approved snapshots.
+      // Timed snapshots must never replace a more recent sheet read.
+      if(!readAt||readAt>=firebaseStream.snapshotReadAt){
+        apply(payload);
+        firebaseStream.snapshotReadAt=Math.max(firebaseStream.snapshotReadAt,readAt);
+      }
+      firebaseStream.snapshotRevision++;
       firebaseStream.snapshot=true;
       status('⚡ FIREBASE · DỮ LIỆU TRỰC TIẾP');
       $('state').title='Đang nhận dữ liệu theo luồng Firebase Realtime Database.';
@@ -1509,14 +1522,16 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     }
   });
 
-  function refresh(){
-    if(firebaseStream.connected&&firebaseStream.snapshot)return Promise.resolve(true);
-    if(mainPending)return mainPending;
+  function refresh(options){
+    const force=!!(options&&options.force);
+    if(!force&&firebaseStream.connected&&firebaseStream.snapshot)return Promise.resolve(true);
+    if(mainPending)return force?mainPending.then(()=>refresh(options)):mainPending;
     if(!API_URL.includes('/exec')){status('CHƯA CÓ API',true);return Promise.resolve(false)}
     if(navigator.onLine===false){
       isDataUnavailable=true;updateOfflineUI();status('MẤT MẠNG · DỮ LIỆU ĐÃ LƯU',true);
       return Promise.resolve(false);
     }
+    const revision=firebaseStream.snapshotRevision;
     mainPending=new Promise(resolve=>{
       busy=true;
       if(!current)status('ĐANG KẾT NỐI API...');
@@ -1543,21 +1558,30 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         if(ended)return;
         ended=true;clearTimeout(timeout);delete window[callback];element.remove();
         busy=false;
-        if(firebaseStream.connected&&firebaseStream.snapshot){resolve(true);return}
+        const live=firebaseStream.connected&&firebaseStream.snapshot;
+        // A newer live delivery wins over an older request already in flight.
+        if(live&&firebaseStream.snapshotRevision!==revision){resolve(true);return}
         if(error){
-          fail(error.message==='Timeout'?'Phản hồi lâu hơn 22 giây':'Không tải được phản hồi');
+          if(!live)fail(error.message==='Timeout'?'Phản hồi lâu hơn 22 giây':'Không tải được phản hồi');
           resolve(false);
           return;
         }
-        try{apply(data);resolve(true)}
+        try{
+          if(!data||data.ok!==true)throw new Error(data?.error||'Không đọc được sheet');
+          const readAt=sourceReadTime(data.readAtMs||data.readAt);
+          if(readAt&&readAt<firebaseStream.snapshotReadAt){resolve(true);return}
+          apply(data);
+          firebaseStream.snapshotReadAt=Math.max(firebaseStream.snapshotReadAt,readAt);
+          resolve(true);
+        }
         catch(err){
-          fail(String(err.message||err).slice(0,110));
+          if(!live)fail(String(err.message||err).slice(0,110));
           resolve(false);
         }
       }
       window[callback]=data=>finish(null,data);
       element.onerror=()=>finish(new Error('Network error'));
-      element.src=API_URL+'?callback='+callback+'&r='+Date.now();
+      element.src=API_URL+'?callback='+callback+'&fresh=1&r='+Date.now();
       document.body.appendChild(element);
     }).finally(()=>{mainPending=null});
     return mainPending;
@@ -1569,19 +1593,22 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     clearTimeout(manualFeedbackTimer);
     const button=$('reload');
     button.disabled=true;button.textContent='↻ Đang cập nhật...';
-    const [main,code8]=await Promise.all([refresh(),refreshCode8()]);
+    const [main,code8]=await Promise.all([refresh({force:true}),refreshCode8()]);
     manualUpdateInProgress=false;
     button.disabled=false;
     if(main&&code8){
       button.textContent='✓ Đã cập nhật';
       const source=firebaseStream.connected&&firebaseStream.snapshot&&firebaseStream.code8
-        ?'⚡ FIREBASE TRỰC TIẾP':'ĐÃ KIỂM TRA DỮ LIỆU';
+        ?'ĐÃ ĐỌC SHEET · ⚡ FIREBASE':'ĐÃ ĐỌC SHEET NHÀ BẾP';
       status(source+' · '+new Intl.DateTimeFormat('vi-VN',{
         timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hourCycle:'h23'
       }).format(new Date()));
     }else if(main){
       button.textContent='⚠ CODE #8 lỗi';
       status('DANH SÁCH ĐÃ CẬP NHẬT · CODE #8 CHƯA KẾT NỐI',true);
+    }else if(firebaseStream.connected&&firebaseStream.snapshot){
+      button.textContent='⚠ Chưa đọc lại được sheet';
+      status('CHƯA ĐỌC LẠI ĐƯỢC SHEET · FIREBASE VẪN KẾT NỐI',true);
     }else{
       button.textContent='⚠ Chưa cập nhật';
       status(navigator.onLine===false?'MẤT MẠNG · DỮ LIỆU ĐÃ LƯU':'CHƯA CẬP NHẬT ĐƯỢC DANH SÁCH',true);
