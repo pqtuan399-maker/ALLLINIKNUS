@@ -997,7 +997,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       const before=strip(take(/^ĂN TRƯỚC\s*:/i))||'—';
       const after=strip(take(/^ĂN SAU\s*:/i))||'—';
       const cut=strip(take(/^CẮT CƠM\s*:/i))||'—';
-      const seated=strip(take(/^ĂN TẠI BÀN\s*:/i))||'—';
+      const seated=strip(take(/^(?:ĂN\s+)?TẠI BÀN\s*:/i))||'—';
       const tables=take(/^\d+\s+BÀN\b/i);
       const extras=parts.filter(p=>!used.has(p));
       const stat=(label,value,kind)=>
