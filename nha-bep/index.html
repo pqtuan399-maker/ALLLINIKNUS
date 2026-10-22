@@ -652,6 +652,101 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 #offline-saved-at{color:#e6f4ff}
 #reload:disabled{opacity:.7;cursor:progress}
 @media(max-width:650px){.offline-banner{bottom:max(10px,env(safe-area-inset-bottom));right:10px;padding:11px 13px;width:min(370px,calc(100vw - 20px))}}
+</style>
+<style id="nus-active-roster-depth-v14">
+/* Active service section: Sáng 00:00–08:59, Trưa 09:00–12:00,
+   Tối 12:01–23:59, per updateActiveMeal() in Asia/Ho_Chi_Minh.
+   Two / three / three columns; keep all row/cell dimensions unchanged. */
+#today-meals .meal-card:not(.meal-active){
+  background:#102034;
+  border-color:#304558;
+  border-top-color:#3f586e;
+  box-shadow:inset 0 1px #ffffff07;
+}
+#today-meals .meal-card.meal-active{
+  background:linear-gradient(155deg,#204356 0%,#123340 70%,#102c3b 100%);
+  border:1px solid #64decb;
+  border-top:3px solid #9bffea;
+  box-shadow:inset 0 1px #ffffff45,
+             inset 0 -2px #08192380,
+             0 5px 0 -2px #091c28,
+             0 13px 28px #0009,
+             0 0 0 1px #6cebd227;
+}
+#today-meals .meal-card:not(.meal-active) .meal-stat,
+#today-meals .meal-card:not(.meal-active) .meal-seat-bar{
+  border-color:transparent;
+  background:transparent;
+  box-shadow:none;
+}
+#today-meals .meal-card.meal-active .meal-metrics{
+  border:1px solid #5b9d9b;
+  background:#0d2934;
+  box-shadow:inset 0 2px 3px #0003;
+}
+#today-meals .meal-card.meal-active .meal-stat:not(:last-child){
+  border-right:1px solid #64a19f;
+}
+#today-meals .meal-card.meal-active .meal-seat-bar{
+  background:#164a4c;
+  border:1px solid #58b2a5;
+  box-shadow:inset 0 1px #ffffff26;
+}
+#today-meals .meal-card.meal-active .meal-card-head,
+#today-meals .meal-card.meal-active .meal-extras{
+  border-color:#69aaa6;
+}
+/* Permanent group divisions across heading, every aligned row and totals. */
+.day-block .roster-head-row .roster-label:nth-child(3),
+.day-block .roster-head-row .roster-label:nth-child(6),
+.day-block .roster-row .roster-name:nth-child(3),
+.day-block .roster-row .roster-name:nth-child(6),
+.day-block .roster-totals .roster-total:nth-child(3),
+.day-block .roster-totals .roster-total:nth-child(6){
+  border-left:3px solid #608ea4;
+}
+/* Only today's active group receives the lifted visual treatment.
+   No transforms on the rows: all eight columns stay perfectly aligned. */
+#today-roster .roster-head-row .roster-label.roster-meal-active{
+  background:linear-gradient(180deg,#2a7780,#174e5b);
+  color:#f4ffff;
+  border-bottom:3px solid #9afae6;
+  box-shadow:inset 0 2px #ffffff31,inset 0 -1px #ffffff0a;
+  text-shadow:0 1px #061d2b;
+}
+#today-roster .roster-row:nth-child(odd) .roster-name.roster-meal-active{
+  background:#254b5b;
+  color:#f3fffd;
+  box-shadow:inset 0 1px #8efbe90e,inset 0 -1px #071d2980;
+}
+#today-roster .roster-row:nth-child(even) .roster-name.roster-meal-active{
+  background:#2b5563;
+  color:#f3fffd;
+  box-shadow:inset 0 1px #8efbe913,inset 0 -1px #071d2980;
+}
+#today-roster .roster-totals .roster-total.roster-meal-active{
+  background:linear-gradient(180deg,#1f737d,#10515f)!important;
+  color:#d2fff8;
+  box-shadow:inset 0 3px #8df5e1,inset 0 1px #ffffff26!important;
+}
+#today-roster .roster-head-row .roster-label.roster-meal-active:nth-child(3),
+#today-roster .roster-head-row .roster-label.roster-meal-active:nth-child(6),
+#today-roster .roster-row .roster-name.roster-meal-active:nth-child(3),
+#today-roster .roster-row .roster-name.roster-meal-active:nth-child(6),
+#today-roster .roster-totals .roster-total.roster-meal-active:nth-child(3),
+#today-roster .roster-totals .roster-total.roster-meal-active:nth-child(6){
+  border-left-color:#a1ffee;
+}
+#today-roster .roster-row.roster-key-current .roster-name.roster-meal-active{
+  background:#236a77;
+}
+#today-roster .roster-row .roster-name.roster-key-cell{
+  background:#28778a;
+}
+@media (prefers-reduced-motion:reduce){
+  #today-meals .meal-card{transition:none}
+  #today-roster .roster-label,#today-roster .roster-name,#today-roster .roster-total{transition:none}
+}
 </style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Website kiểm tra API V7 mỗi 3 giây khi trang đang mở; nguồn Google Sheets có thể cập nhật chậm hơn.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload" title="Tải lại dữ liệu nhà bếp và kiểm tra CODE #8">↻ Cập nhật</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
