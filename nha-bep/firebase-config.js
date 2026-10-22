@@ -10,6 +10,6 @@ window.NUS_FIREBASE_CONFIG=Object.freeze({
   projectId:'',
   appId:'',
   requireGoogleSignIn:true,
-  snapshotPath:'nusKitchen/snapshot',
-  code8Path:'nusKitchen/code8'
+  snapshotPath:'nusKitchen/snapshotJson',
+  code8Path:'nusKitchen/code8Json'
 });
