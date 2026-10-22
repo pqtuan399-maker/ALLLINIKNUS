@@ -747,6 +747,43 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   #today-meals .meal-card{transition:none}
   #today-roster .roster-label,#today-roster .roster-name,#today-roster .roster-total{transition:none}
 }
+</style><style id="nus-live-meal-synchronized-v15">
+/* One active service group for the entire TODAY dashboard.
+   No layout transforms on roster rows; eight-column alignment is preserved.
+   Sáng 00:00–08:59 / Trưa 09:00–12:00 / Tối 12:01–23:59, Vietnam time. */
+#today-roster .roster-label.roster-meal-active,
+#today-roster .roster-name.roster-meal-active,
+#today-roster .roster-total.roster-meal-active{
+  transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+/* Outer borders connect every active header, row and total into one visual block. */
+#today-roster .roster-label.roster-meal-active:nth-child(1),
+#today-roster .roster-label.roster-meal-active:nth-child(3),
+#today-roster .roster-label.roster-meal-active:nth-child(6),
+#today-roster .roster-row .roster-name.roster-meal-active:nth-child(1),
+#today-roster .roster-row .roster-name.roster-meal-active:nth-child(3),
+#today-roster .roster-row .roster-name.roster-meal-active:nth-child(6),
+#today-roster .roster-total.roster-meal-active:nth-child(1),
+#today-roster .roster-total.roster-meal-active:nth-child(3),
+#today-roster .roster-total.roster-meal-active:nth-child(6){
+  border-left:3px solid #70e6d2!important;
+}
+#today-roster .roster-label.roster-meal-active:nth-child(2),
+#today-roster .roster-label.roster-meal-active:nth-child(5),
+#today-roster .roster-label.roster-meal-active:nth-child(8),
+#today-roster .roster-row .roster-name.roster-meal-active:nth-child(2),
+#today-roster .roster-row .roster-name.roster-meal-active:nth-child(5),
+#today-roster .roster-row .roster-name.roster-meal-active:nth-child(8),
+#today-roster .roster-total.roster-meal-active:nth-child(2),
+#today-roster .roster-total.roster-meal-active:nth-child(5),
+#today-roster .roster-total.roster-meal-active:nth-child(8){
+  border-right:3px solid #70e6d2!important;
+}
+#today-roster .roster-meal-active.roster-empty{color:#afd7d6}
+.day-block.today .meal-card.meal-active .meal-heading{color:#f0fffc}
+@media(prefers-reduced-motion:reduce){
+ #today-roster .roster-meal-active{transition:none}
+}
 </style></head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Website kiểm tra API V7 mỗi 3 giây khi trang đang mở; nguồn Google Sheets có thể cập nhật chậm hơn.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload" title="Tải lại dữ liệu nhà bếp và kiểm tra CODE #8">↻ Cập nhật</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
@@ -945,9 +982,10 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         (extras.length?'<div class="meal-extras">'+extras.map(p=>'<span>'+encode(p)+'</span>').join('')+'</div>':'')+
       '</div>';
     }).join('');
-    updateActiveMeal();
+    updateActiveMeal(true);
   }
-  function updateActiveMeal(){
+  let lastActiveMealIndex=-1;
+  function updateActiveMeal(force=false){
     // Always use Vietnam-local clock, regardless of device time zone.
     const parts=new Intl.DateTimeFormat('en-GB',{
       timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hourCycle:'h23'
@@ -958,9 +996,17 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     // Sáng 00:00–08:59, Trưa 09:00–12:00, Tối 12:01–23:59.
     const active=clock<540?0:clock<=720?1:2;
     const group=['morning','lunch','dinner'][active];
+    // The 1-second local clock selects the exact meal at 09:00 and 12:01.
+    // Avoid repainting hundreds of roster cells when the meal hasn't changed.
+    if(!force&&active===lastActiveMealIndex)return;
+    lastActiveMealIndex=active;
+    document.documentElement.dataset.currentKitchenMeal=group;
     // Keep the three today-summary cards' established raised-card styling.
     document.querySelectorAll('#today-meals .meal-card').forEach(card=>{
-      card.classList.toggle('meal-active',Number(card.dataset.mealIndex)===active);
+      const selected=Number(card.dataset.mealIndex)===active;
+      card.classList.toggle('meal-active',selected);
+      if(selected)card.setAttribute('aria-current','true');
+      else card.removeAttribute('aria-current');
     });
     // The roster has eight columns: 2 morning, 3 lunch, 3 dinner.
     // Mark entire cells, NOT rows: row-first rendering remains perfectly aligned.
@@ -1380,7 +1426,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       renderMeals(which,data[which]);
       renderRoster(which,data[which]);
     }
-    updateActiveMeal();
+    updateActiveMeal(true);
     scheduleDayAlignment();
   }
 
@@ -1540,15 +1586,19 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     status('ĐÃ CÓ MẠNG · ĐANG KIỂM TRA API');
     refresh();refreshCode8();
   });
+  // One Vietnam-time heartbeat controls date, current meal AND source-day rollovers.
+  // Sources remain independent: V7 every 3s, CODE #8 every 5s.
   setInterval(()=>{
     updateClock();
+    updateActiveMeal();
     if(rolloverCode8Day()){
       alertUI();
       setCode8Status('Đã bắt đầu ngày mới · Đang tải thông báo hôm nay...');
+      // Re-read BOTH APIs at midnight rather than waiting for their next poll.
+      refresh();
       refreshCode8();
     }
   },1000);
-  setInterval(updateActiveMeal,15000);
   refresh();
   // Do not fire both Apps Script URLs simultaneously on weak connections.
   setTimeout(()=>{
@@ -1565,7 +1615,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     if(!document.hidden){
       // On returning to the display, immediately select the current
       // Vietnam-time meal and its 2/3/3 roster columns (no stale highlight).
-      updateActiveMeal();
+      updateActiveMeal(true);
       if(rolloverCode8Day())alertUI();
       refresh();refreshCode8();
     }
