@@ -1384,6 +1384,47 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     scheduleDayAlignment();
   }
 
+  // Optional Firebase live stream. Defaults to OFF until configured by owner.
+  // Apps Script remains the known-good read-only fallback throughout migration.
+  const firebaseStream={connected:false,snapshot:false,code8:false};
+  window.NUSKitchenRealtime=Object.freeze({
+    snapshot(payload){
+      if(!payload||payload.ok!==true||!payload.today||!payload.tomorrow)
+        throw new Error('Firebase kitchen snapshot is invalid');
+      apply(payload);
+      firebaseStream.snapshot=true;
+      status('⚡ FIREBASE · DỮ LIỆU TRỰC TIẾP');
+      $('state').title='Đang nhận dữ liệu theo luồng Firebase Realtime Database.';
+    },
+    code8(payload){
+      if(!payload||payload.ok!==true||payload.schema!==1||!Array.isArray(payload.events))
+        throw new Error('Firebase CODE #8 payload invalid');
+      if(String(payload.day)!==localDay())throw new Error('Firebase CODE #8 feed is from a different day');
+      applyCode8(payload);
+      firebaseStream.code8=true;
+    },
+    connection(connected){
+      firebaseStream.connected=!!connected;
+      if(!connected)this.disconnected();
+    },
+    fault(source){
+      if(source==='snapshot')firebaseStream.snapshot=false;
+      if(source==='code8')firebaseStream.code8=false;
+      if(!document.hidden&&navigator.onLine!==false){
+        if(source==='snapshot')refresh();
+        if(source==='code8')refreshCode8();
+      }
+    },
+    disconnected(){
+      firebaseStream.connected=false;
+      firebaseStream.snapshot=false;
+      firebaseStream.code8=false;
+      if(!document.hidden&&navigator.onLine!==false){
+        refresh();refreshCode8();
+      }
+    }
+  });
+
   function refresh(){
     if(mainPending)return mainPending;
     if(!API_URL.includes('/exec')){status('CHƯA CÓ API',true);return Promise.resolve(false)}
@@ -1512,11 +1553,13 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   // Do not fire both Apps Script URLs simultaneously on weak connections.
   setTimeout(()=>{
     refreshCode8();
-    setInterval(refreshCode8,CODE8_POLL);
+    setInterval(()=>{
+      if(!(firebaseStream.connected&&firebaseStream.code8))refreshCode8();
+    },CODE8_POLL);
   },1700);
   // Always retry after errors; refresh remains non-blocking.
   setInterval(()=>{
-    if(!document.hidden)refresh();
+    if(!document.hidden&&!(firebaseStream.connected&&firebaseStream.snapshot))refresh();
   },MAIN_POLL);
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden){
@@ -1528,4 +1571,8 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     }
   });
 })();
-</script></body></html>
+</script>
+<!-- Firebase is opt-in. With enabled:false, these files have no effect. -->
+<script src="./firebase-config.js?v=1"></script>
+<script type="module" src="./firebase-live.js?v=1"></script>
+</body></html>
