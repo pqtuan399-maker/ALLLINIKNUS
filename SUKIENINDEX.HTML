@@ -111,10 +111,22 @@
     }
     for (const event of EVENTS) {
       const card = element('article', 'event');
-      const img = element('img', 'event-image');
+      const isVideo = /\.(mp4|webm)(?:[?#]|$)/i.test(event.image);
+      const img = element(isVideo ? 'video' : 'img', 'event-image');
+
+      if (isVideo) {
+      img.autoplay = true;
+      img.muted = true;
+      img.loop = true;
+      img.playsInline = true;
+      img.preload = 'metadata';
+      img.setAttribute('aria-label', event.alt || event.title);
+    } else {
+     img.alt = event.alt || event.title;
+     img.decoding = 'async';
+}
+
       img.src = event.image;
-      img.alt = event.alt;
-      img.decoding = 'async';
       const content = element('div', 'event-content');
       const info = element('div');
       const date = element('div', 'event-label');
