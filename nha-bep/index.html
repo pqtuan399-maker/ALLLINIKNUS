@@ -1968,18 +1968,6 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       'body .bottom'
     ].join(', ');
 
-    const ordinaryText = [
-      'body',
-      'body .app',
-      'body .mainframe',
-      'body .day-block',
-      'body .meal-card',
-      'body .roster-name',
-      'body .roster-label',
-      'body .roster-empty',
-      'body .day-reminder'
-    ].join(', ');
-
     themeCSS.textContent = \`
       \${surfaces} {
         background: \${background} !important;
@@ -1987,30 +1975,16 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         background-image: none !important;
       }
 
-      \${ordinaryText} {
+      /* Màu chữ tùy chỉnh chỉ áp dụng cho nội dung thông thường. */
+      body {
         color: \${foreground} !important;
       }
 
-      /* Giữ màu gốc cho các thành phần chức năng và nhận diện. */
-      body button,
-      body button *,
-      body a.button,
-      body a.button *,
-      body .badge,
-      body .alert-btn,
-      body .alert-btn *,
-      body .alert-count,
-      body .notif-panel,
-      body .notif-panel *,
-      body .notif-item,
-      body .notif-item *,
-      body .offline-banner,
-      body .offline-banner *,
-      body .meal-active,
-      body .roster-meal-active,
-      #nus-theme-control,
-      #nus-theme-control * {
-        color: revert !important;
+      body .roster-name,
+      body .roster-label,
+      body .roster-empty,
+      body .day-reminder {
+        color: \${foreground} !important;
       }
 
       body .roster-name,
