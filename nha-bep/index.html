@@ -826,51 +826,41 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   </button>
 
   <div id="nus-theme-panel">
-    <h3>🎨 Tùy chỉnh giao diện</h3>
-    <p>
-      Chọn màu nền và màu chữ cho màn hình nhà bếp.
-      Màu mặc định sẽ khôi phục giao diện gốc.
-    </p>
-
+    <h3>🎨 Màu từng khu vực</h3>
+    <p>Chọn khu vực, chỉnh màu nền và màu chữ riêng, rồi nhấn “Áp dụng & lưu”. Các nút, chuông và màu trạng thái được giữ nguyên.</p>
     <div class="nus-theme-field">
-      <label for="nus-theme-bg">Màu nền</label>
+      <label for="nus-theme-area">Khu vực cần chỉnh</label>
+      <select id="nus-theme-area">
+        <option value="page">Toàn trang / nền chung</option>
+        <option value="today">Khung HÔM NAY</option>
+        <option value="tomorrow">Khung NGÀY MAI</option>
+        <option value="meal">Các ô bữa ăn</option>
+        <option value="roster">Các ô danh sách phục vụ</option>
+        <option value="reminder">Ô ghi chú / nhắc nhở</option>
+        <option value="heading">Tiêu đề từng ngày</option>
+      </select>
+    </div>
+    <div class="nus-theme-field">
+      <label for="nus-theme-bg">Màu nền khu vực</label>
       <div class="nus-theme-inputs">
-        <input id="nus-theme-bg-picker"
-               type="color" value="#101820"
-               aria-label="Chọn màu nền"/>
-        <input id="nus-theme-bg" type="text"
-               value="#101820" maxlength="7"
-               placeholder="#101820"/>
+        <input id="nus-theme-bg-picker" type="color" value="#101820" aria-label="Chọn màu nền"/>
+        <input id="nus-theme-bg" type="text" value="#101820" maxlength="7" placeholder="#101820"/>
       </div>
     </div>
-
     <div class="nus-theme-field">
-      <label for="nus-theme-fg">Màu chữ</label>
+      <label for="nus-theme-fg">Màu chữ khu vực</label>
       <div class="nus-theme-inputs">
-        <input id="nus-theme-fg-picker"
-               type="color" value="#F2F6FA"
-               aria-label="Chọn màu chữ"/>
-        <input id="nus-theme-fg" type="text"
-               value="#F2F6FA" maxlength="7"
-               placeholder="#F2F6FA"/>
+        <input id="nus-theme-fg-picker" type="color" value="#F2F6FA" aria-label="Chọn màu chữ"/>
+        <input id="nus-theme-fg" type="text" value="#F2F6FA" maxlength="7" placeholder="#F2F6FA"/>
       </div>
     </div>
-
     <div class="nus-theme-actions">
-      <button id="nus-theme-reset" type="button">
-        Mặc định
-      </button>
-      <button id="nus-theme-apply"
-              class="nus-theme-apply" type="button">
-        Áp dụng & lưu
-      </button>
+      <button id="nus-theme-reset" type="button">Mặc định</button>
+      <button id="nus-theme-apply" class="nus-theme-apply" type="button">Áp dụng & lưu</button>
     </div>
-
-    <div id="nus-theme-status"
-         class="nus-theme-status" aria-live="polite">
-      Chưa thay đổi giao diện.
-    </div>
+    <div id="nus-theme-status" class="nus-theme-status" aria-live="polite">Chọn khu vực để bắt đầu.</div>
   </div>
+</div>v>
 </div>
 <button class="button" type="button" id="reload" title="Tải lại dữ liệu nhà bếp và kiểm tra CODE #8">↻ Cập nhật</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
 <article class="day-block today">
@@ -1881,6 +1871,11 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     color: #8DE9D8;
     font-size: 11px;
   }
+
+  #nus-theme-panel select {
+    display:block;width:100%;padding:10px;border:1px solid #526C80;border-radius:7px;
+    background:#FFFFFF;color:#17212B;font-size:13px;font-family:inherit;cursor:pointer;
+  }
 </style>
 
 
@@ -1888,180 +1883,100 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 <script id="nus-theme-control-script">
 (function () {
   'use strict';
-
-  const KEY = 'NUS_KITCHEN_THEME_V1';
-  const STYLE_ID = 'nus-theme-live-overrides';
-
+  const KEY = 'NUS_KITCHEN_THEME_V2';
   const root = document.getElementById('nus-theme-control');
-  if (!root || root.dataset.initialized === '1') return;
-  root.dataset.initialized = '1';
-
-  // The control is authored directly inside the existing toolbar,
-  // before the Update button, so it cannot fall back to a fixed corner.
+  if (!root || root.dataset.initialized === '2') return;
+  root.dataset.initialized = '2';
 
   const panel = document.getElementById('nus-theme-panel');
   const openBtn = document.getElementById('nus-theme-open');
+  const area = document.getElementById('nus-theme-area');
   const bg = document.getElementById('nus-theme-bg');
   const fg = document.getElementById('nus-theme-fg');
   const bgPicker = document.getElementById('nus-theme-bg-picker');
   const fgPicker = document.getElementById('nus-theme-fg-picker');
   const status = document.getElementById('nus-theme-status');
+  const style = document.createElement('style');
+  style.id = 'nus-theme-live-overrides';
+  document.head.appendChild(style);
 
-  // CSS chỉ tác động giao diện, loại trừ bảng điều khiển này.
-  const themeCSS = document.createElement('style');
-  themeCSS.id = STYLE_ID;
-  document.head.appendChild(themeCSS);
-
-  function validHex(value) {
-    return /^#[0-9a-fA-F]{6}$/.test(value.trim());
+  const defaults = { page: {background:'#101820',foreground:'#F2F6FA'} };
+  const areas = {
+    page: { selectors: ['body','.app','.mainframe','.bottom'], text: ['body'] },
+    today: { selectors: ['.day-block.today'], text: ['.day-block.today .tile-head','.day-block.today .roster-controls'] },
+    tomorrow: { selectors: ['.day-block.tomorrow'], text: ['.day-block.tomorrow .tile-head','.day-block.tomorrow .roster-controls'] },
+    meal: { selectors: ['.meal-card'], text: ['.meal-card .meal-heading','.meal-card .meal-line','.meal-card .meal-line strong','.meal-card .meal-time','.meal-card .meal-metrics'] },
+    roster: { selectors: ['.roster-grid','.roster-inner','.roster-columns','.roster-name','.roster-label','.roster-empty'], text: ['.roster-name','.roster-label','.roster-empty'] },
+    reminder: { selectors: ['.day-reminder'], text: ['.day-reminder-text','.day-reminder-date'] },
+    heading: { selectors: ['.day-block-head'], text: ['.day-block-head > span'] }
+  };
+  let saved = {};
+  function validHex(v) { return /^#[0-9a-fA-F]{6}$/.test(String(v).trim()); }
+  function setStatus(msg) { status.textContent = msg; }
+  function syncPicker(input, picker) { if (validHex(input.value)) picker.value = input.value.trim(); }
+  function readFields() {
+    const v = saved[area.value] || defaults[area.value] || defaults.page;
+    bg.value = v.background;
+    fg.value = v.foreground;
+    bgPicker.value = v.background;
+    fgPicker.value = v.foreground;
   }
-
-  function setStatus(message) {
-    status.textContent = message;
+  function render() {
+    const css = [];
+    Object.keys(saved).forEach(function (key) {
+      const config = areas[key];
+      const v = saved[key];
+      if (!config || !validHex(v.background) || !validHex(v.foreground)) return;
+      css.push(config.selectors.join(',') + '{background-color:' + v.background + ' !important;background-image:none !important;}');
+      css.push(config.text.join(',') + '{color:' + v.foreground + ' !important;}');
+    });
+    style.textContent = css.join('\n');
   }
-
-  function syncPicker(textInput, picker) {
-    const value = textInput.value.trim();
-    if (validHex(value)) picker.value = value;
-  }
-
-  bgPicker.addEventListener('input', function () {
-    bg.value = bgPicker.value.toUpperCase();
-  });
-
-  fgPicker.addEventListener('input', function () {
-    fg.value = fgPicker.value.toUpperCase();
-  });
-
-  bg.addEventListener('input', function () {
-    syncPicker(bg, bgPicker);
-  });
-
-  fg.addEventListener('input', function () {
-    syncPicker(fg, fgPicker);
-  });
-
-  function applyTheme(background, foreground) {
-    if (!validHex(background) || !validHex(foreground)) {
-      setStatus('Vui lòng nhập mã HEX hợp lệ, ví dụ #123456.');
-      return false;
-    }
-
-    background = background.toUpperCase();
-    foreground = foreground.toUpperCase();
-
-    // Chỉ đổi các bề mặt nền chính; giữ nguyên màu nút, trạng thái và thông báo.
-    const surfaces = [
-      'body',
-      'body .app',
-      'body .mainframe',
-      'body .day-pair',
-      'body .day-block',
-      'body .meal-card',
-      'body .roster-grid',
-      'body .roster-inner',
-      'body .roster-columns',
-      'body .roster-name',
-      'body .roster-label',
-      'body .roster-empty',
-      'body .day-reminder',
-      'body .bottom'
-    ].join(', ');
-
-    themeCSS.textContent = \`
-      \${surfaces} {
-        background: \${background} !important;
-        background-color: \${background} !important;
-        background-image: none !important;
-      }
-
-      /* Màu chữ tùy chỉnh chỉ áp dụng cho nội dung thông thường. */
-      body {
-        color: \${foreground} !important;
-      }
-
-      /* Ép màu chữ nội dung thường, kể cả các vùng có CSS gốc ưu tiên cao.
-         Không áp dụng cho nút, nhãn trạng thái, chuông/thông báo hay bảng điều khiển màu. */
-      body .roster-name,
-      #today-roster .roster-name,
-      #tomorrow-roster .roster-name,
-      body .roster-label,
-      body .roster-empty,
-      body .day-reminder,
-      body .meal-line,
-      body .meal-line strong {
-        color: ${foreground} !important;
-      }
-
-      body .roster-name,
-      #today-roster .roster-name,
-      #tomorrow-roster .roster-name,
-      body .roster-label {
-        border-color: ${foreground}55 !important;
-      }
-    \`;
-
-    bg.value = background;
-    fg.value = foreground;
-    bgPicker.value = background;
-    fgPicker.value = foreground;
-
-    try {
-      localStorage.setItem(KEY, JSON.stringify({
-        background: background,
-        foreground: foreground
-      }));
-      setStatus('Đã áp dụng và lưu màu trên trình duyệt này.');
-    } catch (error) {
-      setStatus('Đã áp dụng màu tạm thời; trình duyệt không cho lưu.');
-    }
-
-    return true;
-  }
-
-  function resetTheme() {
-    // Xóa phần ghi đè để CSS gốc tự hoạt động trở lại.
-    themeCSS.textContent = '';
-
-    try {
-      localStorage.removeItem(KEY);
-    } catch (error) {}
-
-    bg.value = '#101820';
-    fg.value = '#F2F6FA';
-    bgPicker.value = '#101820';
-    fgPicker.value = '#F2F6FA';
-
-    setStatus('Đã trở về màu mặc định của giao diện gốc.');
-  }
+  bgPicker.addEventListener('input', function () { bg.value = bgPicker.value.toUpperCase(); });
+  fgPicker.addEventListener('input', function () { fg.value = fgPicker.value.toUpperCase(); });
+  bg.addEventListener('input', function () { syncPicker(bg, bgPicker); });
+  fg.addEventListener('input', function () { syncPicker(fg, fgPicker); });
+  area.addEventListener('change', readFields);
 
   openBtn.addEventListener('click', function () {
     const visible = panel.classList.toggle('nus-theme-visible');
     openBtn.setAttribute('aria-expanded', String(visible));
   });
-
-  document.getElementById('nus-theme-apply')
-    .addEventListener('click', function () {
-      applyTheme(bg.value, fg.value);
-    });
-
-  document.getElementById('nus-theme-reset')
-    .addEventListener('click', resetTheme);
-
-  // Khôi phục lựa chọn đã lưu khi mở lại trang.
+  document.getElementById('nus-theme-apply').addEventListener('click', function () {
+    if (!validHex(bg.value) || !validHex(fg.value)) {
+      setStatus('Mã HEX chưa hợp lệ. Ví dụ: #000000');
+      return;
+    }
+    saved[area.value] = { background: bg.value.trim().toUpperCase(), foreground: fg.value.trim().toUpperCase() };
+    render();
+    try {
+      localStorage.setItem(KEY, JSON.stringify(saved));
+      setStatus('Đã lưu màu cho khu vực: ' + area.options[area.selectedIndex].text + '.');
+    } catch (e) {
+      setStatus('Đã áp dụng màu nhưng trình duyệt không cho lưu.');
+    }
+  });
+  document.getElementById('nus-theme-reset').addEventListener('click', function () {
+    delete saved[area.value];
+    render();
+    try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+    readFields();
+    setStatus('Đã khôi phục màu gốc cho khu vực đang chọn.');
+  });
   try {
-    const saved = localStorage.getItem(KEY);
-    if (saved) {
-      const theme = JSON.parse(saved);
-      if (theme &&
-          validHex(theme.background) &&
-          validHex(theme.foreground)) {
-        applyTheme(theme.background, theme.foreground);
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        Object.keys(areas).forEach(function (key) {
+          const v = parsed[key];
+          if (v && validHex(v.background) && validHex(v.foreground)) saved[key] = v;
+        });
       }
     }
-  } catch (error) {
-    setStatus('Không thể đọc màu đã lưu; đang dùng màu gốc.');
-  }
+  } catch (e) {}
+  render();
+  readFields();
 })();
 </script>
 <!-- HẾT NUS: BẢNG ĐIỀU KHIỂN MÀU GIAO DIỆN -->
