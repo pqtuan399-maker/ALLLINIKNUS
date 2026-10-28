@@ -826,12 +826,12 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   </button>
 
   <div id="nus-theme-panel">
-    <h3>🎨 Màu từng khu vực</h3>
-    <p>Chọn khu vực, chỉnh màu nền và màu chữ riêng, rồi nhấn “Áp dụng & lưu”. Các nút, chuông và màu trạng thái được giữ nguyên.</p>
+    <h3>🎨 Tùy chỉnh màu website</h3>
+    <p>Chọn 1 trong 100 combo để đổi màu nền và chữ trên toàn website. Combo hoạt động độc lập với chế độ sáng/tối của màn hình; các nút chức năng vẫn giữ nền riêng.</p>
     <div class="nus-theme-field">
       <label for="nus-theme-area">Khu vực cần chỉnh</label>
       <select id="nus-theme-area">
-        <option value="page">Toàn trang / nền chung</option>
+        <option value="page">Toàn bộ website (100 combo)</option>
         <option value="today">Khung HÔM NAY</option>
         <option value="tomorrow">Khung NGÀY MAI</option>
         <option value="meal">Các ô bữa ăn</option>
@@ -845,7 +845,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       <select id="nus-theme-preset">
         <option value="">— Chọn một combo màu —</option>
       </select>
-      <p class="nus-theme-preset-hint">Chọn combo để điền màu nền và màu chữ tương phản; sau đó nhấn “Áp dụng & lưu”.</p>
+      <p class="nus-theme-preset-hint">Chọn combo để áp dụng cho toàn bộ trang, rồi nhấn “Áp dụng & lưu”. Có thể dùng trên màn hình sáng hoặc tối.</p>
     </div>
     <div class="nus-theme-field">
       <label for="nus-theme-bg">Màu nền khu vực</label>
@@ -1920,7 +1920,12 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 
   const defaults = { page: {background:'#101820',foreground:'#F2F6FA'} };
   const areas = {
-    page: { selectors: ['body','.app','.mainframe','.bottom'], text: ['body'] },
+    // Combo "Toàn bộ website" phủ các bề mặt chính và toàn bộ chữ,
+    // không phụ thuộc chế độ sáng/tối của hệ điều hành/trình duyệt.
+    page: {
+      selectors: ['body','.app','.mainframe','.bottom','.day-block','.day-block-head','.tile-head','.meal-card','.roster-grid','.roster-inner','.roster-columns','.roster-name','.roster-label','.roster-empty','.day-reminder'],
+      text: ['body']
+    },
     today: { selectors: ['.day-block.today'], text: ['.day-block.today .tile-head','.day-block.today .roster-controls'] },
     tomorrow: { selectors: ['.day-block.tomorrow'], text: ['.day-block.tomorrow .tile-head','.day-block.tomorrow .roster-controls'] },
     meal: { selectors: ['.meal-card'], text: ['.meal-card .meal-heading','.meal-card .meal-line','.meal-card .meal-line strong','.meal-card .meal-time','.meal-card .meal-metrics'] },
@@ -1946,15 +1951,19 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       const v = saved[key];
       if (!config || !validHex(v.background) || !validHex(v.foreground)) return;
       css.push(config.selectors.join(',') + '{background-color:' + v.background + ' !important;background-image:none !important;}');
-      // Tăng độ ưu tiên màu chữ để thắng các quy tắc CSS gốc có màu trắng cố định.
-      // Áp dụng cả cho chữ nằm sâu bên trong từng khu vực, không chỉ phần tử cha.
-      const textTargets = config.text.slice();
-      // :is(#nus-theme-control, ...) tạo độ ưu tiên tương đương ID,
-      // giúp màu chữ tùy chỉnh thắng CSS gốc đang ép màu trắng.
-      // Áp dụng cho cả chính vùng được chọn và mọi phần tử con bên trong.
-      textTargets.push(':is(#nus-theme-control, ' + config.selectors.join(',') + ')');
-      textTargets.push(':is(#nus-theme-control, ' + config.selectors.join(',') + ') *');
-      css.push(textTargets.join(',') + '{color:' + v.foreground + ' !important;-webkit-text-fill-color:' + v.foreground + ' !important;}');
+      // Đối với combo toàn trang, đổi màu chữ trên toàn bộ nội dung;
+      // loại trừ bảng điều khiển màu để các ô nhập vẫn dễ đọc.
+      if (key === 'page') {
+        css.push('body :not(#nus-theme-control):not(#nus-theme-control *){color:' + v.foreground + ' !important;-webkit-text-fill-color:' + v.foreground + ' !important;}');
+        css.push('body,body .app,body .mainframe,body .bottom{background-color:' + v.background + ' !important;background-image:none !important;}');
+        // Các nút thao tác giữ nền riêng để không làm mất nhận diện chức năng.
+        css.push('button{ -webkit-text-fill-color:inherit; }');
+      } else {
+        const textTargets = config.text.slice();
+        textTargets.push(':is(#nus-theme-control, ' + config.selectors.join(',') + ')');
+        textTargets.push(':is(#nus-theme-control, ' + config.selectors.join(',') + ') *');
+        css.push(textTargets.join(',') + '{color:' + v.foreground + ' !important;-webkit-text-fill-color:' + v.foreground + ' !important;}');
+      }
     });
     style.textContent = css.join('\n');
   }
@@ -1998,11 +2007,13 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   presetSelect.addEventListener('change', function () {
     if (!presetSelect.value) return;
     const colors = presetSelect.value.split('|');
+    // Combo 100 màu luôn áp dụng cho toàn bộ website, bất kể khu vực đang chọn.
+    area.value = 'page';
     bg.value = colors[0];
     fg.value = colors[1];
     bgPicker.value = colors[0];
     fgPicker.value = colors[1];
-    setStatus('Đã chọn combo màu. Nhấn “Áp dụng & lưu” để sử dụng.');
+    setStatus('Đã chọn combo màu cho toàn bộ website. Nhấn “Áp dụng & lưu” để sử dụng.');
   });
 
   openBtn.addEventListener('click', function () {
@@ -2014,11 +2025,12 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       setStatus('Mã HEX chưa hợp lệ. Ví dụ: #000000');
       return;
     }
+    // Khi chọn combo, khu vực đã được chuyển về "Toàn bộ website".
     saved[area.value] = { background: bg.value.trim().toUpperCase(), foreground: fg.value.trim().toUpperCase() };
     render();
     try {
       localStorage.setItem(KEY, JSON.stringify(saved));
-      setStatus('Đã lưu màu cho khu vực: ' + area.options[area.selectedIndex].text + '.');
+      setStatus('Đã lưu màu cho: ' + area.options[area.selectedIndex].text + '.');
     } catch (e) {
       setStatus('Đã áp dụng màu nhưng trình duyệt không cho lưu.');
     }
