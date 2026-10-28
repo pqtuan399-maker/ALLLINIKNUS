@@ -2062,7 +2062,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   liveStyle.id='nus-theme-live-combo-preview';
   document.head.appendChild(liveStyle);
   const comboFonts=['"Oswald","Arial Narrow",Arial,sans-serif'];
-  function buildComboCss(background,foreground,index) {
+  function buildComboCss(background,baseForeground,index) {
     const family=Math.floor(index/10), shade=index%10;
     const light=luminance(background)>0.40;
     const hueSets=[
