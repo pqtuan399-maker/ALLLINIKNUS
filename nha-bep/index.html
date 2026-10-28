@@ -826,27 +826,10 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   </button>
 
   <div id="nus-theme-panel">
-    <h3>🎨 Tùy chỉnh màu website</h3>
-    <p>Chọn 1 trong 100 combo để đổi màu nền và chữ trên toàn website. Combo hoạt động độc lập với chế độ sáng/tối của màn hình; các nút chức năng vẫn giữ nền riêng.</p>
-    <div class="nus-theme-field">
-      <label for="nus-theme-mode">Chế độ giao diện</label>
-      <select id="nus-theme-mode">
-        <option value="presets" selected>100 giao diện gợi ý</option>
-        <option value="custom">Tùy chỉnh như trang tính</option>
-      </select>
-    </div>
-    <div class="nus-theme-field">
-      <label for="nus-theme-area">Khu vực cần chỉnh</label>
-      <select id="nus-theme-area">
-        <option value="page">Toàn bộ website (100 combo)</option>
-        <option value="today">Khung HÔM NAY</option>
-        <option value="tomorrow">Khung NGÀY MAI</option>
-        <option value="meal">Các ô bữa ăn</option>
-        <option value="roster">Các ô danh sách phục vụ</option>
-        <option value="reminder">Ô ghi chú / nhắc nhở</option>
-        <option value="heading">Tiêu đề từng ngày</option>
-      </select>
-    </div>
+    <h3>🎨 100 combo màu giao diện</h3>
+    <p>Chọn một trong 100 phối màu để xem trước toàn bộ giao diện. Mỗi combo phối nền, thẻ, chữ chính/phụ, đường viền và màu nhấn; chọn “Áp dụng & lưu” để lưu.</p>
+    <select id="nus-theme-mode" hidden><option value="presets" selected>100 giao diện gợi ý</option></select>
+    <select id="nus-theme-area" hidden><option value="page" selected>Toàn bộ website</option></select>
     <div id="nus-theme-presets-panel">
     <div class="nus-theme-field">
       <label for="nus-theme-preset">100 phối màu gợi ý · xem trước</label>
@@ -863,7 +846,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         </div>
         <div id="nus-theme-preview-label" class="nus-theme-preview-label">Chọn một combo để xem thử trước khi áp dụng.</div>
       </div>
-      <p class="nus-theme-preset-hint">Rê chuột lên từng combo để xem thử. Chọn combo sẽ khóa chỉnh màu thủ công; chỉ nhấn “Áp dụng & lưu” mới lưu màu thật.</p>
+      <p class="nus-theme-preset-hint">Rê chuột lên từng combo để xem trước toàn bộ website. Chỉ nhấn “Áp dụng & lưu” mới lưu màu thật.</p>
     </div>
     </div>
     <div id="nus-theme-custom-panel" hidden>
@@ -1971,6 +1954,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   const status = document.getElementById('nus-theme-status');
   const presetSelect = document.getElementById('nus-theme-preset');
   const modeSelect = document.getElementById('nus-theme-mode');
+  modeSelect.value = 'presets';
   const presetsPanel = document.getElementById('nus-theme-presets-panel');
   const customPanel = document.getElementById('nus-theme-custom-panel');
   const borderInput = document.getElementById('nus-theme-border');
@@ -2091,11 +2075,13 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     return [
       scope+'{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;font-style:normal !important;}',
       'body,body .app,body .mainframe,body .bottom{background:'+background+' !important;background-image:none !important;}',
-      'body .day-block,body .day-block-head,body .tile-head,body .meal-card,body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-name,body .roster-label,body .roster-empty,body .day-reminder,body .header,body .brand p,body .badge,body .button,body .alert-btn,body .notif-panel,body .notif-item,body .show-tomorrow,body .tomorrow-collapse,body .sound-preview,body .offline-banner,body .roster-controls,body .roster-totals,body .roster-total{background-color:'+surface+' !important;background-image:none !important;}',
-      'body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-name,body .roster-label,body .notif-item,body .roster-controls{background-color:'+card+' !important;}',
+      'body .day-block,body .day-block-head,body .tile-head,body .meal-card,body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-name,body .roster-label,body .roster-empty,body .day-reminder,body .header,body .brand p,body .badge,body .button,body .alert-btn,body .notif-panel,body .notif-item,body .show-tomorrow,body .tomorrow-collapse,body .sound-preview,body .offline-banner,body .roster-controls,body .roster-totals,body .roster-total,body .roster-head-row{background-color:'+surface+' !important;background-image:none !important;}',
+      'body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-name,body .roster-label,body .roster-totals .roster-total,body .roster-head-row .roster-label,body .notif-item,body .roster-controls{background-color:'+card+' !important;}',
       'body .day-block-head,body .tile-head,body .meal-card .meal-heading,body .roster-label,body .day-reminder,body .roster-total,body .brand h1{color:'+accent+' !important;-webkit-text-fill-color:'+accent+' !important;}',
       'body .brand p,body .minor,body .clock span,body .meal-card .meal-time,body .meal-extras span,body .roster-controls,body .notif-panel small,body .offline-meta span{color:'+muted+' !important;-webkit-text-fill-color:'+muted+' !important;}',
-      'body .meal-card .meal-stat,body .meal-card .meal-seat-bar{background:'+selected+' !important;}',
+      'body .meal-card .meal-stat,body .meal-card .meal-seat-bar,body .day-block .roster-totals .roster-total.roster-meal-active,body .day-block .roster-head-row .roster-label.roster-meal-active,body .day-block .roster-row .roster-name.roster-meal-active{background:'+selected+' !important;background-image:none !important;box-shadow:none !important;text-shadow:none !important;}',
+      'body .day-block .roster-head-row .roster-label.roster-meal-active,body .day-block .roster-row .roster-name.roster-meal-active,body .day-block .roster-totals .roster-total.roster-meal-active{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;border-color:'+accent+' !important;}',
+      'body .day-block .roster-totals,body .day-block .roster-totals .roster-total{background-color:'+surface+' !important;background-image:none !important;color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;border-color:'+border+' !important;}',
       'body .meal-card .meal-stat strong,body .meal-card .meal-seat-bar strong,body .meal-card .meal-seat-bar em{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;}',
       'body .day-block,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-label,body .day-reminder,body .notif-panel,body .notif-item,body button,body a{border-color:'+border+' !important;outline-color:'+accent+' !important;}',
       'body hr,body .roster-grid:before,body .roster-grid:after,body .roster-columns:before,body .roster-columns:after,body .meal-card:before,body .meal-card:after,body .meal-line:before,body .meal-line:after{background-color:'+border+' !important;border-color:'+border+' !important;}',
@@ -2134,7 +2120,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   boldInput.addEventListener('change',function(){if(modeSelect.value==='custom')previewCustomOnPage();});
   italicInput.addEventListener('change',function(){if(modeSelect.value==='custom')previewCustomOnPage();});
   area.addEventListener('change', function(){readFields();if(modeSelect.value==='custom')previewCustomOnPage();});
-  modeSelect.addEventListener('change',syncMode);
+  // Chỉ còn chế độ 100 combo gợi ý; không cho chuyển sang tùy chỉnh.
 
   // 100 combo màu gợi ý: 10 nhóm màu, mỗi nhóm có 10 nền; chữ tự chọn đen/trắng
   // theo độ sáng nền để giữ độ tương phản rõ ràng.
@@ -2283,28 +2269,16 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     openBtn.setAttribute('aria-expanded', String(visible));
   });
   document.getElementById('nus-theme-apply').addEventListener('click', function () {
-    if (!validHex(bg.value) || !validHex(fg.value) || (modeSelect.value==='custom'&&!validHex(borderInput.value))) {
-      setStatus('Mã HEX chưa hợp lệ. Ví dụ: #000000');
+    if (!presetSelect.value || !pendingPreset) {
+      setStatus('Hãy chọn một trong 100 combo màu trước khi áp dụng.');
       return;
     }
-    // Combo gợi ý chỉ lưu khi người dùng xác nhận bằng nút này.
-    if (modeSelect.value==='presets' && presetSelect.value && pendingPreset) {
-      saved = { page: { background: pendingPreset.background, foreground: contrastText(pendingPreset.background), presetIndex: pendingPreset.presetIndex } };
-      area.value = 'page';
-    } else {
-      saved[area.value] = { background: bg.value.trim().toUpperCase(), foreground: fg.value.trim().toUpperCase(), borderColor:borderInput.value.trim().toUpperCase(), bold:boldInput.checked, italic:italicInput.checked };
-    }
+    saved = { page: { background: pendingPreset.background, foreground: contrastText(pendingPreset.background), presetIndex: pendingPreset.presetIndex } };
     render();
     try {
       localStorage.setItem(KEY, JSON.stringify(saved));
-      if (modeSelect.value==='presets' && pendingPreset) {
-        setStatus('Đã áp dụng và lưu '+pendingPreset.label+' cho toàn bộ website.');
-        previewColors(pendingPreset.background,contrastText(pendingPreset.background),'Đang áp dụng '+pendingPreset.label);
-      } else {
-        liveStyle.textContent='';
-        render();
-        setStatus('Đã lưu tùy chỉnh cho: ' + area.options[area.selectedIndex].text + '.');
-      }
+      setStatus('Đã áp dụng và lưu '+pendingPreset.label+' cho toàn bộ website.');
+      previewColors(pendingPreset.background,contrastText(pendingPreset.background),'Đang áp dụng '+pendingPreset.label);
     } catch (e) {
       setStatus('Đã áp dụng màu nhưng trình duyệt không cho lưu.');
     }
@@ -2317,7 +2291,6 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     modeSelect.value='presets';
     presetsPanel.hidden=false;
     customPanel.hidden=true;
-    lockManualFields(false);
     style.textContent = '';
     liveStyle.textContent = '';
     try { localStorage.removeItem(KEY); } catch (e) {}
@@ -2340,7 +2313,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   } catch (e) {}
   render();
   readFields();
-  lockManualFields(modeSelect.value==='presets');
+  lockManualFields(true);
   restoreAppliedPreview();
   syncMode();
 })();
