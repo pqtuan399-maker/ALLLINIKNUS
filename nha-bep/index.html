@@ -1939,7 +1939,8 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   #nus-theme-panel .nus-theme-style-options label { display:flex; align-items:center; gap:8px; font-weight:500; margin:8px 0; }
   #nus-theme-panel .nus-theme-style-options input[type="checkbox"] { width:16px; height:16px; accent-color:#087F72; }
   #nus-theme-panel [hidden] { display:none !important; }
-  body, body *:not(#nus-theme-control):not(#nus-theme-control *) { font-family:"Oswald","Arial Narrow",Arial,sans-serif; }
+  body, body *:not(#nus-theme-control):not(#nus-theme-control *) { font-family:"Oswald","Arial Narrow",Arial,sans-serif !important; }
+  #nus-theme-control, #nus-theme-control * { font-family:"Oswald","Arial Narrow",Arial,sans-serif !important; }
 
   /* Giữ bộ chọn màu và các nút chức năng thành một cụm toolbar liên tục. */
   .toolbar { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
@@ -2041,6 +2042,9 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       const v = saved[key];
       if (!config || !validHex(v.background) || !validHex(v.foreground)) return;
       css.push(config.selectors.join(',') + '{background-color:' + v.background + ' !important;background-image:none !important;}');
+      if(validHex(v.borderColor)) css.push(config.selectors.join(',') + '{border-color:'+v.borderColor+' !important;}');
+      css.push(config.selectors.join(',') + '{font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;font-weight:'+(v.bold===false?'400':'700')+' !important;font-style:'+(v.italic===true?'italic':'normal')+' !important;}');
+      if(validHex(v.borderColor) && (key==='page'||key==='meal')) css.push('body hr,body .meal-card:before,body .meal-card:after,body .meal-line:before,body .meal-line:after{border-color:'+v.borderColor+' !important;background-color:'+v.borderColor+' !important;}');
       // Đối với combo toàn trang, đổi màu chữ trên toàn bộ nội dung;
       // loại trừ bảng điều khiển màu để các ô nhập vẫn dễ đọc.
       if (key === 'page') {
