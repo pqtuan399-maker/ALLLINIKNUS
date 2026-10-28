@@ -2069,13 +2069,23 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   const comboFonts=['"Oswald","Arial Narrow",Arial,sans-serif'];
   function buildComboCss(background,foreground,index) {
     const family=Math.floor(index/10), shade=index%10;
-    foreground = contrastText(background);
     const light=luminance(background)>0.40;
-    const surface=light?'#FFFFFF':mixColor(background,'#FFFFFF',0.10);
-    const card=light?mixColor(background,'#000000',0.055):mixColor(background,'#FFFFFF',0.16);
-    const border=light?mixColor(background,'#000000',0.24):mixColor(background,'#FFFFFF',0.34);
-    const accent=light?mixColor(background,['#087F72','#2455A4','#6A3BA0','#A63A5B','#9A4C16'][family%5],0.30):mixColor(background,['#54DFAB','#8BC5FF','#D4B4FF','#FF9DBB','#FFD18A'][family%5],0.42);
-    const font=comboFonts[(family+Math.floor(shade/2))%comboFonts.length];
+    const hueSets=[
+      ['#1D5FA7','#68A7E8','#D7E9FA'],['#087F72','#37BDA9','#C8F3EA'],
+      ['#397B27','#79B957','#DDF0CF'],['#6741A5','#A98AE0','#E7DDF8'],
+      ['#A83261','#E178A0','#F8D9E5'],['#A54830','#DE8061','#F6D9CE'],
+      ['#916516','#D6A73D','#F6E5B4'],['#785638','#B18A5C','#F0E2CD'],
+      ['#53616D','#8D9AA5','#E1E6EB'],['#087E9C','#38BCD8','#C9F3FB']
+    ];
+    const hues=hueSets[family%hueSets.length];
+    const foreground=light?mixColor('#182536',hues[0],0.12):mixColor('#F5F8FC',hues[2],0.12);
+    const muted=light?mixColor(foreground,background,0.24):mixColor(foreground,background,0.25);
+    const surface=light?mixColor(background,'#FFFFFF',0.68):mixColor(background,'#07111D',0.20);
+    const card=light?mixColor(background,'#FFFFFF',0.34):mixColor(background,'#FFFFFF',0.13);
+    const border=light?mixColor(background,hues[0],0.40):mixColor(background,hues[1],0.58);
+    const accent=light?hues[0]:hues[1];
+    const accentSoft=light?hues[2]:mixColor(background,hues[2],0.38);
+    const selected=light?mixColor(background,hues[2],0.34):mixColor(background,hues[0],0.42);
     const headingWeight=(index%3===0||index%3===1)?'800':'700';
     const scope='body :not(#nus-theme-control):not(#nus-theme-control *)';
     return [
@@ -2083,12 +2093,19 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       'body,body .app,body .mainframe,body .bottom{background:'+background+' !important;background-image:none !important;}',
       'body .day-block,body .day-block-head,body .tile-head,body .meal-card,body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-name,body .roster-label,body .roster-empty,body .day-reminder,body .header,body .brand p,body .badge,body .button,body .alert-btn,body .notif-panel,body .notif-item,body .show-tomorrow,body .tomorrow-collapse,body .sound-preview,body .offline-banner,body .roster-controls,body .roster-totals,body .roster-total{background-color:'+surface+' !important;background-image:none !important;}',
       'body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-name,body .roster-label,body .notif-item,body .roster-controls{background-color:'+card+' !important;}',
-      'body :not(#nus-theme-control):not(#nus-theme-control *){border-color:'+border+' !important;outline-color:'+accent+' !important;}',
-      'body hr,body .roster-grid:before,body .roster-grid:after,body .roster-columns:before,body .roster-columns:after,body .meal-card:before,body .meal-card:after,body .meal-line:before,body .meal-line:after{background-color:'+border+' !important;}',
+      'body .day-block-head,body .tile-head,body .meal-card .meal-heading,body .roster-label,body .day-reminder,body .roster-total,body .brand h1{color:'+accent+' !important;-webkit-text-fill-color:'+accent+' !important;}',
+      'body .brand p,body .minor,body .clock span,body .meal-card .meal-time,body .meal-extras span,body .roster-controls,body .notif-panel small,body .offline-meta span{color:'+muted+' !important;-webkit-text-fill-color:'+muted+' !important;}',
+      'body .meal-card .meal-stat,body .meal-card .meal-seat-bar{background:'+selected+' !important;}',
+      'body .meal-card .meal-stat strong,body .meal-card .meal-seat-bar strong,body .meal-card .meal-seat-bar em{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;}',
+      'body .day-block,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-label,body .day-reminder,body .notif-panel,body .notif-item,body button,body a{border-color:'+border+' !important;outline-color:'+accent+' !important;}',
+      'body hr,body .roster-grid:before,body .roster-grid:after,body .roster-columns:before,body .roster-columns:after,body .meal-card:before,body .meal-card:after,body .meal-line:before,body .meal-line:after{background-color:'+border+' !important;border-color:'+border+' !important;}',
+      'body .day-block.today .meal-card.meal-active{border-color:'+accent+' !important;box-shadow:inset 0 0 0 1px '+accent+'55,0 0 0 1px '+accent+'44 !important;}',
+      'body a,body .status,body .connection-status,body .day-reminder strong,body .meal-heading .meal-star{color:'+accent+' !important;-webkit-text-fill-color:'+accent+' !important;}',
+      'body .badge,body .alert-btn[aria-pressed="true"]{background:'+selected+' !important;color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;}',
+      'body .day-reminder-date,body .day-reminder-text{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;}',
       'body .day-block-head,body .tile-head,body .meal-heading,body .roster-label,body .day-reminder{font-weight:'+headingWeight+' !important;}',
-      'body .day-reminder-text,body .day-reminder-date,body .meal-time{font-style:normal !important;}',
+      'body :not(#nus-theme-control):not(#nus-theme-control *){font-style:normal !important;}',
       'body .day-block,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns{box-shadow:0 0 0 1px '+border+' !important;}',
-      'body a,body .status,body .connection-status,body .day-reminder strong{color:'+accent+' !important;-webkit-text-fill-color:'+accent+' !important;}',
       'button:not(#nus-theme-open),button:not(#nus-theme-open) *{border-color:'+border+' !important;font-style:normal !important;}'
     ].join('\\n');
   }
