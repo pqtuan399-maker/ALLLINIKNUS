@@ -841,6 +841,13 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       </select>
     </div>
     <div class="nus-theme-field">
+      <label for="nus-theme-preset">100 phối màu gợi ý</label>
+      <select id="nus-theme-preset">
+        <option value="">— Chọn một combo màu —</option>
+      </select>
+      <p class="nus-theme-preset-hint">Chọn combo để điền màu nền và màu chữ tương phản; sau đó nhấn “Áp dụng & lưu”.</p>
+    </div>
+    <div class="nus-theme-field">
       <label for="nus-theme-bg">Màu nền khu vực</label>
       <div class="nus-theme-inputs">
         <input id="nus-theme-bg-picker" type="color" value="#101820" aria-label="Chọn màu nền"/>
@@ -1875,6 +1882,9 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     display:block;width:100%;padding:10px;border:1px solid #526C80;border-radius:7px;
     background:#FFFFFF;color:#17212B;font-size:13px;font-family:inherit;cursor:pointer;
   }
+  #nus-theme-panel .nus-theme-preset-hint {
+    margin:6px 0 0;color:#BDD0DE;font-size:11px;line-height:1.4;
+  }
 
   /* Giữ bộ chọn màu và các nút chức năng thành một cụm toolbar liên tục. */
   .toolbar { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
@@ -1903,6 +1913,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   const bgPicker = document.getElementById('nus-theme-bg-picker');
   const fgPicker = document.getElementById('nus-theme-fg-picker');
   const status = document.getElementById('nus-theme-status');
+  const presetSelect = document.getElementById('nus-theme-preset');
   const style = document.createElement('style');
   style.id = 'nus-theme-live-overrides';
   document.head.appendChild(style);
@@ -1952,6 +1963,47 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   bg.addEventListener('input', function () { syncPicker(bg, bgPicker); });
   fg.addEventListener('input', function () { syncPicker(fg, fgPicker); });
   area.addEventListener('change', readFields);
+
+  // 100 combo màu gợi ý: 10 nhóm màu, mỗi nhóm có 10 nền; chữ tự chọn đen/trắng
+  // theo độ sáng nền để giữ độ tương phản rõ ràng.
+  const paletteFamilies = [
+    ['Xanh biển', ['#F0F7FF','#DCEBFA','#B9D8F5','#8FC0EB','#5C9FD8','#245A86','#19496F','#123B5C','#0D2F4A','#071F33']],
+    ['Xanh ngọc', ['#E8FFFA','#C8F5EB','#9DE8D7','#68D5BF','#32B99F','#167F72','#11685F','#0D554F','#093E3B','#062B2A']],
+    ['Xanh lá', ['#F0F9E8','#DDF0C8','#BCE39B','#91CC69','#62AE3D','#397B27','#2E6521','#24521B','#193B14','#10280D']],
+    ['Tím', ['#F6F0FF','#E7D9FA','#D0B7F2','#B393E7','#916BD3','#6343A2','#503582','#402A69','#2D1D4C','#1C1233']],
+    ['Hồng', ['#FFF0F4','#FBD9E3','#F5B6CB','#EC8EAF','#D95E8B','#9E315D','#84264D','#681E3F','#4D1630','#320E20']],
+    ['Đỏ gạch', ['#FFF3EE','#F8D9CC','#F0B59E','#E48B6B','#CF6242','#963C29','#7D3022','#63261D','#491C16','#30120E']],
+    ['Cam vàng', ['#FFF8E5','#FCE9B7','#F6D47D','#EAB94D','#C99525','#8A6418','#735214','#5B4110','#42300B','#2D2007']],
+    ['Nâu be', ['#FFF9EF','#F3E5CF','#E4CFAD','#CDB18A','#B28C61','#785638','#62452F','#4C3627','#36271D','#241912']],
+    ['Xám trung tính', ['#FFFFFF','#F1F3F5','#DDE2E7','#C1CAD2','#9BA7B2','#53616D','#414D57','#303A43','#202930','#11171C']],
+    ['Đêm neon', ['#F0FCFF','#CFF7FF','#9BEAFF','#58D8F5','#1CB6D9','#145A79','#104963','#0B374D','#08283A','#041925']]
+  ];
+  function contrastText(hex) {
+    const rgb = hex.match(/[0-9a-f]{2}/gi).map(function (v) {
+      const c = parseInt(v, 16) / 255;
+      return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    const luminance = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+    return luminance > 0.42 ? '#000000' : '#FFFFFF';
+  }
+  paletteFamilies.forEach(function (family, familyIndex) {
+    family[1].forEach(function (background, shadeIndex) {
+      const foreground = contrastText(background);
+      const option = document.createElement('option');
+      option.value = background + '|' + foreground;
+      option.textContent = String(familyIndex * 10 + shadeIndex + 1).padStart(2, '0') + ' · ' + family[0] + ' — nền ' + background + ' / chữ ' + foreground;
+      presetSelect.appendChild(option);
+    });
+  });
+  presetSelect.addEventListener('change', function () {
+    if (!presetSelect.value) return;
+    const colors = presetSelect.value.split('|');
+    bg.value = colors[0];
+    fg.value = colors[1];
+    bgPicker.value = colors[0];
+    fgPicker.value = colors[1];
+    setStatus('Đã chọn combo màu. Nhấn “Áp dụng & lưu” để sử dụng.');
+  });
 
   openBtn.addEventListener('click', function () {
     const visible = panel.classList.toggle('nus-theme-visible');
