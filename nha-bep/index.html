@@ -2093,7 +2093,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       'body :not(#nus-theme-control):not(#nus-theme-control *){font-style:normal !important;}',
       'body .day-block,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns{box-shadow:0 0 0 1px '+border+' !important;}',
       'button:not(#nus-theme-open),button:not(#nus-theme-open) *{border-color:'+border+' !important;font-style:normal !important;}'
-    ].join('\\n');
+    ].join('\n');
   }
   function previewComboOnPage(background,foreground,index) {
     liveStyle.textContent=buildComboCss(background,contrastText(background),index);
