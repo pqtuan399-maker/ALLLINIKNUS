@@ -820,7 +820,59 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 }
 </style></head><body>
 <main class="app">
-<header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Website kiểm tra API V7 mỗi 3 giây khi trang đang mở; nguồn Google Sheets có thể cập nhật chậm hơn.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><button class="button" type="button" id="reload" title="Tải lại dữ liệu nhà bếp và kiểm tra CODE #8">↻ Cập nhật</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
+<header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Website kiểm tra API V7 mỗi 3 giây khi trang đang mở; nguồn Google Sheets có thể cập nhật chậm hơn.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><div id="nus-theme-control">
+  <button id="nus-theme-open" type="button">
+    🎨 MÀU GIAO DIỆN
+  </button>
+
+  <div id="nus-theme-panel">
+    <h3>🎨 Tùy chỉnh giao diện</h3>
+    <p>
+      Chọn màu nền và màu chữ cho màn hình nhà bếp.
+      Màu mặc định sẽ khôi phục giao diện gốc.
+    </p>
+
+    <div class="nus-theme-field">
+      <label for="nus-theme-bg">Màu nền</label>
+      <div class="nus-theme-inputs">
+        <input id="nus-theme-bg-picker"
+               type="color" value="#101820"
+               aria-label="Chọn màu nền"/>
+        <input id="nus-theme-bg" type="text"
+               value="#101820" maxlength="7"
+               placeholder="#101820"/>
+      </div>
+    </div>
+
+    <div class="nus-theme-field">
+      <label for="nus-theme-fg">Màu chữ</label>
+      <div class="nus-theme-inputs">
+        <input id="nus-theme-fg-picker"
+               type="color" value="#F2F6FA"
+               aria-label="Chọn màu chữ"/>
+        <input id="nus-theme-fg" type="text"
+               value="#F2F6FA" maxlength="7"
+               placeholder="#F2F6FA"/>
+      </div>
+    </div>
+
+    <div class="nus-theme-actions">
+      <button id="nus-theme-reset" type="button">
+        Mặc định
+      </button>
+      <button id="nus-theme-apply"
+              class="nus-theme-apply" type="button">
+        Áp dụng & lưu
+      </button>
+    </div>
+
+    <div id="nus-theme-status"
+         class="nus-theme-status" aria-live="polite">
+      Chưa thay đổi giao diện.
+    </div>
+  </div>
+</div>
+<button class="button" type="button" id="reload" title="Tải lại dữ liệu nhà bếp và kiểm tra CODE #8">↻ Cập nhật</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
 <article class="day-block today">
   <div class="day-block-head day-alert-head"><span id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><div class="alert-actions"><button id="notif-toggle" class="alert-btn" type="button" aria-label="Mở thông báo thay đổi" aria-expanded="false">🔔 <span id="notif-count" class="alert-count" hidden>0</span></button><button id="sound-toggle" class="alert-btn" type="button" aria-label="Bật hoặc tắt loa thông báo" aria-pressed="false">🔇 <span id="sound-label">Tắt</span></button></div></div><div id="notif-panel" class="notif-panel" hidden><div class="notif-panel-head"><strong>THAY ĐỔI DANH SÁCH HÔM NAY</strong><button id="notif-read-all" class="alert-btn" type="button">Đã xem tất cả</button></div><div id="notif-items" class="notif-items"></div><div id="notif-feed-status" class="notif-feed-status" role="status" aria-live="polite">Đang kết nối nhật ký CODE #8...</div></div>
   <div class="meal-grid" id="today-meals"><div class="pending">Đang đọc kết quả hôm nay...</div></div>
@@ -1710,24 +1762,25 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     display: inline-flex;
     align-items: center;
     flex: 0 0 auto;
-    font-family: Arial, sans-serif;
+    font-family: "Oswald", "Arial Narrow", Arial, sans-serif !important;
     color: #F4F7FB;
   }
 
   #nus-theme-control button {
     cursor: pointer;
+    font-family: "Oswald", "Arial Narrow", Arial, sans-serif !important;
     font: inherit;
   }
 
   #nus-theme-open {
-    padding: 12px 17px;
+    padding: 9px 12px;
     border: 1px solid #58DCC7;
-    border-radius: 12px;
+    border-radius: 8px;
     background: #173B4C;
     color: #FFFFFF;
     font-size: 13px;
     font-weight: 700;
-    box-shadow: 0 4px 18px #0006;
+    box-shadow: none;
   }
 
   #nus-theme-panel {
@@ -1830,58 +1883,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   }
 </style>
 
-<div id="nus-theme-control">
-  <button id="nus-theme-open" type="button">
-    🎨 MÀU GIAO DIỆN
-  </button>
 
-  <div id="nus-theme-panel">
-    <h3>🎨 Tùy chỉnh giao diện</h3>
-    <p>
-      Chọn màu nền và màu chữ cho màn hình nhà bếp.
-      Màu mặc định sẽ khôi phục giao diện gốc.
-    </p>
-
-    <div class="nus-theme-field">
-      <label for="nus-theme-bg">Màu nền</label>
-      <div class="nus-theme-inputs">
-        <input id="nus-theme-bg-picker"
-               type="color" value="#101820"
-               aria-label="Chọn màu nền"/>
-        <input id="nus-theme-bg" type="text"
-               value="#101820" maxlength="7"
-               placeholder="#101820"/>
-      </div>
-    </div>
-
-    <div class="nus-theme-field">
-      <label for="nus-theme-fg">Màu chữ</label>
-      <div class="nus-theme-inputs">
-        <input id="nus-theme-fg-picker"
-               type="color" value="#F2F6FA"
-               aria-label="Chọn màu chữ"/>
-        <input id="nus-theme-fg" type="text"
-               value="#F2F6FA" maxlength="7"
-               placeholder="#F2F6FA"/>
-      </div>
-    </div>
-
-    <div class="nus-theme-actions">
-      <button id="nus-theme-reset" type="button">
-        Mặc định
-      </button>
-      <button id="nus-theme-apply"
-              class="nus-theme-apply" type="button">
-        Áp dụng & lưu
-      </button>
-    </div>
-
-    <div id="nus-theme-status"
-         class="nus-theme-status" aria-live="polite">
-      Chưa thay đổi giao diện.
-    </div>
-  </div>
-</div>
 
 <script id="nus-theme-control-script">
 (function () {
@@ -1894,13 +1896,8 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   if (!root || root.dataset.initialized === '1') return;
   root.dataset.initialized = '1';
 
-  // Place the independent color control in the existing top toolbar,
-  // immediately before the Update button.
-  const toolbar = document.querySelector('.header .toolbar');
-  const reloadButton = document.getElementById('reload');
-  if (toolbar && reloadButton) {
-    toolbar.insertBefore(root, reloadButton);
-  }
+  // The control is authored directly inside the existing toolbar,
+  // before the Update button, so it cannot fall back to a fixed corner.
 
   const panel = document.getElementById('nus-theme-panel');
   const openBtn = document.getElementById('nus-theme-open');
