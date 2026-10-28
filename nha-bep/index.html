@@ -2019,10 +2019,11 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     return [
       scope+'{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;font-family:'+font+' !important;}',
       'body,body .app,body .mainframe,body .bottom{background:'+background+' !important;background-image:none !important;}',
-      'body .day-block,body .day-block-head,body .tile-head,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-name,body .roster-label,body .roster-empty,body .day-reminder{background-color:'+surface+' !important;background-image:none !important;}',
+      'body .day-block,body .day-block-head,body .tile-head,body .meal-card,body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-name,body .roster-label,body .roster-empty,body .day-reminder{background-color:'+surface+' !important;background-image:none !important;}',
       'body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-name,body .roster-label{background-color:'+card+' !important;}',
       'body :not(#nus-theme-control):not(#nus-theme-control *){border-color:'+border+' !important;outline-color:'+accent+' !important;}',
-      'body hr,body .roster-grid:before,body .roster-grid:after,body .roster-columns:before,body .roster-columns:after{border-color:'+border+' !important;background-color:'+border+' !important;}',
+      'body hr,body .meal-card,body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .day-block,body .day-block-head,body .roster-grid:before,body .roster-grid:after,body .roster-columns:before,body .roster-columns:after,body .meal-card:before,body .meal-card:after,body .meal-line:before,body .meal-line:after{border-color:'+border+' !important;outline-color:'+accent+' !important;}',
+      'body hr,body .roster-grid:before,body .roster-grid:after,body .roster-columns:before,body .roster-columns:after,body .meal-card:before,body .meal-card:after,body .meal-line:before,body .meal-line:after{background-color:'+border+' !important;}',
       'body .day-block-head,body .tile-head,body .meal-heading,body .roster-label,body .day-reminder{font-weight:'+headingWeight+' !important;}',
       'body .day-reminder-text,body .day-reminder-date,body .meal-time{font-style:'+(italic?'italic':'normal')+' !important;}',
       'body .day-block,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns{box-shadow:0 0 0 1px '+border+' !important;}',
@@ -2143,7 +2144,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     lockManualFields(true);
     previewComboOnPage(colors[0],colors[1],comboIndex);
     previewColors(colors[0],colors[1],'Đang xem trực tiếp '+label);
-    setStatus('Đang xem trực tiếp '+label trên toàn website. Chưa lưu; nhấn “Áp dụng & lưu” để xác nhận.');
+    setStatus('Đang xem trực tiếp '+label+' trên toàn website. Chưa lưu; nhấn “Áp dụng & lưu” để xác nhận.');
   });
   presetSelect.addEventListener('change',function(){
     if(!presetSelect.value)return;
