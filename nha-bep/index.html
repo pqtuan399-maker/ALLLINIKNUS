@@ -861,7 +861,6 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     <div id="nus-theme-status" class="nus-theme-status" aria-live="polite">Chọn khu vực để bắt đầu.</div>
   </div>
 </div>
-</div>
 <button class="button" type="button" id="reload" title="Tải lại dữ liệu nhà bếp và kiểm tra CODE #8">↻ Cập nhật</button><button class="button" type="button" id="fullscreen">⛶ Toàn màn hình</button><a class="button" id="source" target="_blank" rel="noopener noreferrer">↗ Nguồn</a></div></header><section class="day-pair" id="day-pair">
 <article class="day-block today">
   <div class="day-block-head day-alert-head"><span id="today-head">☀ HÔM NAY · KẾT QUẢ ĐẶT BÀN & DANH SÁCH PHỤC VỤ</span><div class="alert-actions"><button id="notif-toggle" class="alert-btn" type="button" aria-label="Mở thông báo thay đổi" aria-expanded="false">🔔 <span id="notif-count" class="alert-count" hidden>0</span></button><button id="sound-toggle" class="alert-btn" type="button" aria-label="Bật hoặc tắt loa thông báo" aria-pressed="false">🔇 <span id="sound-label">Tắt</span></button></div></div><div id="notif-panel" class="notif-panel" hidden><div class="notif-panel-head"><strong>THAY ĐỔI DANH SÁCH HÔM NAY</strong><button id="notif-read-all" class="alert-btn" type="button">Đã xem tất cả</button></div><div id="notif-items" class="notif-items"></div><div id="notif-feed-status" class="notif-feed-status" role="status" aria-live="polite">Đang kết nối nhật ký CODE #8...</div></div>
@@ -1876,6 +1875,14 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     display:block;width:100%;padding:10px;border:1px solid #526C80;border-radius:7px;
     background:#FFFFFF;color:#17212B;font-size:13px;font-family:inherit;cursor:pointer;
   }
+
+  /* Giữ bộ chọn màu và các nút chức năng thành một cụm toolbar liên tục. */
+  .toolbar { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+  #nus-theme-control { flex:0 0 auto; }
+  #nus-theme-control #nus-theme-open { white-space:nowrap; }
+  @media(max-width:1100px) {
+    .toolbar { gap:6px; }
+  }
 </style>
 
 
@@ -1957,11 +1964,13 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     }
   });
   document.getElementById('nus-theme-reset').addEventListener('click', function () {
-    delete saved[area.value];
-    render();
-    try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+    // Mặc định khôi phục toàn bộ website, không chỉ khu vực đang chọn.
+    saved = {};
+    style.textContent = '';
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    area.value = 'page';
     readFields();
-    setStatus('Đã khôi phục màu gốc cho khu vực đang chọn.');
+    setStatus('Đã khôi phục màu gốc cho toàn bộ website.');
   });
   try {
     const raw = localStorage.getItem(KEY);
