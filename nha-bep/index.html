@@ -1946,6 +1946,17 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 
   const panel = document.getElementById('nus-theme-panel');
   const openBtn = document.getElementById('nus-theme-open');
+  // Attach the open/close action immediately, before palette initialization.
+  // This keeps the control usable even if a later preview helper fails.
+  if (openBtn && panel && !openBtn.dataset.clickBound) {
+    openBtn.dataset.clickBound = '1';
+    openBtn.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      const visible = panel.classList.toggle('nus-theme-visible');
+      openBtn.setAttribute('aria-expanded', String(visible));
+    });
+  }
   const area = document.getElementById('nus-theme-area');
   const bg = document.getElementById('nus-theme-bg');
   const fg = document.getElementById('nus-theme-fg');
@@ -2264,10 +2275,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     else restoreLivePage();
   });
 
-  openBtn.addEventListener('click', function () {
-    const visible = panel.classList.toggle('nus-theme-visible');
-    openBtn.setAttribute('aria-expanded', String(visible));
-  });
+  // Open/close handler is bound before palette initialization above.
   document.getElementById('nus-theme-apply').addEventListener('click', function () {
     if (!presetSelect.value || !pendingPreset) {
       setStatus('Hãy chọn một trong 100 combo màu trước khi áp dụng.');
