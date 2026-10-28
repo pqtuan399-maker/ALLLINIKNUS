@@ -1953,26 +1953,46 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     const excluded =
       ':not(#nus-theme-control):not(#nus-theme-control *)';
 
+    // Áp màu nền bằng thuộc tính background (không chỉ background-color)
+    // để loại bỏ gradient/ảnh nền cũ có thể làm màu bị pha hoặc loang.
+    // Bao phủ cả các lớp khung cha và các bề mặt hiển thị của bảng nhà bếp.
     const surfaces = [
       'body',
+      'body .app',
+      'body .mainframe',
+      'body .day-pair',
       'body .day-block',
+      'body .day-block-head',
+      'body .tile',
+      'body .tile-head',
       'body .meal-card',
+      'body .meal-heading',
+      'body .meal-stat',
+      'body .meal-metrics',
+      'body .meal-seat-bar',
+      'body .roster',
       'body .roster-grid',
       'body .roster-inner',
       'body .roster-columns',
+      'body .roster-head-row',
+      'body .roster-totals',
+      'body .roster-total',
+      'body .roster-controls',
       'body .roster-name',
       'body .roster-label',
-      'body .day-reminder'
+      'body .roster-empty',
+      'body .roster-key-cell',
+      'body .day-reminder',
+      'body .bottom'
     ].join(', ');
 
     themeCSS.textContent = `
-      body {
+      ${surfaces} {
+        background: ${background} !important;
         background-color: ${background} !important;
-        color: ${foreground} !important;
       }
 
-      ${surfaces} {
-        background-color: ${background} !important;
+      body {
         color: ${foreground} !important;
       }
 
