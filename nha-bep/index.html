@@ -3399,10 +3399,13 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   }
 
   #nus-theme-control {
-    position: fixed;
-    right: 18px;
-    bottom: 18px;
+    position: relative;
+    right: auto;
+    bottom: auto;
     z-index: 999999;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
     font-family: Arial, sans-serif;
     color: #F4F7FB;
   }
@@ -3427,7 +3430,8 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     display: none;
     position: absolute;
     right: 0;
-    bottom: 56px;
+    top: calc(100% + 8px);
+    bottom: auto;
     width: min(340px, calc(100vw - 28px));
     padding: 18px;
     border: 1px solid #52758B;
@@ -3586,6 +3590,14 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   if (!root || root.dataset.initialized === '1') return;
   root.dataset.initialized = '1';
 
+  // Place the independent color control in the existing top toolbar,
+  // immediately before the Update button.
+  const toolbar = document.querySelector('.header .toolbar');
+  const reloadButton = document.getElementById('reload');
+  if (toolbar && reloadButton) {
+    toolbar.insertBefore(root, reloadButton);
+  }
+
   const panel = document.getElementById('nus-theme-panel');
   const openBtn = document.getElementById('nus-theme-open');
   const bg = document.getElementById('nus-theme-bg');
@@ -3737,5 +3749,4 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 })();
 </script>
 <!-- HẾT NUS: BẢNG ĐIỀU KHIỂN MÀU GIAO DIỆN -->
-</body></html>
 </body></html>
