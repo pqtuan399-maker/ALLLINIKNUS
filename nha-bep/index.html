@@ -1950,61 +1950,74 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     background = background.toUpperCase();
     foreground = foreground.toUpperCase();
 
-    const excluded =
-      ':not(#nus-theme-control):not(#nus-theme-control *)';
-
-    // Áp màu nền bằng thuộc tính background (không chỉ background-color)
-    // để loại bỏ gradient/ảnh nền cũ có thể làm màu bị pha hoặc loang.
-    // Bao phủ cả các lớp khung cha và các bề mặt hiển thị của bảng nhà bếp.
+    // Chỉ đổi các bề mặt nền chính; giữ nguyên màu nút, trạng thái và thông báo.
     const surfaces = [
       'body',
       'body .app',
       'body .mainframe',
       'body .day-pair',
       'body .day-block',
-      'body .day-block-head',
-      'body .tile',
-      'body .tile-head',
       'body .meal-card',
-      'body .meal-heading',
-      'body .meal-stat',
-      'body .meal-metrics',
-      'body .meal-seat-bar',
-      'body .roster',
       'body .roster-grid',
       'body .roster-inner',
       'body .roster-columns',
-      'body .roster-head-row',
-      'body .roster-totals',
-      'body .roster-total',
-      'body .roster-controls',
       'body .roster-name',
       'body .roster-label',
       'body .roster-empty',
-      'body .roster-key-cell',
       'body .day-reminder',
       'body .bottom'
     ].join(', ');
 
-    themeCSS.textContent = `
-      ${surfaces} {
-        background: ${background} !important;
-        background-color: ${background} !important;
+    const ordinaryText = [
+      'body',
+      'body .app',
+      'body .mainframe',
+      'body .day-block',
+      'body .meal-card',
+      'body .roster-name',
+      'body .roster-label',
+      'body .roster-empty',
+      'body .day-reminder'
+    ].join(', ');
+
+    themeCSS.textContent = \`
+      \${surfaces} {
+        background: \${background} !important;
+        background-color: \${background} !important;
+        background-image: none !important;
       }
 
-      body {
-        color: ${foreground} !important;
+      \${ordinaryText} {
+        color: \${foreground} !important;
       }
 
-      body :not(#nus-theme-control):not(#nus-theme-control *) {
-        color: ${foreground} !important;
+      /* Giữ màu gốc cho các thành phần chức năng và nhận diện. */
+      body button,
+      body button *,
+      body a.button,
+      body a.button *,
+      body .badge,
+      body .alert-btn,
+      body .alert-btn *,
+      body .alert-count,
+      body .notif-panel,
+      body .notif-panel *,
+      body .notif-item,
+      body .notif-item *,
+      body .offline-banner,
+      body .offline-banner *,
+      body .meal-active,
+      body .roster-meal-active,
+      #nus-theme-control,
+      #nus-theme-control * {
+        color: revert !important;
       }
 
       body .roster-name,
       body .roster-label {
-        border-color: ${foreground}55 !important;
+        border-color: \${foreground}55 !important;
       }
-    `;
+    \`;
 
     bg.value = background;
     fg.value = foreground;
