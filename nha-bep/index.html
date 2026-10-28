@@ -2073,8 +2073,9 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       ['#53616D','#8D9AA5','#E1E6EB'],['#087E9C','#38BCD8','#C9F3FB']
     ];
     const hues=hueSets[family%hueSets.length];
-    const foreground=light?mixColor('#182536',hues[0],0.12):mixColor('#F5F8FC',hues[2],0.12);
-    const muted=light?mixColor(foreground,background,0.24):mixColor(foreground,background,0.25);
+    // Keep the palette's tint while enforcing readable text contrast.
+    const foreground=tintedContrastText(background,hues[0],0.18);
+    const muted=tintedContrastText(background,hues[1],0.10);
     const surface=light?mixColor(background,'#FFFFFF',0.68):mixColor(background,'#07111D',0.20);
     const card=light?mixColor(background,'#FFFFFF',0.34):mixColor(background,'#FFFFFF',0.13);
     const border=light?mixColor(background,hues[0],0.40):mixColor(background,hues[1],0.58);
@@ -2159,6 +2160,20 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     const black=(lum+0.05)/0.05;
     const white=1.05/(lum+0.05);
     return white>=black?'#FFFFFF':'#000000';
+  }
+  function tintedContrastText(background,tint,maxAmount) {
+    const base=contrastText(background);
+    let amount=maxAmount;
+    let candidate=mixColor(base,tint,amount);
+    const ratio=(a,b)=>{
+      const x=luminance(a),y=luminance(b);
+      return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05);
+    };
+    while(amount>0 && ratio(background,candidate)<4.5){
+      amount=Math.max(0,amount-0.02);
+      candidate=mixColor(base,tint,amount);
+    }
+    return candidate;
   }
   function previewColors(background, foreground, label) {
     const light = luminance(background) > 0.40;
