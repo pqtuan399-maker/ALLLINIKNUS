@@ -1935,7 +1935,13 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       const v = saved[key];
       if (!config || !validHex(v.background) || !validHex(v.foreground)) return;
       css.push(config.selectors.join(',') + '{background-color:' + v.background + ' !important;background-image:none !important;}');
-      css.push(config.text.join(',') + '{color:' + v.foreground + ' !important;}');
+      // Tăng độ ưu tiên màu chữ để thắng các quy tắc CSS gốc có màu trắng cố định.
+      // Áp dụng cả cho chữ nằm sâu bên trong từng khu vực, không chỉ phần tử cha.
+      const textTargets = config.text.slice();
+      config.selectors.forEach(function (selector) {
+        textTargets.push(':is(' + selector + ', ' + selector + '#nus-theme-control) *');
+      });
+      css.push(textTargets.join(',') + '{color:' + v.foreground + ' !important;-webkit-text-fill-color:' + v.foreground + ' !important;}');
     });
     style.textContent = css.join('\n');
   }
