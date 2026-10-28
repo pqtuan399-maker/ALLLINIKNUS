@@ -829,6 +829,13 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     <h3>🎨 Tùy chỉnh màu website</h3>
     <p>Chọn 1 trong 100 combo để đổi màu nền và chữ trên toàn website. Combo hoạt động độc lập với chế độ sáng/tối của màn hình; các nút chức năng vẫn giữ nền riêng.</p>
     <div class="nus-theme-field">
+      <label for="nus-theme-mode">Chế độ giao diện</label>
+      <select id="nus-theme-mode">
+        <option value="presets" selected>100 giao diện gợi ý</option>
+        <option value="custom">Tùy chỉnh như trang tính</option>
+      </select>
+    </div>
+    <div class="nus-theme-field">
       <label for="nus-theme-area">Khu vực cần chỉnh</label>
       <select id="nus-theme-area">
         <option value="page">Toàn bộ website (100 combo)</option>
@@ -840,6 +847,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         <option value="heading">Tiêu đề từng ngày</option>
       </select>
     </div>
+    <div id="nus-theme-presets-panel">
     <div class="nus-theme-field">
       <label for="nus-theme-preset">100 phối màu gợi ý · xem trước</label>
       <select id="nus-theme-preset">
@@ -857,6 +865,9 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       </div>
       <p class="nus-theme-preset-hint">Rê chuột lên từng combo để xem thử. Chọn combo sẽ khóa chỉnh màu thủ công; chỉ nhấn “Áp dụng & lưu” mới lưu màu thật.</p>
     </div>
+    </div>
+    <div id="nus-theme-custom-panel" hidden>
+    <p>Chế độ tùy chỉnh: chọn khu vực, màu nền, màu chữ, đường viền và kiểu chữ. Thay đổi được xem trực tiếp, chỉ lưu khi nhấn “Áp dụng & lưu”.</p>
     <div class="nus-theme-field">
       <label for="nus-theme-bg">Màu nền khu vực</label>
       <div class="nus-theme-inputs">
@@ -870,6 +881,19 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         <input id="nus-theme-fg-picker" type="color" value="#F2F6FA" aria-label="Chọn màu chữ"/>
         <input id="nus-theme-fg" type="text" value="#F2F6FA" maxlength="7" placeholder="#F2F6FA"/>
       </div>
+    </div>
+    <div class="nus-theme-field">
+      <label for="nus-theme-border">Màu đường viền / vạch ngăn</label>
+      <div class="nus-theme-inputs">
+        <input id="nus-theme-border-picker" type="color" value="#385A76" aria-label="Chọn màu đường viền"/>
+        <input id="nus-theme-border" type="text" value="#385A76" maxlength="7" placeholder="#385A76"/>
+      </div>
+    </div>
+    <div class="nus-theme-field nus-theme-style-options">
+      <label><input id="nus-theme-bold" type="checkbox" checked/> Chữ đậm</label>
+      <label><input id="nus-theme-italic" type="checkbox"/> Chữ nghiêng</label>
+      <p class="nus-theme-preset-hint">Phông chữ toàn website mặc định là Oswald.</p>
+    </div>
     </div>
     <div class="nus-theme-actions">
       <button id="nus-theme-reset" type="button">Mặc định</button>
@@ -1912,6 +1936,10 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   #nus-theme-panel .nus-theme-preview-label { margin-top:7px; color:#BDD0DE; font-size:11px; line-height:1.4; }
   #nus-theme-panel .nus-theme-field.nus-theme-custom-locked { opacity:.48; }
   #nus-theme-panel .nus-theme-field.nus-theme-custom-locked input { pointer-events:none; }
+  #nus-theme-panel .nus-theme-style-options label { display:flex; align-items:center; gap:8px; font-weight:500; margin:8px 0; }
+  #nus-theme-panel .nus-theme-style-options input[type="checkbox"] { width:16px; height:16px; accent-color:#087F72; }
+  #nus-theme-panel [hidden] { display:none !important; }
+  body, body *:not(#nus-theme-control):not(#nus-theme-control *) { font-family:"Oswald","Arial Narrow",Arial,sans-serif; }
 
   /* Giữ bộ chọn màu và các nút chức năng thành một cụm toolbar liên tục. */
   .toolbar { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
@@ -1941,9 +1969,16 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   const fgPicker = document.getElementById('nus-theme-fg-picker');
   const status = document.getElementById('nus-theme-status');
   const presetSelect = document.getElementById('nus-theme-preset');
+  const modeSelect = document.getElementById('nus-theme-mode');
+  const presetsPanel = document.getElementById('nus-theme-presets-panel');
+  const customPanel = document.getElementById('nus-theme-custom-panel');
+  const borderInput = document.getElementById('nus-theme-border');
+  const borderPicker = document.getElementById('nus-theme-border-picker');
+  const boldInput = document.getElementById('nus-theme-bold');
+  const italicInput = document.getElementById('nus-theme-italic');
   const preview = document.getElementById('nus-theme-preview');
   const previewLabel = document.getElementById('nus-theme-preview-label');
-  const customFields = [bg.closest('.nus-theme-field'), fg.closest('.nus-theme-field')];
+  const customFields = [bg.closest('.nus-theme-field'), fg.closest('.nus-theme-field'), borderInput.closest('.nus-theme-field'), document.querySelector('#nus-theme-custom-panel .nus-theme-style-options')];
   let pendingPreset = null;
   let previewing = false;
   const style = document.createElement('style');
@@ -1975,6 +2010,29 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     fg.value = v.foreground;
     bgPicker.value = v.background;
     fgPicker.value = v.foreground;
+    const bc=validHex(v.borderColor)?v.borderColor:'#385A76';
+    borderInput.value=bc; borderPicker.value=bc;
+    boldInput.checked=v.bold!==false;
+    italicInput.checked=v.italic===true;
+  }
+  function syncMode() {
+    const custom=modeSelect.value==='custom';
+    presetsPanel.hidden=custom;
+    customPanel.hidden=!custom;
+    if(custom){
+      pendingPreset=null;
+      presetSelect.value='';
+      lockManualFields(false);
+      restoreLivePage();
+      readFields();
+      setStatus('Chế độ tùy chỉnh: có thể chỉnh nền, chữ, vạch ngăn và kiểu chữ.');
+    } else {
+      pendingPreset=null;
+      lockManualFields(true);
+      readFields();
+      restoreLivePage();
+      setStatus('Chọn một trong 100 giao diện gợi ý để xem trước.');
+    }
   }
   function render() {
     const css = [];
@@ -2004,9 +2062,10 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   const liveStyle=document.createElement('style');
   liveStyle.id='nus-theme-live-combo-preview';
   document.head.appendChild(liveStyle);
-  const comboFonts=['Arial, sans-serif','Roboto, Arial, sans-serif','Verdana, sans-serif','Tahoma, sans-serif','Georgia, serif'];
+  const comboFonts=['"Oswald","Arial Narrow",Arial,sans-serif'];
   function buildComboCss(background,foreground,index) {
     const family=Math.floor(index/10), shade=index%10;
+    foreground = contrastText(background);
     const light=luminance(background)>0.40;
     const surface=light?'#FFFFFF':mixColor(background,'#FFFFFF',0.10);
     const card=light?mixColor(background,'#000000',0.055):mixColor(background,'#FFFFFF',0.16);
@@ -2017,7 +2076,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     const italic=(index%5===4);
     const scope='body :not(#nus-theme-control):not(#nus-theme-control *)';
     return [
-      scope+'{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;font-family:'+font+' !important;}',
+      scope+'{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;}',
       'body,body .app,body .mainframe,body .bottom{background:'+background+' !important;background-image:none !important;}',
       'body .day-block,body .day-block-head,body .tile-head,body .meal-card,body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-name,body .roster-label,body .roster-empty,body .day-reminder{background-color:'+surface+' !important;background-image:none !important;}',
       'body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-name,body .roster-label{background-color:'+card+' !important;}',
@@ -2032,14 +2091,32 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     ].join('\n');
   }
   function previewComboOnPage(background,foreground,index) {
-    liveStyle.textContent=buildComboCss(background,foreground,index);
+    liveStyle.textContent=buildComboCss(background,contrastText(background),index);
+  }
+  function previewCustomOnPage(){
+    if(!validHex(bg.value)||!validHex(fg.value)||!validHex(borderInput.value))return;
+    const cfg=areas[area.value]||areas.page;
+    const selectors=cfg.selectors.join(',');
+    const css=[
+      selectors+'{background-color:'+bg.value+' !important;background-image:none !important;border-color:'+borderInput.value+' !important;}',
+      cfg.text.join(',')+'{color:'+fg.value+' !important;-webkit-text-fill-color:'+fg.value+' !important;}',
+      selectors+'{font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;font-weight:'+(boldInput.checked?'700':'400')+' !important;font-style:'+(italicInput.checked?'italic':'normal')+' !important;}',
+      selectors+' *, '+cfg.text.join(',')+' *{font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;}',
+      'body hr,body .meal-card:before,body .meal-card:after,body .meal-line:before,body .meal-line:after{border-color:'+borderInput.value+' !important;background-color:'+borderInput.value+' !important;}'
+    ].join('\n');
+    liveStyle.textContent=css;
   }
   function restoreLivePage() { liveStyle.textContent=''; render(); }
   bgPicker.addEventListener('input', function () { bg.value = bgPicker.value.toUpperCase(); });
   fgPicker.addEventListener('input', function () { fg.value = fgPicker.value.toUpperCase(); });
-  bg.addEventListener('input', function () { syncPicker(bg, bgPicker); });
-  fg.addEventListener('input', function () { syncPicker(fg, fgPicker); });
+  bg.addEventListener('input', function () { syncPicker(bg, bgPicker); if(modeSelect.value==='custom')previewCustomOnPage(); });
+  fg.addEventListener('input', function () { syncPicker(fg, fgPicker); if(modeSelect.value==='custom')previewCustomOnPage(); });
+  borderPicker.addEventListener('input',function(){borderInput.value=borderPicker.value.toUpperCase();if(modeSelect.value==='custom')previewCustomOnPage();});
+  borderInput.addEventListener('input',function(){syncPicker(borderInput,borderPicker);if(modeSelect.value==='custom')previewCustomOnPage();});
+  boldInput.addEventListener('change',function(){if(modeSelect.value==='custom')previewCustomOnPage();});
+  italicInput.addEventListener('change',function(){if(modeSelect.value==='custom')previewCustomOnPage();});
   area.addEventListener('change', readFields);
+  modeSelect.addEventListener('change',syncMode);
 
   // 100 combo màu gợi ý: 10 nhóm màu, mỗi nhóm có 10 nền; chữ tự chọn đen/trắng
   // theo độ sáng nền để giữ độ tương phản rõ ràng.
@@ -2062,7 +2139,12 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     });
     return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
   }
-  function contrastText(hex) { return luminance(hex) > 0.40 ? '#000000' : '#FFFFFF'; }
+  function contrastText(hex) {
+    const lum=luminance(hex);
+    const black=(lum+0.05)/0.05;
+    const white=1.05/(lum+0.05);
+    return white>=black?'#FFFFFF':'#000000';
+  }
   function previewColors(background, foreground, label) {
     const light = luminance(background) > 0.40;
     const surface = light ? '#FFFFFF' : mixColor(background, '#FFFFFF', 0.10);
@@ -2127,10 +2209,11 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   presetSelect.addEventListener('change', function () {
     if (!presetSelect.value) {
       pendingPreset=null;
-      lockManualFields(false);
+      if(modeSelect.value==='presets')lockManualFields(true);
+      else lockManualFields(false);
       restoreLivePage();
       restoreAppliedPreview();
-      setStatus('Đã bỏ chọn combo. Có thể chỉnh màu thủ công theo từng khu vực.');
+      setStatus(modeSelect.value==='custom'?'Có thể chỉnh màu thủ công theo từng khu vực.':'Chọn một combo trong 100 giao diện gợi ý.');
       return;
     }
     const colors = presetSelect.value.split('|');
@@ -2182,24 +2265,28 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     openBtn.setAttribute('aria-expanded', String(visible));
   });
   document.getElementById('nus-theme-apply').addEventListener('click', function () {
-    if (!validHex(bg.value) || !validHex(fg.value)) {
+    if (!validHex(bg.value) || !validHex(fg.value) || (modeSelect.value==='custom'&&!validHex(borderInput.value))) {
       setStatus('Mã HEX chưa hợp lệ. Ví dụ: #000000');
       return;
     }
     // Combo gợi ý chỉ lưu khi người dùng xác nhận bằng nút này.
-    if (presetSelect.value && pendingPreset) {
-      saved = { page: { background: pendingPreset.background, foreground: pendingPreset.foreground, presetIndex: pendingPreset.presetIndex } };
+    if (modeSelect.value==='presets' && presetSelect.value && pendingPreset) {
+      saved = { page: { background: pendingPreset.background, foreground: contrastText(pendingPreset.background), presetIndex: pendingPreset.presetIndex } };
       area.value = 'page';
     } else {
-      saved[area.value] = { background: bg.value.trim().toUpperCase(), foreground: fg.value.trim().toUpperCase() };
+      saved[area.value] = { background: bg.value.trim().toUpperCase(), foreground: fg.value.trim().toUpperCase(), borderColor:borderInput.value.trim().toUpperCase(), bold:boldInput.checked, italic:italicInput.checked };
     }
     render();
     try {
       localStorage.setItem(KEY, JSON.stringify(saved));
-      if (pendingPreset) {
+      if (modeSelect.value==='presets' && pendingPreset) {
         setStatus('Đã áp dụng và lưu '+pendingPreset.label+' cho toàn bộ website.');
-        previewColors(pendingPreset.background,pendingPreset.foreground,'Đang áp dụng '+pendingPreset.label);
-      } else setStatus('Đã lưu màu cho: ' + area.options[area.selectedIndex].text + '.');
+        previewColors(pendingPreset.background,contrastText(pendingPreset.background),'Đang áp dụng '+pendingPreset.label);
+      } else {
+        liveStyle.textContent='';
+        render();
+        setStatus('Đã lưu tùy chỉnh cho: ' + area.options[area.selectedIndex].text + '.');
+      }
     } catch (e) {
       setStatus('Đã áp dụng màu nhưng trình duyệt không cho lưu.');
     }
@@ -2209,6 +2296,9 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     saved = {};
     pendingPreset=null;
     presetSelect.value='';
+    modeSelect.value='presets';
+    presetsPanel.hidden=false;
+    customPanel.hidden=true;
     lockManualFields(false);
     style.textContent = '';
     liveStyle.textContent = '';
@@ -2232,8 +2322,9 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   } catch (e) {}
   render();
   readFields();
-  lockManualFields(false);
+  lockManualFields(modeSelect.value==='presets');
   restoreAppliedPreview();
+  syncMode();
 })();
 </script>
 <!-- HẾT NUS: BẢNG ĐIỀU KHIỂN MÀU GIAO DIỆN -->
