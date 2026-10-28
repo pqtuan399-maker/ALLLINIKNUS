@@ -2077,22 +2077,20 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     const accent=light?mixColor(background,['#087F72','#2455A4','#6A3BA0','#A63A5B','#9A4C16'][family%5],0.30):mixColor(background,['#54DFAB','#8BC5FF','#D4B4FF','#FF9DBB','#FFD18A'][family%5],0.42);
     const font=comboFonts[(family+Math.floor(shade/2))%comboFonts.length];
     const headingWeight=(index%3===0||index%3===1)?'800':'700';
-    const italic=(index%5===4);
     const scope='body :not(#nus-theme-control):not(#nus-theme-control *)';
     return [
-      scope+'{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;}',
+      scope+'{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;font-style:normal !important;}',
       'body,body .app,body .mainframe,body .bottom{background:'+background+' !important;background-image:none !important;}',
-      'body .day-block,body .day-block-head,body .tile-head,body .meal-card,body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-name,body .roster-label,body .roster-empty,body .day-reminder{background-color:'+surface+' !important;background-image:none !important;}',
-      'body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-name,body .roster-label{background-color:'+card+' !important;}',
+      'body .day-block,body .day-block-head,body .tile-head,body .meal-card,body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-name,body .roster-label,body .roster-empty,body .day-reminder,body .header,body .brand p,body .badge,body .button,body .alert-btn,body .notif-panel,body .notif-item,body .show-tomorrow,body .tomorrow-collapse,body .sound-preview,body .offline-banner,body .roster-controls,body .roster-totals,body .roster-total{background-color:'+surface+' !important;background-image:none !important;}',
+      'body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-name,body .roster-label,body .notif-item,body .roster-controls{background-color:'+card+' !important;}',
       'body :not(#nus-theme-control):not(#nus-theme-control *){border-color:'+border+' !important;outline-color:'+accent+' !important;}',
-      'body hr,body .meal-card,body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .day-block,body .day-block-head,body .roster-grid:before,body .roster-grid:after,body .roster-columns:before,body .roster-columns:after,body .meal-card:before,body .meal-card:after,body .meal-line:before,body .meal-line:after{border-color:'+border+' !important;outline-color:'+accent+' !important;}',
       'body hr,body .roster-grid:before,body .roster-grid:after,body .roster-columns:before,body .roster-columns:after,body .meal-card:before,body .meal-card:after,body .meal-line:before,body .meal-line:after{background-color:'+border+' !important;}',
       'body .day-block-head,body .tile-head,body .meal-heading,body .roster-label,body .day-reminder{font-weight:'+headingWeight+' !important;}',
-      'body .day-reminder-text,body .day-reminder-date,body .meal-time{font-style:'+(italic?'italic':'normal')+' !important;}',
+      'body .day-reminder-text,body .day-reminder-date,body .meal-time{font-style:normal !important;}',
       'body .day-block,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns{box-shadow:0 0 0 1px '+border+' !important;}',
       'body a,body .status,body .connection-status,body .day-reminder strong{color:'+accent+' !important;-webkit-text-fill-color:'+accent+' !important;}',
-      'button:not(#nus-theme-open),button:not(#nus-theme-open) *{border-color:'+border+' !important;}'
-    ].join('\n');
+      'button:not(#nus-theme-open),button:not(#nus-theme-open) *{border-color:'+border+' !important;font-style:normal !important;}'
+    ].join('\\n');
   }
   function previewComboOnPage(background,foreground,index) {
     liveStyle.textContent=buildComboCss(background,contrastText(background),index);
@@ -2104,8 +2102,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     const css=[
       selectors+'{background-color:'+bg.value+' !important;background-image:none !important;border-color:'+borderInput.value+' !important;}',
       cfg.text.join(',')+'{color:'+fg.value+' !important;-webkit-text-fill-color:'+fg.value+' !important;}',
-      selectors+'{font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;font-weight:'+(boldInput.checked?'700':'400')+' !important;font-style:'+(italicInput.checked?'italic':'normal')+' !important;}',
-      selectors+' *, '+cfg.text.join(',')+' *{font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;}',
+      selectors+', '+selectors+' *,'+cfg.text.join(',')+' *{font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;font-weight:'+(boldInput.checked?'700':'400')+' !important;font-style:'+(italicInput.checked?'italic':'normal')+' !important;}',
       'body hr,body .meal-card:before,body .meal-card:after,body .meal-line:before,body .meal-line:after{border-color:'+borderInput.value+' !important;background-color:'+borderInput.value+' !important;}'
     ].join('\n');
     liveStyle.textContent=css;
