@@ -1997,8 +1997,43 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         css.push(textTargets.join(',') + '{color:' + v.foreground + ' !important;-webkit-text-fill-color:' + v.foreground + ' !important;}');
       }
     });
+    const pageTheme=saved.page;
+    if(pageTheme && Number.isInteger(pageTheme.presetIndex)) css.push(buildComboCss(pageTheme.background,pageTheme.foreground,pageTheme.presetIndex));
     style.textContent = css.join('\n');
   }
+  const liveStyle=document.createElement('style');
+  liveStyle.id='nus-theme-live-combo-preview';
+  document.head.appendChild(liveStyle);
+  const comboFonts=['Arial, sans-serif','Roboto, Arial, sans-serif','Verdana, sans-serif','Tahoma, sans-serif','Georgia, serif'];
+  function buildComboCss(background,foreground,index) {
+    const family=Math.floor(index/10), shade=index%10;
+    const light=luminance(background)>0.40;
+    const surface=light?'#FFFFFF':mixColor(background,'#FFFFFF',0.10);
+    const card=light?mixColor(background,'#000000',0.055):mixColor(background,'#FFFFFF',0.16);
+    const border=light?mixColor(background,'#000000',0.24):mixColor(background,'#FFFFFF',0.34);
+    const accent=light?mixColor(background,['#087F72','#2455A4','#6A3BA0','#A63A5B','#9A4C16'][family%5],0.30):mixColor(background,['#54DFAB','#8BC5FF','#D4B4FF','#FF9DBB','#FFD18A'][family%5],0.42);
+    const font=comboFonts[(family+Math.floor(shade/2))%comboFonts.length];
+    const headingWeight=(index%3===0||index%3===1)?'800':'700';
+    const italic=(index%5===4);
+    const scope='body :not(#nus-theme-control):not(#nus-theme-control *)';
+    return [
+      scope+'{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;font-family:'+font+' !important;}',
+      'body,body .app,body .mainframe,body .bottom{background:'+background+' !important;background-image:none !important;}',
+      'body .day-block,body .day-block-head,body .tile-head,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-name,body .roster-label,body .roster-empty,body .day-reminder{background-color:'+surface+' !important;background-image:none !important;}',
+      'body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-name,body .roster-label{background-color:'+card+' !important;}',
+      'body :not(#nus-theme-control):not(#nus-theme-control *){border-color:'+border+' !important;outline-color:'+accent+' !important;}',
+      'body hr,body .roster-grid:before,body .roster-grid:after,body .roster-columns:before,body .roster-columns:after{border-color:'+border+' !important;background-color:'+border+' !important;}',
+      'body .day-block-head,body .tile-head,body .meal-heading,body .roster-label,body .day-reminder{font-weight:'+headingWeight+' !important;}',
+      'body .day-reminder-text,body .day-reminder-date,body .meal-time{font-style:'+(italic?'italic':'normal')+' !important;}',
+      'body .day-block,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns{box-shadow:0 0 0 1px '+border+' !important;}',
+      'body a,body .status,body .connection-status,body .day-reminder strong{color:'+accent+' !important;-webkit-text-fill-color:'+accent+' !important;}',
+      'button:not(#nus-theme-open),button:not(#nus-theme-open) *{border-color:'+border+' !important;}'
+    ].join('\n');
+  }
+  function previewComboOnPage(background,foreground,index) {
+    liveStyle.textContent=buildComboCss(background,foreground,index);
+  }
+  function restoreLivePage() { liveStyle.textContent=''; render(); }
   bgPicker.addEventListener('input', function () { bg.value = bgPicker.value.toUpperCase(); });
   fgPicker.addEventListener('input', function () { fg.value = fgPicker.value.toUpperCase(); });
   bg.addEventListener('input', function () { syncPicker(bg, bgPicker); });
@@ -2071,8 +2106,16 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       choice.className='nus-theme-palette-choice';
       choice.innerHTML='<span class="nus-theme-palette-dot" style="background:'+background+'"></span><span class="nus-theme-palette-name">'+option.dataset.label+'</span>';
       choice.title=option.dataset.label+' · nền '+background+' · chữ '+foreground;
-      choice.addEventListener('pointerenter',()=>previewColors(background,foreground,'Xem thử '+option.dataset.label));
-      choice.addEventListener('focus',()=>previewColors(background,foreground,'Xem thử '+option.dataset.label));
+      const comboIndex=familyIndex*10+shadeIndex;
+      choice.dataset.comboIndex=String(comboIndex);
+      choice.addEventListener('pointerenter',()=>{
+        previewComboOnPage(background,foreground,comboIndex);
+        previewColors(background,foreground,'Đang xem trực tiếp '+option.dataset.label);
+      });
+      choice.addEventListener('focus',()=>{
+        previewComboOnPage(background,foreground,comboIndex);
+        previewColors(background,foreground,'Đang xem trực tiếp '+option.dataset.label);
+      });
       choice.addEventListener('click',()=>{
         presetSelect.value=option.value;
         presetSelect.dispatchEvent(new Event('change'));
@@ -2084,31 +2127,53 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     if (!presetSelect.value) {
       pendingPreset=null;
       lockManualFields(false);
+      restoreLivePage();
       restoreAppliedPreview();
       setStatus('Đã bỏ chọn combo. Có thể chỉnh màu thủ công theo từng khu vực.');
       return;
     }
     const colors = presetSelect.value.split('|');
     const label=presetSelect.options[presetSelect.selectedIndex].dataset.label||'Combo màu';
-    pendingPreset={background:colors[0],foreground:colors[1],label};
+    const selectedOption=presetSelect.options[presetSelect.selectedIndex];
+    const comboIndex=Number(selectedOption.dataset.comboIndex ?? (Array.from(presetSelect.options).indexOf(selectedOption)-1));
+    pendingPreset={background:colors[0],foreground:colors[1],label,presetIndex:comboIndex};
     area.value = 'page';
     bg.value = colors[0]; fg.value = colors[1];
     bgPicker.value = colors[0]; fgPicker.value = colors[1];
     lockManualFields(true);
-    previewColors(colors[0],colors[1],'Xem trước '+label);
-    setStatus('Đang xem trước '+label+'. Chưa lưu; nhấn “Áp dụng & lưu” để xác nhận.');
+    previewComboOnPage(colors[0],colors[1],comboIndex);
+    previewColors(colors[0],colors[1],'Đang xem trực tiếp '+label);
+    setStatus('Đang xem trực tiếp '+label trên toàn website. Chưa lưu; nhấn “Áp dụng & lưu” để xác nhận.');
   });
-  presetSelect.addEventListener('pointerover',function(event){
-    const option=event.target.closest('option');
-    if(!option||!option.value)return;
-    const colors=option.value.split('|');
-    previewing=true;
-    previewColors(colors[0],colors[1],'Xem thử '+(option.dataset.label||option.textContent.split(' — ')[0]));
+  presetSelect.addEventListener('change',function(){
+    if(!presetSelect.value)return;
+    const option=presetSelect.options[presetSelect.selectedIndex];
+    const colors=presetSelect.value.split('|');
+    const index=Number(option.dataset.comboIndex ?? (Array.from(presetSelect.options).indexOf(option)-1));
+    previewComboOnPage(colors[0],colors[1],index);
   });
-  presetSelect.addEventListener('pointerleave',function(){
-    previewing=false;
+  document.getElementById('nus-theme-palette-list').addEventListener('pointerleave',function(event){
+    if(event.relatedTarget && event.currentTarget.contains(event.relatedTarget))return;
+    if(pendingPreset)previewComboOnPage(pendingPreset.background,pendingPreset.foreground,pendingPreset.presetIndex);
+    else restoreLivePage();
     if(pendingPreset)previewColors(pendingPreset.background,pendingPreset.foreground,'Đang chọn '+pendingPreset.label);
     else restoreAppliedPreview();
+  });
+  presetSelect.addEventListener('keydown',function(event){
+    if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+      setTimeout(function(){
+        if(!presetSelect.value)return;
+        const option=presetSelect.options[presetSelect.selectedIndex];
+        const colors=presetSelect.value.split('|');
+        const index=Number(option.dataset.comboIndex ?? (Array.from(presetSelect.options).indexOf(option)-1));
+        previewComboOnPage(colors[0],colors[1],index);
+        previewColors(colors[0],colors[1],'Đang xem trực tiếp '+(option.dataset.label||'combo màu'));
+      },0);
+    }
+  });
+  presetSelect.addEventListener('pointerleave',function(){
+    if(pendingPreset)previewComboOnPage(pendingPreset.background,pendingPreset.foreground,pendingPreset.presetIndex);
+    else restoreLivePage();
   });
 
   openBtn.addEventListener('click', function () {
@@ -2122,7 +2187,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     }
     // Combo gợi ý chỉ lưu khi người dùng xác nhận bằng nút này.
     if (presetSelect.value && pendingPreset) {
-      saved = { page: { background: pendingPreset.background, foreground: pendingPreset.foreground } };
+      saved = { page: { background: pendingPreset.background, foreground: pendingPreset.foreground, presetIndex: pendingPreset.presetIndex } };
       area.value = 'page';
     } else {
       saved[area.value] = { background: bg.value.trim().toUpperCase(), foreground: fg.value.trim().toUpperCase() };
@@ -2145,6 +2210,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     presetSelect.value='';
     lockManualFields(false);
     style.textContent = '';
+    liveStyle.textContent = '';
     try { localStorage.removeItem(KEY); } catch (e) {}
     area.value = 'page';
     readFields();
