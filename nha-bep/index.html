@@ -2111,15 +2111,15 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     liveStyle.textContent=css;
   }
   function restoreLivePage() { liveStyle.textContent=''; render(); }
-  bgPicker.addEventListener('input', function () { bg.value = bgPicker.value.toUpperCase(); });
-  fgPicker.addEventListener('input', function () { fg.value = fgPicker.value.toUpperCase(); });
+  bgPicker.addEventListener('input', function () { bg.value = bgPicker.value.toUpperCase(); if(modeSelect.value==='custom')previewCustomOnPage(); });
+  fgPicker.addEventListener('input', function () { fg.value = fgPicker.value.toUpperCase(); if(modeSelect.value==='custom')previewCustomOnPage(); });
   bg.addEventListener('input', function () { syncPicker(bg, bgPicker); if(modeSelect.value==='custom')previewCustomOnPage(); });
   fg.addEventListener('input', function () { syncPicker(fg, fgPicker); if(modeSelect.value==='custom')previewCustomOnPage(); });
   borderPicker.addEventListener('input',function(){borderInput.value=borderPicker.value.toUpperCase();if(modeSelect.value==='custom')previewCustomOnPage();});
   borderInput.addEventListener('input',function(){syncPicker(borderInput,borderPicker);if(modeSelect.value==='custom')previewCustomOnPage();});
   boldInput.addEventListener('change',function(){if(modeSelect.value==='custom')previewCustomOnPage();});
   italicInput.addEventListener('change',function(){if(modeSelect.value==='custom')previewCustomOnPage();});
-  area.addEventListener('change', readFields);
+  area.addEventListener('change', function(){readFields();if(modeSelect.value==='custom')previewCustomOnPage();});
   modeSelect.addEventListener('change',syncMode);
 
   // 100 combo màu gợi ý: 10 nhóm màu, mỗi nhóm có 10 nền; chữ tự chọn đen/trắng
