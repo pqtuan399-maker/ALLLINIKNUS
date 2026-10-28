@@ -2073,39 +2073,85 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       ['#53616D','#8D9AA5','#E1E6EB'],['#087E9C','#38BCD8','#C9F3FB']
     ];
     const hues=hueSets[family%hueSets.length];
-    // Keep the palette's tint while enforcing readable text contrast.
-    const foreground=tintedContrastText(background,hues[0],0.18);
-    const muted=tintedContrastText(background,hues[1],0.10);
-    const surface=light?mixColor(background,'#FFFFFF',0.68):mixColor(background,'#07111D',0.20);
-    const card=light?mixColor(background,'#FFFFFF',0.34):mixColor(background,'#FFFFFF',0.13);
-    const border=light?mixColor(background,hues[0],0.40):mixColor(background,hues[1],0.58);
+    // Surfaces are assigned to actual cards/containers only, never to every text span.
+    const surface=light?mixColor(background,'#FFFFFF',0.30):mixColor(background,'#FFFFFF',0.07);
+    const card=light?mixColor(background,'#000000',0.045):mixColor(background,'#FFFFFF',0.12);
+    const raised=light?mixColor(background,'#FFFFFF',0.62):mixColor(background,'#FFFFFF',0.16);
+    const border=light?mixColor(background,hues[0],0.36):mixColor(background,hues[1],0.52);
     const accent=light?hues[0]:hues[1];
-    const accentSoft=light?hues[2]:mixColor(background,hues[2],0.38);
-    const selected=light?mixColor(background,hues[2],0.34):mixColor(background,hues[0],0.42);
+    const accentText=tintedContrastText(surface,hues[0],0.18);
+    const muted=tintedContrastText(surface,hues[1],0.28);
+    const selected=light?mixColor(background,hues[2],0.42):mixColor(background,hues[0],0.42);
+    const selectedText=contrastText(selected);
+    const buttonBg=light?mixColor(surface,accent,0.13):mixColor(surface,accent,0.30);
+    const buttonText=contrastText(buttonBg);
+    const selectedBorder=mixColor(border,accent,0.55);
     const headingWeight=(index%3===0||index%3===1)?'800':'700';
-    const scope='body :not(#nus-theme-control):not(#nus-theme-control *)';
-    return [
-      scope+'{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;font-style:normal !important;}',
-      'body,body .app,body .mainframe,body .bottom{background:'+background+' !important;background-image:none !important;}',
-      'body .day-block,body .day-block-head,body .tile-head,body .meal-card,body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-name,body .roster-label,body .roster-empty,body .day-reminder,body .header,body .brand p,body .badge,body .button,body .alert-btn,body .notif-panel,body .notif-item,body .show-tomorrow,body .tomorrow-collapse,body .sound-preview,body .offline-banner,body .roster-controls,body .roster-totals,body .roster-total,body .roster-head-row{background-color:'+surface+' !important;background-image:none !important;}',
-      'body .meal-card .meal-heading,body .meal-card .meal-line,body .meal-card .meal-time,body .meal-card .meal-metrics,body .roster-name,body .roster-label,body .roster-totals .roster-total,body .roster-head-row .roster-label,body .notif-item,body .roster-controls{background-color:'+card+' !important;}',
-      'body .day-block-head,body .tile-head,body .meal-card .meal-heading,body .roster-label,body .day-reminder,body .roster-total,body .brand h1{color:'+accent+' !important;-webkit-text-fill-color:'+accent+' !important;}',
-      'body .brand p,body .minor,body .clock span,body .meal-card .meal-time,body .meal-extras span,body .roster-controls,body .notif-panel small,body .offline-meta span{color:'+muted+' !important;-webkit-text-fill-color:'+muted+' !important;}',
-      'body .meal-card .meal-stat,body .meal-card .meal-seat-bar,body .day-block .roster-totals .roster-total.roster-meal-active,body .day-block .roster-head-row .roster-label.roster-meal-active,body .day-block .roster-row .roster-name.roster-meal-active{background:'+selected+' !important;background-image:none !important;box-shadow:none !important;text-shadow:none !important;}',
-      'body .day-block .roster-head-row .roster-label.roster-meal-active,body .day-block .roster-row .roster-name.roster-meal-active,body .day-block .roster-totals .roster-total.roster-meal-active{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;border-color:'+accent+' !important;}',
-      'body .day-block .roster-totals,body .day-block .roster-totals .roster-total{background-color:'+surface+' !important;background-image:none !important;color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;border-color:'+border+' !important;}',
-      'body .meal-card .meal-stat strong,body .meal-card .meal-seat-bar strong,body .meal-card .meal-seat-bar em{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;}',
+    // :where() deliberately keeps this broad text fallback low-specificity so semantic
+    // text colors (muted labels, headings, active values) can correctly override it.
+    const scope='body :where(:not(#nus-theme-control):not(#nus-theme-control *))';
+    const css=[
+      'html{color-scheme:light dark;scrollbar-color:'+accent+' '+surface+';}',
+      scope+'{color:'+contrastText(background)+' !important;-webkit-text-fill-color:currentColor !important;font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;font-style:normal !important;}',
+      'html,body,body .app{background:'+background+' !important;background-image:none !important;color:'+contrastText(background)+' !important;}',
+      'body .header{background:transparent !important;border-color:'+border+' !important;}',
+      'body .day-pair,body .day-block,body .tile,body .day-block .roster,body .day-block .meal-card{border-color:'+border+' !important;}',
+      'body .day-block{background:'+surface+' !important;background-image:none !important;border-radius:14px !important;box-shadow:0 8px 22px #0002 !important;}',
+      'body .day-block-head,body .tile-head{background:'+raised+' !important;background-image:none !important;color:'+accentText+' !important;-webkit-text-fill-color:'+accentText+' !important;border-color:'+border+' !important;}',
+      'body .day-block-head{border-bottom:1px solid '+border+' !important;}',
+      'body .meal-grid{background:transparent !important;}',
+      'body .day-block .meal-card,body .day-block .meal-card.meal-active{background:'+card+' !important;background-image:none !important;border:1px solid '+border+' !important;border-top:3px solid '+accent+' !important;border-radius:11px !important;box-shadow:0 3px 9px #0002 !important;}',
+      'body .day-block .meal-card.meal-active{border-color:'+selectedBorder+' !important;border-top-color:'+accent+' !important;box-shadow:inset 0 0 0 1px '+accent+'44,0 4px 12px #0002 !important;}',
+      'body .meal-card .meal-card-head{background:transparent !important;border-color:'+border+' !important;}',
+      'body .meal-card .meal-heading{display:flex !important;align-items:center !important;justify-content:center !important;gap:6px !important;width:100% !important;padding:7px 6px !important;border:1px solid '+border+' !important;border-radius:8px !important;background:'+raised+' !important;background-image:none !important;box-shadow:inset 0 1px #ffffff3b !important;color:'+accentText+' !important;-webkit-text-fill-color:'+accentText+' !important;text-shadow:none !important;}',
+      'body .meal-card .meal-heading .meal-star{color:'+accent+' !important;-webkit-text-fill-color:'+accent+' !important;}',
+      'body .meal-card .meal-time{background:transparent !important;color:'+muted+' !important;-webkit-text-fill-color:'+muted+' !important;}',
+      'body .meal-card .meal-metrics{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:5px !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:transparent !important;background-image:none !important;box-shadow:none !important;}',
+      'body .meal-card .meal-stat,body .day-block .meal-card.meal-active .meal-stat{min-width:0 !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;gap:3px !important;padding:6px 3px !important;border:1px solid '+border+' !important;border-radius:8px !important;background:'+raised+' !important;background-image:none !important;box-shadow:inset 0 1px #ffffff24 !important;color:'+contrastText(raised)+' !important;-webkit-text-fill-color:'+contrastText(raised)+' !important;}',
+      'body .meal-card .meal-stat span{background:transparent !important;color:'+muted+' !important;-webkit-text-fill-color:'+muted+' !important;font-size:clamp(8px,.58vw,11px) !important;font-weight:750 !important;white-space:nowrap !important;}',
+      'body .meal-card .meal-stat strong{background:transparent !important;color:'+contrastText(raised)+' !important;-webkit-text-fill-color:'+contrastText(raised)+' !important;font-size:clamp(15px,1.07vw,22px) !important;font-weight:800 !important;line-height:1.1 !important;}',
+      'body .meal-card .meal-stat-cut strong{color:'+accentText+' !important;-webkit-text-fill-color:'+accentText+' !important;}',
+      'body .meal-card .meal-seat-bar,body .day-block.today .meal-card.meal-active .meal-seat-bar{display:flex !important;align-items:center !important;gap:7px !important;min-width:0 !important;margin-top:7px !important;padding:7px 9px !important;border:1px solid '+selectedBorder+' !important;border-radius:8px !important;background:'+selected+' !important;background-image:none !important;box-shadow:inset 0 1px #ffffff20 !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;}',
+      'body .meal-card .meal-seat-bar>span{background:transparent !important;color:'+tintedContrastText(selected,hues[1],0.12)+' !important;-webkit-text-fill-color:'+tintedContrastText(selected,hues[1],0.12)+' !important;font-weight:750 !important;white-space:nowrap !important;}',
+      'body .meal-card .meal-seat-bar strong{background:transparent !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;font-weight:850 !important;}',
+      'body .meal-card .meal-seat-bar em{margin-left:auto !important;padding:3px 7px !important;border:1px solid '+selectedBorder+' !important;border-radius:999px !important;background:'+surface+' !important;color:'+contrastText(surface)+' !important;-webkit-text-fill-color:'+contrastText(surface)+' !important;font-style:normal !important;font-weight:800 !important;white-space:nowrap !important;}',
+      'body .meal-card .meal-extras{background:transparent !important;border-color:'+border+' !important;}',
+      'body .meal-card .meal-extras span{display:inline !important;background:transparent !important;color:'+muted+' !important;-webkit-text-fill-color:'+muted+' !important;}',
+      'body .meal-card .meal-extras span:not(:last-child)::after{color:'+accent+' !important;}',
+      'body .day-block .roster-grid,body .day-block .roster-inner,body .day-block .roster-columns{background-color:'+surface+' !important;color:'+contrastText(surface)+' !important;border-color:'+border+' !important;}',
+      'body .day-block .roster-head-row{background:'+raised+' !important;background-image:none !important;}',
+      'body .day-block .roster-head-row .roster-label{background:'+raised+' !important;background-image:none !important;color:'+accentText+' !important;-webkit-text-fill-color:'+accentText+' !important;border-color:'+border+' !important;box-shadow:inset 0 1px #ffffff45 !important;text-shadow:none !important;}',
+      'body .day-block .roster-scroll{background:'+surface+' !important;scrollbar-color:'+accent+' '+surface+' !important;overscroll-behavior:contain;}',
+      'body .day-block .roster-scroll::-webkit-scrollbar{width:11px !important;height:11px !important;background:'+surface+' !important;}',
+      'body .day-block .roster-scroll::-webkit-scrollbar-track{background:'+surface+' !important;border-radius:8px !important;}',
+      'body .day-block .roster-scroll::-webkit-scrollbar-thumb{background:'+accent+' !important;border:2px solid '+surface+' !important;border-radius:8px !important;}',
+      'body .day-block .roster-scroll::-webkit-scrollbar-thumb:hover{background:'+hues[0]+' !important;}',
+      'body .day-block .roster-row .roster-name{background:'+surface+' !important;background-image:none !important;color:'+contrastText(surface)+' !important;-webkit-text-fill-color:'+contrastText(surface)+' !important;border-color:'+border+' !important;}',
+      'body .day-block .roster-row:nth-child(even) .roster-name{background:'+card+' !important;}',
+      'body .day-block .roster-head-row .roster-label:nth-child(3),body .day-block .roster-head-row .roster-label:nth-child(6),body .day-block .roster-row .roster-name:nth-child(3),body .day-block .roster-row .roster-name:nth-child(6),body .day-block .roster-totals .roster-total:nth-child(3),body .day-block .roster-totals .roster-total:nth-child(6){border-left:2px solid '+border+' !important;}',
+      'body .day-block .roster-head-row .roster-label:nth-child(2),body .day-block .roster-head-row .roster-label:nth-child(5),body .day-block .roster-row .roster-name:nth-child(2),body .day-block .roster-row .roster-name:nth-child(5),body .day-block .roster-totals .roster-total:nth-child(2),body .day-block .roster-totals .roster-total:nth-child(5){border-right:1px solid '+border+' !important;}',
+      'body .day-block .roster-totals,body .day-block .roster-totals .roster-total{background:'+surface+' !important;background-image:none !important;color:'+contrastText(surface)+' !important;-webkit-text-fill-color:'+contrastText(surface)+' !important;border-color:'+border+' !important;box-shadow:inset 0 1px #ffffff20 !important;}',
+      'body #today-roster .roster-head-row .roster-label.roster-meal-active,body #today-roster .roster-row .roster-name.roster-meal-active,body #today-roster .roster-totals .roster-total.roster-meal-active{background:'+selected+' !important;background-image:none !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;border-color:'+accent+' !important;box-shadow:inset 0 1px #ffffff26 !important;}',
+      'body .day-block .roster-controls{background:'+raised+' !important;background-image:none !important;color:'+muted+' !important;-webkit-text-fill-color:'+muted+' !important;border-color:'+border+' !important;}',
+      'body .roster-controls button,body .button,body .alert-btn,body .tomorrow-collapse,body .show-tomorrow,body .sound-preview{background:'+buttonBg+' !important;background-image:none !important;color:'+buttonText+' !important;-webkit-text-fill-color:'+buttonText+' !important;border:1px solid '+border+' !important;border-radius:9px !important;box-shadow:0 2px 5px #0002 !important;}',
+      'body .roster-controls button:hover,body .button:hover,body .alert-btn:hover,body .tomorrow-collapse:hover,body .show-tomorrow:hover,body .sound-preview:hover{background:'+selected+' !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;border-color:'+accent+' !important;}',
+      'body .badge,body .alert-count{background:'+selected+' !important;background-image:none !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;border-color:'+selectedBorder+' !important;}',
+      'body .badge:before{background:'+accent+' !important;}',
+      'body .alert-btn[aria-pressed="true"]{background:'+selected+' !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;border-color:'+accent+' !important;}',
+      'body .notif-panel,body .notif-panel-head,body .notif-items,body .notif-empty,body .offline-banner,body .offline-warning{background:'+surface+' !important;background-image:none !important;color:'+contrastText(surface)+' !important;-webkit-text-fill-color:'+contrastText(surface)+' !important;border-color:'+border+' !important;}',
+      'body .notif-item{background:'+card+' !important;background-image:none !important;color:'+contrastText(card)+' !important;-webkit-text-fill-color:'+contrastText(card)+' !important;border-color:'+border+' !important;border-radius:9px !important;}',
+      'body .notif-panel small,body .offline-meta span,body .minor,body .clock span,body .brand p{color:'+muted+' !important;-webkit-text-fill-color:'+muted+' !important;}',
+      'body .day-reminder{background:'+selected+' !important;background-image:none !important;border:1px solid '+selectedBorder+' !important;border-radius:10px !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;}',
+      'body .day-reminder-text,body .day-reminder-date,body .day-reminder strong{background:transparent !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;}',
       'body .day-block,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-label,body .day-reminder,body .notif-panel,body .notif-item,body button,body a{border-color:'+border+' !important;outline-color:'+accent+' !important;}',
-      'body hr,body .roster-grid:before,body .roster-grid:after,body .roster-columns:before,body .roster-columns:after,body .meal-card:before,body .meal-card:after,body .meal-line:before,body .meal-line:after{background-color:'+border+' !important;border-color:'+border+' !important;}',
-      'body .day-block.today .meal-card.meal-active{border-color:'+accent+' !important;box-shadow:inset 0 0 0 1px '+accent+'55,0 0 0 1px '+accent+'44 !important;}',
-      'body a,body .status,body .connection-status,body .day-reminder strong,body .meal-heading .meal-star{color:'+accent+' !important;-webkit-text-fill-color:'+accent+' !important;}',
-      'body .badge,body .alert-btn[aria-pressed="true"]{background:'+selected+' !important;color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;}',
-      'body .day-reminder-date,body .day-reminder-text{color:'+foreground+' !important;-webkit-text-fill-color:'+foreground+' !important;}',
-      'body .day-block-head,body .tile-head,body .meal-heading,body .roster-label,body .day-reminder{font-weight:'+headingWeight+' !important;}',
-      'body :not(#nus-theme-control):not(#nus-theme-control *){font-style:normal !important;}',
-      'body .day-block,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns{box-shadow:0 0 0 1px '+border+' !important;}',
-      'button:not(#nus-theme-open),button:not(#nus-theme-open) *{border-color:'+border+' !important;font-style:normal !important;}'
-    ].join('\n');
+      'body .day-block-head,body .tile-head{font-weight:'+headingWeight+' !important;}',
+      'body button:focus-visible,body a:focus-visible,body .roster-scroll:focus-visible{outline:3px solid '+accent+' !important;outline-offset:2px !important;}',
+      'body hr{border-color:'+border+' !important;}',
+      'body #today-roster .roster-columns{--roster-group-dividers:linear-gradient(90deg,transparent 25%,'+border+' 25%,'+border+' calc(25% + 2px),transparent calc(25% + 2px),transparent 62.5%,'+border+' 62.5%,'+border+' calc(62.5% + 2px),transparent calc(62.5% + 2px)) !important;}',
+      'body #today-roster[data-active-meal-group] .roster-columns{background-image:linear-gradient(90deg,transparent var(--active-group-start),'+accent+' var(--active-group-start),'+accent+' calc(var(--active-group-start) + 3px),transparent calc(var(--active-group-start) + 3px),transparent calc(var(--active-group-end) - 3px),'+accent+' calc(var(--active-group-end) - 3px),'+accent+' var(--active-group-end),transparent var(--active-group-end)),var(--roster-group-dividers),linear-gradient(90deg,transparent var(--active-group-start),'+surface+' var(--active-group-start),'+surface+' var(--active-group-end),transparent var(--active-group-end)) !important;}',
+      'body :where(:not(#nus-theme-control):not(#nus-theme-control *)){font-style:normal !important;}'
+    ];
+    return css.join('\n');
   }
   function previewComboOnPage(background,foreground,index) {
     liveStyle.textContent=buildComboCss(background,contrastText(background),index);
