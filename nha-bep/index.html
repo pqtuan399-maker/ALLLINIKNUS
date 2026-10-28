@@ -1980,16 +1980,24 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         color: \${foreground} !important;
       }
 
+      /* Ép màu chữ nội dung thường, kể cả các vùng có CSS gốc ưu tiên cao.
+         Không áp dụng cho nút, nhãn trạng thái, chuông/thông báo hay bảng điều khiển màu. */
       body .roster-name,
+      #today-roster .roster-name,
+      #tomorrow-roster .roster-name,
       body .roster-label,
       body .roster-empty,
-      body .day-reminder {
-        color: \${foreground} !important;
+      body .day-reminder,
+      body .meal-line,
+      body .meal-line strong {
+        color: ${foreground} !important;
       }
 
       body .roster-name,
+      #today-roster .roster-name,
+      #tomorrow-roster .roster-name,
       body .roster-label {
-        border-color: \${foreground}55 !important;
+        border-color: ${foreground}55 !important;
       }
     \`;
 
