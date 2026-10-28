@@ -845,6 +845,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       <select id="nus-theme-preset">
         <option value="">— Chọn một combo màu —</option>
       </select>
+      <div id="nus-theme-palette-list" class="nus-theme-palette-list" aria-label="100 combo màu; rê chuột để xem trước"></div>
       <div id="nus-theme-preview" class="nus-theme-preview" aria-live="polite">
         <div class="nus-theme-preview-title">Xem trước giao diện</div>
         <div class="nus-theme-preview-sample">
@@ -1894,6 +1895,11 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
   #nus-theme-panel .nus-theme-preset-hint {
     margin:6px 0 0;color:#BDD0DE;font-size:11px;line-height:1.4;
   }
+  #nus-theme-panel .nus-theme-palette-list { display:grid; grid-template-columns:1fr 1fr; gap:5px; max-height:220px; overflow:auto; margin-top:8px; padding:2px; }
+  #nus-theme-panel .nus-theme-palette-choice { display:flex; align-items:center; gap:6px; min-width:0; padding:6px; border:1px solid #526C80; border-radius:6px; background:#203648; color:#F4F7FB; text-align:left; cursor:pointer; font-size:10px; }
+  #nus-theme-panel .nus-theme-palette-choice:hover,#nus-theme-panel .nus-theme-palette-choice:focus-visible { outline:2px solid #43D6BB; outline-offset:1px; }
+  #nus-theme-panel .nus-theme-palette-dot { flex:0 0 20px; width:20px; height:20px; border-radius:4px; border:1px solid #FFFFFF66; }
+  #nus-theme-panel .nus-theme-palette-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   #nus-theme-panel .nus-theme-preview { margin-top:10px; padding:8px; border:1px solid #526C80; border-radius:10px; background:#0B1927; }
   #nus-theme-panel .nus-theme-preview-title { color:#BDD0DE; font-size:11px; font-weight:700; margin-bottom:7px; }
   #nus-theme-panel .nus-theme-preview-sample { padding:8px; border:1px solid var(--pv-border,#385A76); border-radius:8px; background:var(--pv-bg,#101820); color:var(--pv-fg,#F2F6FA); }
@@ -2060,6 +2066,18 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       option.textContent = String(familyIndex * 10 + shadeIndex + 1).padStart(2, '0') + ' · ' + family[0] + ' — nền ' + background + ' / chữ ' + foreground;
       option.dataset.label = String(familyIndex * 10 + shadeIndex + 1).padStart(2, '0') + ' · ' + family[0];
       presetSelect.appendChild(option);
+      const choice=document.createElement('button');
+      choice.type='button';
+      choice.className='nus-theme-palette-choice';
+      choice.innerHTML='<span class="nus-theme-palette-dot" style="background:'+background+'"></span><span class="nus-theme-palette-name">'+option.dataset.label+'</span>';
+      choice.title=option.dataset.label+' · nền '+background+' · chữ '+foreground;
+      choice.addEventListener('pointerenter',()=>previewColors(background,foreground,'Xem thử '+option.dataset.label));
+      choice.addEventListener('focus',()=>previewColors(background,foreground,'Xem thử '+option.dataset.label));
+      choice.addEventListener('click',()=>{
+        presetSelect.value=option.value;
+        presetSelect.dispatchEvent(new Event('change'));
+      });
+      document.getElementById('nus-theme-palette-list').appendChild(choice);
     });
   });
   presetSelect.addEventListener('change', function () {
