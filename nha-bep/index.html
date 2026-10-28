@@ -2091,7 +2091,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     // text colors (muted labels, headings, active values) can correctly override it.
     const scope='body :where(:not(#nus-theme-control):not(#nus-theme-control *))';
     const css=[
-      'html{color-scheme:light dark;scrollbar-color:'+accent+' '+surface+';}',
+      'html{color-scheme:'+(light?'light':'dark')+';scrollbar-color:'+accent+' '+surface+';}html::-webkit-scrollbar,body::-webkit-scrollbar{width:10px;height:10px;background:'+surface+';}html::-webkit-scrollbar-track,body::-webkit-scrollbar-track{background:'+surface+';}html::-webkit-scrollbar-thumb,body::-webkit-scrollbar-thumb{background:'+accent+';border:2px solid '+surface+';border-radius:8px;}#nus-theme-control,#nus-theme-control *{color-scheme:light;}',
       scope+'{color:'+contrastText(background)+' !important;-webkit-text-fill-color:currentColor !important;font-family:"Oswald","Arial Narrow",Arial,sans-serif !important;font-style:normal !important;}',
       'html,body,body .app{background:'+background+' !important;background-image:none !important;color:'+contrastText(background)+' !important;}',
       'body .header{background:transparent !important;border-color:'+border+' !important;}',
@@ -2121,11 +2121,11 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       'body .day-block .roster-grid,body .day-block .roster-inner,body .day-block .roster-columns{background-color:'+surface+' !important;color:'+contrastText(surface)+' !important;border-color:'+border+' !important;}',
       'body .day-block .roster-head-row{background:'+raised+' !important;background-image:none !important;}',
       'body .day-block .roster-head-row .roster-label{background:'+raised+' !important;background-image:none !important;color:'+accentText+' !important;-webkit-text-fill-color:'+accentText+' !important;border-color:'+border+' !important;box-shadow:inset 0 1px #ffffff45 !important;text-shadow:none !important;}',
-      'body .day-block .roster-scroll{background:'+surface+' !important;scrollbar-color:'+accent+' '+surface+' !important;overscroll-behavior:contain;}',
-      'body .day-block .roster-scroll::-webkit-scrollbar{width:11px !important;height:11px !important;background:'+surface+' !important;}',
-      'body .day-block .roster-scroll::-webkit-scrollbar-track{background:'+surface+' !important;border-radius:8px !important;}',
-      'body .day-block .roster-scroll::-webkit-scrollbar-thumb{background:'+accent+' !important;border:2px solid '+surface+' !important;border-radius:8px !important;}',
-      'body .day-block .roster-scroll::-webkit-scrollbar-thumb:hover{background:'+hues[0]+' !important;}',
+      'body .day-block .roster-grid,body .day-block .roster-scroll{background:'+surface+' !important;scrollbar-color:'+accent+' '+surface+' !important;overscroll-behavior:contain;}',
+      'body .day-block .roster-scroll::-webkit-scrollbar,body .day-block .roster-grid::-webkit-scrollbar{width:11px !important;height:11px !important;background:'+surface+' !important;}',
+      'body .day-block .roster-scroll::-webkit-scrollbar-track,body .day-block .roster-grid::-webkit-scrollbar-track{background:'+surface+' !important;border-radius:8px !important;}',
+      'body .day-block .roster-scroll::-webkit-scrollbar-thumb,body .day-block .roster-grid::-webkit-scrollbar-thumb{background:'+accent+' !important;border:2px solid '+surface+' !important;border-radius:8px !important;}',
+      'body .day-block .roster-scroll::-webkit-scrollbar-thumb:hover,body .day-block .roster-grid::-webkit-scrollbar-thumb:hover{background:'+hues[0]+' !important;}',
       'body .day-block .roster-row .roster-name{background:'+surface+' !important;background-image:none !important;color:'+contrastText(surface)+' !important;-webkit-text-fill-color:'+contrastText(surface)+' !important;border-color:'+border+' !important;}',
       'body .day-block .roster-row:nth-child(even) .roster-name{background:'+card+' !important;}',
       'body .day-block .roster-head-row .roster-label:nth-child(3),body .day-block .roster-head-row .roster-label:nth-child(6),body .day-block .roster-row .roster-name:nth-child(3),body .day-block .roster-row .roster-name:nth-child(6),body .day-block .roster-totals .roster-total:nth-child(3),body .day-block .roster-totals .roster-total:nth-child(6){border-left:2px solid '+border+' !important;}',
