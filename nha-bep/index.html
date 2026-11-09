@@ -821,6 +821,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 </style><style id="nus-meal-inline-roster-v2">
 /* Expanded meal rosters flow downward inside their own meal cards. */
 .meal-card .meal-roster-inline[hidden]{display:none!important}
+.day-block .meal-grid{align-items:start}
 .meal-card .meal-roster-inline{width:100%;min-width:0;margin-top:3px;padding-top:8px;border-top:1px solid #35566f}
 .meal-roster-columns{display:grid;grid-template-columns:repeat(var(--meal-roster-column-count,2),minmax(0,1fr));gap:5px;align-items:start;min-width:0}
 .meal-roster-column{min-width:0;overflow:hidden;border:1px solid #34566e;border-radius:7px;background:#0c1c2d}
@@ -2089,13 +2090,13 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     // Combo "Toàn bộ website" phủ các bề mặt chính và toàn bộ chữ,
     // không phụ thuộc chế độ sáng/tối của hệ điều hành/trình duyệt.
     page: {
-      selectors: ['body','.app','.mainframe','.bottom','.day-block','.day-block-head','.tile-head','.meal-card','.roster-grid','.roster-inner','.roster-columns','.roster-name','.roster-label','.roster-empty','.day-reminder'],
+      selectors: ['body','.app','.mainframe','.bottom','.day-block','.day-block-head','.tile-head','.meal-card','.meal-roster-inline','.meal-roster-columns','.meal-roster-column','.meal-roster-column-head','.meal-roster-name','.meal-roster-total','.roster-grid','.roster-inner','.roster-columns','.roster-name','.roster-label','.roster-empty','.day-reminder'],
       text: ['body']
     },
     today: { selectors: ['.day-block.today'], text: ['.day-block.today .tile-head','.day-block.today .roster-controls'] },
     tomorrow: { selectors: ['.day-block.tomorrow'], text: ['.day-block.tomorrow .tile-head','.day-block.tomorrow .roster-controls'] },
-    meal: { selectors: ['.meal-card'], text: ['.meal-card .meal-heading','.meal-card .meal-line','.meal-card .meal-line strong','.meal-card .meal-time','.meal-card .meal-metrics'] },
-    roster: { selectors: ['.roster-grid','.roster-inner','.roster-columns','.roster-name','.roster-label','.roster-empty'], text: ['.roster-name','.roster-label','.roster-empty'] },
+    meal: { selectors: ['.meal-card','.meal-roster-inline','.meal-roster-columns','.meal-roster-column','.meal-roster-column-head','.meal-roster-name','.meal-roster-total'], text: ['.meal-card .meal-heading','.meal-card .meal-line','.meal-card .meal-line strong','.meal-card .meal-time','.meal-card .meal-metrics','.meal-roster-column-head','.meal-roster-name','.meal-roster-total'] },
+    roster: { selectors: ['.roster-grid','.roster-inner','.roster-columns','.roster-name','.roster-label','.roster-empty','.meal-roster-inline','.meal-roster-columns','.meal-roster-column','.meal-roster-column-head','.meal-roster-name','.meal-roster-total'], text: ['.roster-name','.roster-label','.roster-empty','.meal-roster-column-head','.meal-roster-name','.meal-roster-total'] },
     reminder: { selectors: ['.day-reminder'], text: ['.day-reminder-text','.day-reminder-date'] },
     heading: { selectors: ['.day-block-head'], text: ['.day-block-head > span'] }
   };
@@ -2221,6 +2222,12 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       'body .meal-card .meal-extras{background:transparent !important;border-color:'+border+' !important;}',
       'body .meal-card .meal-extras span{display:inline !important;background:transparent !important;color:'+muted+' !important;-webkit-text-fill-color:'+muted+' !important;}',
       'body .meal-card .meal-extras span:not(:last-child)::after{color:'+accent+' !important;}',
+      'body .meal-roster-inline{background:'+surface+' !important;background-image:none !important;color:'+contrastText(surface)+' !important;border-color:'+border+' !important;}',
+      'body .meal-roster-column{background:'+card+' !important;background-image:none !important;border-color:'+border+' !important;}',
+      'body .meal-roster-column-head{background:'+raised+' !important;background-image:none !important;color:'+accentText+' !important;-webkit-text-fill-color:'+accentText+' !important;border-color:'+border+' !important;}',
+      'body .meal-roster-name{background:'+surface+' !important;background-image:none !important;color:'+contrastText(surface)+' !important;-webkit-text-fill-color:'+contrastText(surface)+' !important;border-color:'+border+' !important;}',
+      'body .meal-roster-name:nth-child(even){background:'+card+' !important;}',
+      'body .meal-roster-total{background:'+selected+' !important;background-image:none !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;border-color:'+border+' !important;}',
       'body .day-block .roster-grid,body .day-block .roster-inner,body .day-block .roster-columns{background-color:'+surface+' !important;color:'+contrastText(surface)+' !important;border-color:'+border+' !important;}',
       'body .day-block .roster-head-row{background:'+raised+' !important;background-image:none !important;}',
       'body .day-block .roster-head-row .roster-label{background:'+raised+' !important;background-image:none !important;color:'+accentText+' !important;-webkit-text-fill-color:'+accentText+' !important;border-color:'+border+' !important;box-shadow:inset 0 1px #ffffff45 !important;text-shadow:none !important;}',
