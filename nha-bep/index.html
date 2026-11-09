@@ -818,7 +818,22 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
 @media(prefers-reduced-motion:reduce){
  #today-roster .roster-meal-active{transition:none}
 }
-</style></head><body>
+</style><style id="nus-roster-meal-collapse-v1">
+/* Independent Sáng / Trưa / Tối roster visibility controls. */
+.day-block .roster-head-row,.day-block .roster-totals,.day-block .roster-row{grid-template-columns:repeat(var(--roster-visible-column-count,8),minmax(0,1fr))}
+.day-block .roster-grid.roster-hide-morning [data-meal-group="morning"],
+.day-block .roster-grid.roster-hide-lunch [data-meal-group="lunch"],
+.day-block .roster-grid.roster-hide-dinner [data-meal-group="dinner"]{display:none!important}
+.day-block .roster-grid [data-meal-start]{border-left:3px solid #608ea4!important}
+.day-block .roster-grid.roster-hide-morning [data-meal-start="lunch"],
+.day-block .roster-grid.roster-hide-morning.roster-hide-lunch [data-meal-start="dinner"]{border-left-width:0!important}
+.roster-meal-toggle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 25px;width:25px;height:24px;margin-left:auto;padding:0;border:1px solid #557892;border-radius:7px;background:#17334d;color:#e8f5ff;font-size:16px;line-height:1;font-weight:850;box-shadow:inset 0 1px #ffffff18,0 2px 5px #0003}
+.roster-meal-toggle[aria-expanded="false"]{background:#174b48;border-color:#4d9e91;color:#dffff8}
+.roster-meal-toggle:hover{background:#245573;border-color:#9ac5d9}
+.roster-meal-toggle[aria-expanded="false"]:hover{background:#20665d;border-color:#8be0ca}
+@media(max-width:650px){.roster-meal-toggle{flex-basis:22px;width:22px;height:22px;font-size:15px}}
+</style>
+</head><body>
 <main class="app">
 <header class="header"><div class="brand"><div class="logo nus-brand-logo"><img src="../logo-nha-ung-sinh.png" alt="Logo Nhà Ứng Sinh Thánh Gioan – Tổng Giáo phận Hà Nội" loading="eager" decoding="async"></div><div><h1>NUS • MÀN HÌNH NHÀ BẾP</h1><p id="week">“Ở lại với Người” (x. Ga 1,39)</p></div></div><div class="toolbar"><span class="badge" id="state" title="Website kiểm tra API V7 mỗi 3 giây khi trang đang mở; nguồn Google Sheets có thể cập nhật chậm hơn.">ĐANG KIỂM TRA KẾT NỐI...</span><div class="clock"><strong id="time">--:--:--</strong><span id="day">Giờ Việt Nam</span></div><div id="nus-theme-control">
   <button id="nus-theme-open" type="button">
@@ -963,6 +978,52 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     tomorrow:{vertical:0,horizontal:0}
   };
 
+  // Each meal controls only its own group in the matching day's roster.
+  const ROSTER_COLLAPSE_KEY='nus_kitchen_roster_collapsed_v1';
+  const ROSTER_MEAL_GROUPS=[
+    {key:'morning',label:'Sáng',columns:2},
+    {key:'lunch',label:'Trưa',columns:3},
+    {key:'dinner',label:'Tối',columns:3}
+  ];
+  const rosterCollapsed={today:{},tomorrow:{}};
+  try{
+    const saved=JSON.parse(localStorage.getItem(ROSTER_COLLAPSE_KEY)||'{}');
+    for(const which of ['today','tomorrow']){
+      for(const group of ROSTER_MEAL_GROUPS){
+        rosterCollapsed[which][group.key]=saved?.[which]?.[group.key]===true;
+      }
+    }
+  }catch(e){}
+
+  function syncRosterCollapseUI(which){
+    const root=$(which+'-roster');
+    const cards=$(which+'-meals');
+    if(!root)return;
+    let visibleColumns=0;
+    for(const group of ROSTER_MEAL_GROUPS){
+      const collapsed=!!rosterCollapsed[which][group.key];
+      root.classList.toggle('roster-hide-'+group.key,collapsed);
+      if(!collapsed)visibleColumns+=group.columns;
+      const button=cards?.querySelector('[data-roster-toggle="'+group.key+'"]');
+      if(button){
+        const action=collapsed?'Mở rộng':'Thu gọn';
+        button.textContent=collapsed?'＋':'−';
+        button.setAttribute('aria-expanded',String(!collapsed));
+        button.title=action+' danh sách phục vụ bữa '+group.label+' '+(which==='today'?'hôm nay':'ngày mai');
+        button.setAttribute('aria-label',button.title);
+      }
+    }
+    root.style.setProperty('--roster-visible-column-count',String(Math.max(1,visibleColumns)));
+    root.dataset.visibleMealColumns=String(visibleColumns);
+  }
+
+  function toggleRosterGroup(which,groupKey){
+    if(!ROSTER_MEAL_GROUPS.some(group=>group.key===groupKey))return;
+    rosterCollapsed[which][groupKey]=!rosterCollapsed[which][groupKey];
+    try{localStorage.setItem(ROSTER_COLLAPSE_KEY,JSON.stringify(rosterCollapsed))}catch(e){}
+    syncRosterCollapseUI(which);
+  }
+
   function updateClock(){
     const now=new Date();
     const format=opts=>new Intl.DateTimeFormat('vi-VN',{
@@ -995,8 +1056,13 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
     recordScroll(which);
 
     const mealGroup=index=>index<2?'morning':index<5?'lunch':'dinner';
+    const mealCellAttributes=index=>{
+      const start=index===2?' data-meal-start="lunch"':index===5?' data-meal-start="dinner"':'';
+      const end=index===1?' data-meal-end="morning"':index===4?' data-meal-end="lunch"':'';
+      return start+end;
+    };
     const headers=day.headings.map((h,index)=>
-      '<div class="roster-label" data-meal-group="'+mealGroup(index)+'">'+encode(h)+'</div>'
+      '<div class="roster-label" data-meal-group="'+mealGroup(index)+'"'+mealCellAttributes(index)+'>'+encode(h)+'</div>'
     ).join('');
     // Build row-first, not eight independent columns.
     // A long name makes its entire row taller, keeping every column aligned.
@@ -1005,11 +1071,11 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       '<div class="roster-row" role="row">'+day.columns.map((arr,index)=>{
         const hasName=rowIndex<arr.length&&String(arr[rowIndex]??'').trim()!=='';
         const value=hasName?encode(arr[rowIndex]):(!arr.length&&rowIndex===0?'—':'&nbsp;');
-        return '<div class="roster-name'+(hasName?'':' roster-empty')+'" data-meal-group="'+mealGroup(index)+'" role="cell">'+value+'</div>';
+        return '<div class="roster-name'+(hasName?'':' roster-empty')+'" data-meal-group="'+mealGroup(index)+'"'+mealCellAttributes(index)+' role="cell">'+value+'</div>';
       }).join('')+'</div>'
     ).join('');
     const totals=day.totals.map((v,index)=>
-      '<div class="roster-total" data-meal-group="'+mealGroup(index)+'">'+encode(v||'0')+'</div>'
+      '<div class="roster-total" data-meal-group="'+mealGroup(index)+'"'+mealCellAttributes(index)+'>'+encode(v||'0')+'</div>'
     ).join('');
 
     root.innerHTML=
@@ -1021,6 +1087,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         '<div class="roster-totals">'+totals+'</div>'+
       '</div>';
 
+    syncRosterCollapseUI(which);
     const scroller=root.querySelector('.roster-scroll');
     // Align header/total tracks with body tracks even on Windows scrollbars.
     const scrollbarSpace=Math.max(0,scroller.offsetWidth-scroller.clientWidth);
@@ -1049,6 +1116,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       (which==='today'?'HÔM NAY':'NGÀY MAI')+' · '+String(day.day||'');
     const split=value=>String(value||'').split(/\s*[·•]\s*/).map(x=>x.trim()).filter(Boolean);
     $(which+'-meals').innerHTML=day.meals.map((meal,index)=>{
+      const groupKey=['morning','lunch','dinner'][index];
       const parts=[...split(meal.title),...split(meal.detail)];
       const used=new Set();
       const take=pattern=>{
@@ -1071,6 +1139,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         '<div class="meal-card-head">'+
           '<span class="meal-heading"><span class="meal-star" aria-hidden="true">✦</span><span>'+encode(meal.label)+'</span><span class="meal-star" aria-hidden="true">✦</span></span>'+
           (hour?'<span class="meal-time">'+encode(hour)+'</span>':'')+
+          '<button class="roster-meal-toggle" type="button" data-roster-toggle="'+groupKey+'" aria-expanded="true" aria-label="Thu gọn danh sách phục vụ bữa '+encode(['Sáng','Trưa','Tối'][index])+'" title="Thu gọn danh sách phục vụ bữa '+encode(['Sáng','Trưa','Tối'][index])+'">−</button>'+
         '</div>'+
         '<div class="meal-metrics">'+
           stat('TRƯỚC',before,'before')+stat('SAU',after,'after')+stat('CẮT',cut,'cut')+
@@ -1081,6 +1150,10 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
         (extras.length?'<div class="meal-extras">'+extras.map(p=>'<span>'+encode(p)+'</span>').join('')+'</div>':'')+
       '</div>';
     }).join('');
+    $(which+'-meals').querySelectorAll('[data-roster-toggle]').forEach(button=>{
+      button.addEventListener('click',()=>toggleRosterGroup(which,button.dataset.rosterToggle));
+    });
+    syncRosterCollapseUI(which);
     updateActiveMeal(true);
   }
   let lastActiveMealIndex=-1;
@@ -2128,13 +2201,14 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       'body .day-block .roster-scroll::-webkit-scrollbar-thumb:hover,body .day-block .roster-grid::-webkit-scrollbar-thumb:hover{background:'+hues[0]+' !important;}',
       'body .day-block .roster-row .roster-name{background:'+surface+' !important;background-image:none !important;color:'+contrastText(surface)+' !important;-webkit-text-fill-color:'+contrastText(surface)+' !important;border-color:'+border+' !important;}',
       'body .day-block .roster-row:nth-child(even) .roster-name{background:'+card+' !important;}',
-      'body .day-block .roster-head-row .roster-label:nth-child(3),body .day-block .roster-head-row .roster-label:nth-child(6),body .day-block .roster-row .roster-name:nth-child(3),body .day-block .roster-row .roster-name:nth-child(6),body .day-block .roster-totals .roster-total:nth-child(3),body .day-block .roster-totals .roster-total:nth-child(6){border-left:2px solid '+border+' !important;}',
-      'body .day-block .roster-head-row .roster-label:nth-child(2),body .day-block .roster-head-row .roster-label:nth-child(5),body .day-block .roster-row .roster-name:nth-child(2),body .day-block .roster-row .roster-name:nth-child(5),body .day-block .roster-totals .roster-total:nth-child(2),body .day-block .roster-totals .roster-total:nth-child(5){border-right:1px solid '+border+' !important;}',
+      'body .day-block .roster-head-row [data-meal-start],body .day-block .roster-row .roster-name[data-meal-start],body .day-block .roster-totals [data-meal-start]{border-left:2px solid '+border+' !important;}',
+      'body .day-block .roster-grid.roster-hide-morning [data-meal-start="lunch"],body .day-block .roster-grid.roster-hide-morning.roster-hide-lunch [data-meal-start="dinner"]{border-left-width:0 !important;}',
+      'body .day-block .roster-head-row [data-meal-end],body .day-block .roster-row .roster-name[data-meal-end],body .day-block .roster-totals [data-meal-end]{border-right:1px solid '+border+' !important;}',
       'body .day-block .roster-totals,body .day-block .roster-totals .roster-total{background:'+surface+' !important;background-image:none !important;color:'+contrastText(surface)+' !important;-webkit-text-fill-color:'+contrastText(surface)+' !important;border-color:'+border+' !important;box-shadow:inset 0 1px #ffffff20 !important;}',
       'body #today-roster .roster-head-row .roster-label.roster-meal-active,body #today-roster .roster-row .roster-name.roster-meal-active,body #today-roster .roster-totals .roster-total.roster-meal-active{background:'+selected+' !important;background-image:none !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;border-color:'+accent+' !important;box-shadow:inset 0 1px #ffffff26 !important;}',
       'body .day-block .roster-controls{background:'+raised+' !important;background-image:none !important;color:'+muted+' !important;-webkit-text-fill-color:'+muted+' !important;border-color:'+border+' !important;}',
-      'body .roster-controls button,body .button,body .alert-btn,body .tomorrow-collapse,body .show-tomorrow,body .sound-preview{background:'+buttonBg+' !important;background-image:none !important;color:'+buttonText+' !important;-webkit-text-fill-color:'+buttonText+' !important;border:1px solid '+border+' !important;border-radius:9px !important;box-shadow:0 2px 5px #0002 !important;}',
-      'body .roster-controls button:hover,body .button:hover,body .alert-btn:hover,body .tomorrow-collapse:hover,body .show-tomorrow:hover,body .sound-preview:hover{background:'+selected+' !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;border-color:'+accent+' !important;}',
+      'body .roster-controls button,body .button,body .alert-btn,body .tomorrow-collapse,body .show-tomorrow,body .sound-preview,body .roster-meal-toggle{background:'+buttonBg+' !important;background-image:none !important;color:'+buttonText+' !important;-webkit-text-fill-color:'+buttonText+' !important;border:1px solid '+border+' !important;border-radius:9px !important;box-shadow:0 2px 5px #0002 !important;}',
+      'body .roster-controls button:hover,body .button:hover,body .alert-btn:hover,body .tomorrow-collapse:hover,body .show-tomorrow:hover,body .sound-preview:hover,body .roster-meal-toggle:hover{background:'+selected+' !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;border-color:'+accent+' !important;}',
       'body .badge,body .alert-count{background:'+selected+' !important;background-image:none !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;border-color:'+selectedBorder+' !important;}',
       'body .badge:before{background:'+accent+' !important;}',
       'body .alert-btn[aria-pressed="true"]{background:'+selected+' !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;border-color:'+accent+' !important;}',
@@ -2143,7 +2217,7 @@ html,body,button,input,select,textarea{font-family:"Oswald","Arial Narrow",Arial
       'body .notif-panel small,body .offline-meta span,body .minor,body .clock span,body .brand p{color:'+muted+' !important;-webkit-text-fill-color:'+muted+' !important;}',
       'body .day-reminder{background:'+selected+' !important;background-image:none !important;border:1px solid '+selectedBorder+' !important;border-radius:10px !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;}',
       'body .day-reminder-text,body .day-reminder-date,body .day-reminder strong{background:transparent !important;color:'+selectedText+' !important;-webkit-text-fill-color:'+selectedText+' !important;}',
-      'body .day-block,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-label,body .day-reminder,body .notif-panel,body .notif-item,body button,body a{border-color:'+border+' !important;outline-color:'+accent+' !important;}',
+      'body .day-block,body .meal-card,body .roster-grid,body .roster-inner,body .roster-columns,body .roster-label,body .day-reminder,body .notif-panel,body .notif-item,body .roster-meal-toggle,body button,body a{border-color:'+border+' !important;outline-color:'+accent+' !important;}',
       'body .day-block-head,body .tile-head{font-weight:'+headingWeight+' !important;}',
       'body button:focus-visible,body a:focus-visible,body .roster-scroll:focus-visible{outline:3px solid '+accent+' !important;outline-offset:2px !important;}',
       'body hr{border-color:'+border+' !important;}',
